@@ -6463,8 +6463,8 @@ MonoBehaviour:
   setHighScorePanel: {fileID: 59575908}
   EventManager: {fileID: 869825193}
   lifePanel: {fileID: 1288527318}
-  throwPanel: {fileID: 0}
-  totalScorePanel: {fileID: 0}
+  throwPanel: {fileID: 238511243}
+  totalScorePanel: {fileID: 1629614303}
   scorePanel1: {fileID: 547047051}
   scorePanel2: {fileID: 1237508298}
   scorePanel3: {fileID: 1283422590}
@@ -13023,7 +13023,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: .
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e69ca827bc563147b4f1c2cfeb4ee33, type: 2}
   m_sharedMaterial: {fileID: -8521100603642385484, guid: 9e69ca827bc563147b4f1c2cfeb4ee33, type: 2}
