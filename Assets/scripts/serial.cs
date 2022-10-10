@@ -28,6 +28,8 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject scorePanel4;
 	[SerializeField] GameObject scorePanel5;
 
+	[SerializeField] TextMeshProUGUI GameName;
+
 	private TextMeshProUGUI[] totalLives;
 	private TextMeshProUGUI[] totalthrows;
 	private TextMeshProUGUI[] totalScores;
@@ -63,7 +65,7 @@ public class serial : MonoBehaviour
 	private int gameModeMultiplyer = 1;
 	private string score = "   ";
 	private string totScore = "    ";
-	private int gameModeMax = 3;
+	private int gameModeMax = 4;
 
 
 
@@ -125,6 +127,7 @@ public class serial : MonoBehaviour
 		totalScores = GetChildText(totalScorePanel);
 		totalthrows = GetChildText(throwPanel);
 		totalLives = GetChildText(lifePanel);
+		GameName.text = CurrentGame;
 
 
 
@@ -148,6 +151,7 @@ public class serial : MonoBehaviour
 				}
 			}
 			highScorePanel.SetActive(false);
+			GameName.text = CurrentGame;
 			NewGame();
 			if(GameChanged != null) {
 				GameChanged();
@@ -201,7 +205,9 @@ public class serial : MonoBehaviour
 				case 3:
 					return "HigherHigher";
 				case 4:
-					return "InBetween";
+					return "LowerLower";
+				case 5:
+					return "LowerLower";
 				default:
 					return "HighScore";
 			}
@@ -311,7 +317,7 @@ public class serial : MonoBehaviour
 			totalScores[4].text = "";
 			gameModeMultiplyer = 1;
 		}
-		else if((gameMode == 1) || (gameMode == 2) || (gameMode == 3)) {
+		else if((gameMode == 1) || (gameMode == 2) || (gameMode == 3) || gameMode == 4) {
 			totalScores[5].text = ".";
 			score1[4].text = ".";
 			score2[4].text = ".";
@@ -319,7 +325,7 @@ public class serial : MonoBehaviour
 				score3[4].text = ".";
 				score4[4].text = ".";
 				score5[4].text = ".";
-				if(gameMode == 3) {
+				if(gameMode == 3 || gameMode == 4) {
 					totalLives[0].text = "1";
 					totalLifes = 1;
 				}
@@ -377,6 +383,14 @@ public class serial : MonoBehaviour
 			} else {
 				GameOver();
 				score3[4].text = ".";
+			}
+		} else if(gameMode == 4) {
+			if(point <= oldScore || totalThrows == 0) {
+				totalScore += point;
+				oldScore = point;
+				totalThrows += 1;
+			} else {
+				GameOver();
 			}
 		} else {
 			if(point >= oldScore) {
