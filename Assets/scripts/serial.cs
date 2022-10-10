@@ -117,6 +117,7 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject scorePanel4;
 	[SerializeField] GameObject scorePanel5;
 
+	private TextMeshProUGUI[] totalLives;
 	private TextMeshProUGUI[] totalthrows;
 	private TextMeshProUGUI[] totalScores;
 	private TextMeshProUGUI[] score1;
@@ -234,14 +235,14 @@ public class serial : MonoBehaviour
 		EventManager.ChangedDir += changeGame;
 		EventManager.NewScore += updateScore;
 		lifePanel.transform.localPosition = new Vector3(326, 385, 0);
-		int i = 0;
-		testTransform = lifePanel.GetComponentsInChildren<Transform>();
+		//int i = 0;
+		//testTransform = lifePanel.GetComponentsInChildren<Transform>();
 
-		foreach(Transform child in testTransform) {
-			testText = child.GetComponentsInChildren<TextMeshProUGUI>();
-			i += 1;
-		}
-
+		//foreach(Transform child in testTransform) {
+		//	testText = child.GetComponentsInChildren<TextMeshProUGUI>();
+		//	i += 1;
+		//}
+		
 		score1 = GetChildText(scorePanel1);
 		score2 = GetChildText(scorePanel2);
 		score3 = GetChildText(scorePanel3);
@@ -249,6 +250,7 @@ public class serial : MonoBehaviour
 		score5 = GetChildText(scorePanel5);
 		totalScores = GetChildText(totalScorePanel);
 		totalthrows = GetChildText(throwPanel);
+		totalLives = GetChildText(lifePanel);
 
 
 		//foreach(TextMeshProUGUI Text in score1) {
@@ -480,11 +482,11 @@ public class serial : MonoBehaviour
 		///}
 	}
 	private void blinkDisplay(bool enabled) {
-		firstDigit.enabled = enabled;
-		secondDigit.enabled = enabled;
-		thirdDigit.enabled = enabled;
+		score1[0].enabled = enabled;
+		score1[1].enabled = enabled;
+		score1[2].enabled = enabled;
 		if(gameMode != 0) {
-			fourthDigit.enabled = enabled;
+			score1[3].enabled = enabled;
 		}
 	}
 	private void NewGame() {
@@ -535,40 +537,40 @@ public class serial : MonoBehaviour
 		ResetScore(totalScores, true, true);
 
 
-		totalThrowsFirstDigit.text = "";
-		totalThrowsSecondDigit.text = "0";
-		dot2.text = "";
-		dot3.text = "";
-		dot4.text = "";
+		totalthrows[0].text = "";
+		totalthrows[1].text = "0";
+		score3[4].text = "";
+		score4[4].text = "";
+		score5[4].text = "";
 
-		totalLifesFirstDigit.text = "";
+		totalLives[0].text = "";
 		totalLifes = 0;
 
-		if(gameMode == 0) {					// no decimal
-			totalScoreDot.text = "";
-			dot.text = "";
-			dot1.text = "";
-			dot2.text = "";
-			dot3.text = "";
-			dot4.text = "";
-			totalScoreFifthDigit.text = "";
+		if(gameMode == 0) {                 // no decimal
+			totalScores[5].text = "";
+			score1[4].text = "";
+			score2[4].text = "";
+			score3[4].text = "";
+			score4[4].text = "";
+			score5[4].text = "";
+			totalScores[4].text = "";
 			gameModeMultiplyer = 1;
 		}
 		else if((gameMode == 1) || (gameMode == 2) || (gameMode == 3)) {
-			totalScoreDot.text = ".";
-			dot.text = ".";
-			dot1.text = ".";
+			totalScores[5].text = ".";
+			score1[4].text = ".";
+			score2[4].text = ".";
 			if(gameMode != 2) {
-				dot2.text = ".";
-				dot3.text = ".";
-				dot4.text = ".";
+				score3[4].text = ".";
+				score4[4].text = ".";
+				score5[4].text = ".";
 				if(gameMode == 3) {
-					totalLifesFirstDigit.text = "1";
+					totalLives[0].text = "1";
 					totalLifes = 1;
 				}
 			}
-			
-			totalScoreFifthDigit.text = "0";
+
+			totalScores[4].text = "0";
 			gameModeMultiplyer = 10;
 		}
 
@@ -592,7 +594,7 @@ public class serial : MonoBehaviour
 		//dot.color = new Color32(255, 0, 0, 220);
 		if(totalLifes > 0) {
 			totalLifes -= 1;
-			totalLifesFirstDigit.text = totalLifes.ToString();
+			totalLives[0].text = totalLifes.ToString();
 			lostLife = true;
 		} else {
 			gameOver = true;
@@ -678,34 +680,37 @@ public class serial : MonoBehaviour
 		}
 		string totThrow = string.Format("{0:00}", totalThrows);
 		if(totalThrows >= 10) {
-			totalThrowsFirstDigit.text = totThrow[0].ToString();
+			totalthrows[0].text = totThrow[0].ToString();
 		} else {
-			totalThrowsFirstDigit.text = "";
+			totalthrows[0].text = "";
 		}
-		totalThrowsSecondDigit.text = totThrow[1].ToString();
+		totalthrows[1].text = totThrow[1].ToString();
 
 		if(gameMode == 0) {
 			totScore = string.Format("{0:0000}", totalScore);
 		} else {
 			totScore = string.Format("{0:00000}", totalScore);
-			totalScoreFifthDigit.text = totScore[4].ToString();
+			totalScores[4].text = totScore[4].ToString();
 		}
+		//for(int j = 0; j < totScore.Length; j++) {
+		//	totalScores[j].text = totScore[j].ToString();
+		//}
 		if(totalScore >= 1000 * gameModeMultiplyer) {
-			totalScoreFirstDigit.text = totScore[0].ToString();
+			totalScores[0].text = totScore[0].ToString();
 		} else {
-			totalScoreFirstDigit.text = "";
+			totalScores[0].text = "";
 		}
 		if(totalScore >= 100 * gameModeMultiplyer) {
-			totalScoreSecondDigit.text = totScore[1].ToString();
+			totalScores[1].text = totScore[1].ToString();
 		} else {
-			totalScoreSecondDigit.text = "";
+			totalScores[1].text = "";
 		}
 		if(totalScore >= 10 * gameModeMultiplyer) {
-			totalScoreThirdDigit.text = totScore[2].ToString();
+			totalScores[2].text = totScore[2].ToString();
 		} else {
-			totalScoreThirdDigit.text = "";
+			totalScores[2].text = "";
 		}
-		totalScoreFourthDigit.text = totScore[3].ToString();
+		totalScores[3].text = totScore[3].ToString();
 
 
 
@@ -713,19 +718,19 @@ public class serial : MonoBehaviour
 			score = string.Format("{0:000}", point);
 		} else {
 			score = string.Format("{0:0000}", point);
-			fourthDigit.text = score[3].ToString();
+			score1[3].text = score[3].ToString();
 		}
 		if(point >= 100 * gameModeMultiplyer) {
-			firstDigit.text = score[0].ToString();
+			score1[0].text = score[0].ToString();
 		} else {
-			firstDigit.text = "";
+			score1[0].text = "";
 		}
 		if(point >= 10 * gameModeMultiplyer) {
-			secondDigit.text = score[1].ToString();
+			score1[1].text = score[1].ToString();
 		} else {
-			secondDigit.text = "";
+			score1[1].text = "";
 		}
-		thirdDigit.text = score[2].ToString();
+		score1[2].text = score[2].ToString();
 
 
 
