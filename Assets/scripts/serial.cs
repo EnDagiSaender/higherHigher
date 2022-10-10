@@ -12,97 +12,9 @@ public class serial : MonoBehaviour
 	public delegate void GameRunning();
 	public static event GameRunning GameIsOver;
 
-	//public delegate void GameButtonOk();
-	//public static event GameButtonOk OkButton;
-
-	//public delegate void GameButtonLeft();
-	//public static event GameButtonLeft LeftButton;
-
-	//public delegate void GameButtonRight();
-	//public static event GameButtonRight RightButton;
-
 	public delegate void GameIsChanged();
 	public static event GameIsChanged GameChanged;
-
-	[SerializeField]
-	private TextMeshProUGUI firstDigit;
-	[SerializeField]
-	private TextMeshProUGUI secondDigit;
-	[SerializeField]
-	private TextMeshProUGUI thirdDigit;
-	[SerializeField]
-	private TextMeshProUGUI fourthDigit;
-	[SerializeField]
-	private TextMeshProUGUI dot;
-
-	[SerializeField]
-	private TextMeshProUGUI firstDigit2;
-	[SerializeField]
-	private TextMeshProUGUI secondDigit2;
-	[SerializeField]
-	private TextMeshProUGUI thirdDigit2;
-	[SerializeField]
-	private TextMeshProUGUI fourthDigit2;
-	[SerializeField]
-	private TextMeshProUGUI dot2;
-
-	[SerializeField]
-	private TextMeshProUGUI firstDigit3;
-	[SerializeField]
-	private TextMeshProUGUI secondDigit3;
-	[SerializeField]
-	private TextMeshProUGUI thirdDigit3;
-	[SerializeField]
-	private TextMeshProUGUI fourthDigit3;
-	[SerializeField]
-	private TextMeshProUGUI dot3;
-
-	[SerializeField]
-	private TextMeshProUGUI firstDigit4;
-	[SerializeField]
-	private TextMeshProUGUI secondDigit4;
-	[SerializeField]
-	private TextMeshProUGUI thirdDigit4;
-	[SerializeField]
-	private TextMeshProUGUI fourthDigit4;
-	[SerializeField]
-	private TextMeshProUGUI dot4;
-
-	[SerializeField]
-	private TextMeshProUGUI firstDigit1;
-	[SerializeField]
-	private TextMeshProUGUI secondDigit1;
-	[SerializeField]
-	private TextMeshProUGUI thirdDigit1;
-	[SerializeField]
-	private TextMeshProUGUI fourthDigit1;
-	[SerializeField]
-	private TextMeshProUGUI dot1;
-
-	[SerializeField]
-	private TextMeshProUGUI totalScoreFirstDigit;
-	[SerializeField]
-	private TextMeshProUGUI totalScoreSecondDigit;
-	[SerializeField]
-	private TextMeshProUGUI totalScoreThirdDigit;
-	[SerializeField]
-	private TextMeshProUGUI totalScoreFourthDigit;
-	[SerializeField]
-	private TextMeshProUGUI totalScoreFifthDigit;
-	[SerializeField]
-	private TextMeshProUGUI totalScoreDot;
-
-	[SerializeField]
-	private TextMeshProUGUI totalThrowsFirstDigit;
-	[SerializeField]
-	private TextMeshProUGUI totalThrowsSecondDigit;
-
-	[SerializeField]
-	private TextMeshProUGUI totalLifesFirstDigit;
-
-
 	
-
 	[SerializeField] GameObject highScorePanel;
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
@@ -632,7 +544,7 @@ public class serial : MonoBehaviour
 				totalScore += point;
 			} else {
 				GameOver();
-				dot2.text = ".";
+				score3[4].text = ".";
 			}
 		} else {
 			if(point >= oldScore) {
