@@ -19,7 +19,6 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
 
-
 	[SerializeField] GameObject lifePanel;
 	[SerializeField] GameObject throwPanel;
 	[SerializeField] GameObject totalScorePanel;
@@ -41,8 +40,6 @@ public class serial : MonoBehaviour
 	private TextMeshProUGUI[] testText;
 	private Transform[] tempTransform;
 	private TextMeshProUGUI[] tempText1;
-	//private TextMeshProUGUI[] tempText2;
-	//private TextMeshProUGUI[] score1Text;
 	private Transform[] testTransform;
 	private Transform[] testTransform2;
 	private Component[] testComponet;
@@ -67,37 +64,9 @@ public class serial : MonoBehaviour
 	private string score = "   ";
 	private string totScore = "    ";
 	private int gameModeMax = 3;
-	//enum game { HigherHigher, InBetween }
-	//game currentGame = game.HigherHigher;
-	SerialPort portNo;
 
 
-	// Start is called before the first frame update
-	void Open() {
 
-		string[] ports = { };
-		while(ports.Length  < 1) {
-			ports = SerialPort.GetPortNames();
-			if(ports.Length < 1) {
-				//print("no port, try again");
-				new WaitForSeconds(1);
-			} else {
-				//print(ports[0]);
-			}
-		}
-		foreach(string port in ports) {
-			print(port);
-		}
-
-		portNo = new SerialPort("\\\\.\\" + ports[0], 115200);
-		try {
-			portNo.Open();
-			portNo.ReadTimeout = 500;
-		} catch {
-			print("no port to open");
-		}
-		
-	}
 
 	private TextMeshProUGUI[] GetChildText(GameObject panel) {
 		tempText1 = panel.GetComponentsInChildren<TextMeshProUGUI>();
@@ -147,13 +116,6 @@ public class serial : MonoBehaviour
 		EventManager.ChangedDir += changeGame;
 		EventManager.NewScore += updateScore;
 		lifePanel.transform.localPosition = new Vector3(326, 385, 0);
-		//int i = 0;
-		//testTransform = lifePanel.GetComponentsInChildren<Transform>();
-
-		//foreach(Transform child in testTransform) {
-		//	testText = child.GetComponentsInChildren<TextMeshProUGUI>();
-		//	i += 1;
-		//}
 		
 		score1 = GetChildText(scorePanel1);
 		score2 = GetChildText(scorePanel2);
@@ -165,9 +127,6 @@ public class serial : MonoBehaviour
 		totalLives = GetChildText(lifePanel);
 
 
-		//foreach(TextMeshProUGUI Text in score1) {
-		//	print(Text.text);
-		//}
 
 	}
 	private void OnDisable() {
@@ -280,7 +239,6 @@ public class serial : MonoBehaviour
 					blinkOn = false;
 					nrOfBlink = 1;
 				}
-				//print(flashTimer);
 				flashTimer = 0;
 				even = !even;
 				blinkDisplay(even);
@@ -289,95 +247,15 @@ public class serial : MonoBehaviour
 
 		}
 
-		//if(timer > 0.1){
-		//	timer = 0;
-
-		//	if(portNo.IsOpen) {
-		//		try {
-		//			///readByte(portNo.ReadByte());
-		//			string msg = portNo.ReadLine();
-		//			string[] message = msg.Split(',');
-		//			if(Equals(message[0], "s")) {
-		//				//portNo.Write("c\r\n");
-		//				//portNo.WriteLine("c");
-		//				//print(message[1]);
-		//				if(gameOver == false) {
-		//					int speed = int.Parse(message[1]);
-		//					if(gameMode == 0) {
-		//						readByte(Mathf.RoundToInt((float)speed / 10));
-		//					} else {
-		//						readByte(speed);
-		//					}
-		//				}
-		//			} else if(Equals(message[0], "n")) {
-		//				if(setHighScorePanel.activeSelf) {
-		//					if(OkButton != null) {
-		//						OkButton();
-		//					}
-		//				} else {
-
-		//					highScorePanel.SetActive(false);
-		//					NewGame();
-		//				}
-
-		//			} else if(Equals(message[0], "c")) {
-		//				if(setHighScorePanel.activeSelf) {
-		//					if(RightButton != null) {
-		//						RightButton();
-		//					}
-
-		//				} else {							
-		//					gameMode += 1;
-		//					if(gameMode > 3) {
-		//						gameMode = 0;
-		//					}
-		//					if(GameChanged != null) {
-		//						GameChanged();
-		//					}
-		//					highScorePanel.SetActive(false);
-		//					NewGame(); 
-		//				}
-
-		//			} else if(Equals(message[0], "d")) {
-		//				if(setHighScorePanel.activeSelf) {
-		//					if(LeftButton != null) {
-		//						LeftButton();
-		//					}
-
-		//				} else {
-		//					gameMode -= 1;
-		//					if(gameMode < 0) {
-		//						gameMode = 3;
-		//					}
-		//					if(GameChanged != null) {
-		//						GameChanged();
-		//					}
-		//					highScorePanel.SetActive(false);
-		//					NewGame();
-		//				}
-
-		//			}
-		//		} catch {
-		//		}
-		//	} else {
-		//		new WaitForSeconds(1);
-		//		print("try open port");
-		//		Open();
-		//	}
-
-		//}
-
-
-
     }
-	void changeColor(Color32 color, string tag) {
-		GameObject[] gameObjects = GameObject.FindGameObjectsWithTag(tag);
-		for (int i = 0; i < gameObjects.Length; i++) {
-			//score1[i] = gameObjects[i].GetComponent<TMPro.TextMeshProUGUI>();
-			gameObjects[i].GetComponent<TMPro.TextMeshProUGUI>().color = color;
-		}
+	//void changeColor(Color32 color, string tag) {
+	//	GameObject[] gameObjects = GameObject.FindGameObjectsWithTag(tag);
+	//	for (int i = 0; i < gameObjects.Length; i++) {
+	//		//score1[i] = gameObjects[i].GetComponent<TMPro.TextMeshProUGUI>();
+	//		gameObjects[i].GetComponent<TMPro.TextMeshProUGUI>().color = color;
+	//	}
 
-	}
+	//}
 	private void changeColor2(Color32 color, TextMeshProUGUI[] text) {
 		foreach(TextMeshProUGUI Text in text) {
 			Text.color = color;
@@ -403,48 +281,13 @@ public class serial : MonoBehaviour
 	}
 	private void NewGame() {
 		changeColor2(new Color32(0, 255, 0, 220), score1);
-		//changeColor(new Color32(0, 255, 0, 220), "Score1");
-		//firstDigit.color = new Color32(0, 255, 0, 220);
-		//secondDigit.color = new Color32(0, 255, 0, 220);
-		//thirdDigit.color = new Color32(0, 255, 0, 220);		
-		//fourthDigit.color = new Color32(0, 255, 0, 220);
-		//dot.color = new Color32(0, 255, 0, 220);
 
-		//firstDigit4.text = "";
-		//secondDigit4.text = "";
-		//thirdDigit4.text = "";
-		//fourthDigit4.text = "";
-
-		//firstDigit3.text = "";
-		//secondDigit3.text = "";
-		//thirdDigit3.text = "";
-		//fourthDigit3.text = "";
-
-		//firstDigit2.text = "";
-		//secondDigit2.text = "";
-		//thirdDigit2.text = "";
-		//fourthDigit2.text = "";
-
-		//firstDigit1.text = "";
-		//secondDigit1.text = "";
-		//thirdDigit1.text = "";
-		//fourthDigit1.text = "";
-
-		//firstDigit.text = "";
-		//secondDigit.text = "";
-		//thirdDigit.text = "";
-		//fourthDigit.text = "";
 
 		ResetScore(score1, true, false);
 		ResetScore(score2, true, false);
 		ResetScore(score3, true, false);
 		ResetScore(score4, true, false);
 		ResetScore(score5, true, false);
-
-		//totalScoreFirstDigit.text = "";
-		//totalScoreSecondDigit.text = "";
-		//totalScoreThirdDigit.text = "";
-		//totalScoreFourthDigit.text = "0";
 
 		ResetScore(totalScores, true, true);
 
@@ -497,13 +340,7 @@ public class serial : MonoBehaviour
 	
 
 	private void GameOver() {
-		//changeColor(new Color32(255, 0, 0, 220), "Score1");
 		changeColor2(new Color32(255, 0, 0, 220), score1);
-		//firstDigit.color = new Color32(255, 0, 0, 220);
-		//secondDigit.color = new Color32(255, 0, 0, 220);
-		//thirdDigit.color = new Color32(255, 0, 0, 220);
-		//fourthDigit.color = new Color32(255, 0, 0, 220);
-		//dot.color = new Color32(255, 0, 0, 220);
 		if(totalLifes > 0) {
 			totalLifes -= 1;
 			totalLives[0].text = totalLifes.ToString();
@@ -511,10 +348,6 @@ public class serial : MonoBehaviour
 		} else {
 			gameOver = true;
 			Invoke("GameIsOverAfterDelay", 1f);
-			//if(GameIsOver != null) {
-				//Invoke("GameIsOverAfterDelay", 0.5f);
-				//GameIsOver.Invoke();
-			//}
 		}
 	}
 	private void GameIsOverAfterDelay() {
@@ -532,7 +365,6 @@ public class serial : MonoBehaviour
 	private void UpdateDisplay(int point) {
 		if(lostLife == true) {
 			changeColor2(new Color32(0, 255, 0, 220), score1);
-			//changeColor(new Color32(0, 255, 0, 220), "Score1");
 			lostLife = false;
 			skipMoveDown = true;
 		}
@@ -566,27 +398,8 @@ public class serial : MonoBehaviour
 				MoveText(score3, score4);
 				MoveText(score2, score3);
 
-				//firstDigit4.text = firstDigit3.text;
-				//secondDigit4.text = secondDigit3.text;
-				//thirdDigit4.text = thirdDigit3.text;
-				//fourthDigit4.text = fourthDigit3.text;
-
-				//firstDigit3.text = firstDigit2.text;
-				//secondDigit3.text = secondDigit2.text;
-				//thirdDigit3.text = thirdDigit2.text;
-				//fourthDigit3.text = fourthDigit2.text;
-
-				//firstDigit2.text = firstDigit1.text;
-				//secondDigit2.text = secondDigit1.text;
-				//thirdDigit2.text = thirdDigit1.text;
-				//fourthDigit2.text = fourthDigit1.text;
-
 			}
 			MoveText(score1, score2);
-			//firstDigit1.text = firstDigit.text;
-			//secondDigit1.text = secondDigit.text;
-			//thirdDigit1.text = thirdDigit.text;
-			//fourthDigit1.text = fourthDigit.text;
 		} else {
 			skipMoveDown = false;
 		}
