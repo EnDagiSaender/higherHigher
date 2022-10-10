@@ -69,19 +69,19 @@ public class EventManager : MonoBehaviour
 							NewScore(speed);
 						}
 					} else if(Equals(message[0], "n")) {
-						print("New");
+						//print("New");
 						if(NewGame != null) {
 							NewGame();
 						}
 					} else if(Equals(message[0], "c")) {
 						bool rightChange = true;
-						print("right");
+						//print("right");
 						if(ChangedDir != null) {
 							ChangedDir(rightChange);							
 						}
 					} else if(Equals(message[0], "d")) {
 						bool rightChange = false;
-						print("left");
+						//print("left");
 						if(ChangedDir != null) {
 							ChangedDir(rightChange);
 						}

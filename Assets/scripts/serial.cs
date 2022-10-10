@@ -251,9 +251,9 @@ public class serial : MonoBehaviour
 		totalthrows = GetChildText(throwPanel);
 
 
-		foreach(TextMeshProUGUI Text in score1) {
-			print(Text.text);
-		}
+		//foreach(TextMeshProUGUI Text in score1) {
+		//	print(Text.text);
+		//}
 
 	}
 	private void OnDisable() {
@@ -521,7 +521,7 @@ public class serial : MonoBehaviour
 		//thirdDigit.text = "";
 		//fourthDigit.text = "";
 
-		ResetScore(score1, true, true);
+		ResetScore(score1, true, false);
 		ResetScore(score2, true, false);
 		ResetScore(score3, true, false);
 		ResetScore(score4, true, false);

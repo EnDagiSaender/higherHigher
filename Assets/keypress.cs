@@ -42,7 +42,7 @@ public class keypress : MonoBehaviour
 		EventManager.NewGame += Ok;
 		EventManager.ChangedDir += Move;
 		//setHighScorePanel.SetActive(true);
-		print("HighScore panel visible!");
+		//print("HighScore panel visible!");
 	}
 
 	private void OnDisable() {
@@ -52,7 +52,7 @@ public class keypress : MonoBehaviour
 		EventManager.NewGame -= Ok;
 		EventManager.ChangedDir  -= Move;
 		//setHighScorePanel.SetActive(false);
-		print("HighScore panel not visible!");
+		//print("HighScore panel not visible!");
 	}
 	void Start()
     {
