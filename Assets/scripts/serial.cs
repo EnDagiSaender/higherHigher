@@ -29,6 +29,9 @@ public class serial : MonoBehaviour
 	[SerializeField] Transform elementWrapper;
 	List<GameObject> uiElements = new List<GameObject>();
 
+	[SerializeField] Sprite Sprite1;
+	[SerializeField] Sprite Sprite2;
+
 	[SerializeField] GameObject lifePanel;
 	[SerializeField] GameObject throwPanel;
 	[SerializeField] GameObject totalScorePanel;
@@ -48,6 +51,8 @@ public class serial : MonoBehaviour
 	private TextMeshProUGUI[] score3;
 	private TextMeshProUGUI[] score4;
 	private TextMeshProUGUI[] score5;
+
+
 
 	private TextMeshProUGUI[] testText;
 	private Transform[] tempTransform;
@@ -82,7 +87,7 @@ public class serial : MonoBehaviour
 		var inst = Instantiate(scoreUIElementPrefab, Vector3.zero, Quaternion.identity);
 		inst.transform.SetParent(elementWrapper, false);
 		uiElements.Add(inst);
-		print(uiElements.Count);
+		//print(uiElements.Count);
 	}
 	private TextMeshProUGUI[] GetChildText(GameObject prefab, Vector3 position) {
 		var inst = Instantiate(prefab, position, Quaternion.identity);
@@ -116,6 +121,12 @@ public class serial : MonoBehaviour
 			to[i].text  = from[i].text;
 		}
 	}
+	private void RemoveAllListObjects() {
+		foreach(GameObject t in uiElements) {
+			Destroy(t);
+		}
+		uiElements.RemoveRange(0, uiElements.Count);
+	}
 	private void ResetScore(TextMeshProUGUI[] text, bool dot, bool zero) {
 		for(int i = 0; i < text.Length; i++) {
 
@@ -148,7 +159,8 @@ public class serial : MonoBehaviour
 		EventManager.NewGame += newGame;
 		EventManager.ChangedDir += changeGame;
 		EventManager.NewScore += updateScore;
-		lifePanel.transform.localPosition = new Vector3(326, 385, 0);
+		MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;
+		//lifePanel.transform.localPosition = new Vector3(326, 385, 0);
 		//score1 = GetChildText(scorePanel1);
 		//AddScorePannel();
 		//score2 = GetChildText(uiElements[0]);
@@ -192,6 +204,19 @@ public class serial : MonoBehaviour
 	}
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false) {
+
+
+			RemoveAllListObjects();
+			score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
+			score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
+			score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
+			score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
+			score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
+			totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
+			totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
+			totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
+
+
 			if(increse) {
 				gameMode += 1;
 				if(gameMode > gameModeMax) {
