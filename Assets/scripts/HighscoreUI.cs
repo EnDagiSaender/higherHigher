@@ -76,7 +76,7 @@ public class HighscoreUI : MonoBehaviour {
 		//}
 		//uiElements.RemoveRange(0, uiElements.Count);
 		for (int i = 0; i < list.Count; i++) {
-			print(list[i].playerName);
+			//print(list[i].playerName);
             HighscoreElement el = list[i];
             if (el != null && el.points > 0) {
                 if (i >= uiElements.Count) {

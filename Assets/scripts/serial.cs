@@ -18,6 +18,16 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject highScorePanel;
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
+	[SerializeField] Transform MainCanvas;
+
+	[SerializeField] GameObject scoreUIElementPrefab;
+	[SerializeField] GameObject BigScoreUIElementPrefab;
+	[SerializeField] GameObject SmallScoreUIElementPrefab;
+	[SerializeField] GameObject TotalScoreUIElementPrefab;
+	[SerializeField] GameObject TotalLivesUIElementPrefab;
+	[SerializeField] GameObject TotalThrowsUIElementPrefab;
+	[SerializeField] Transform elementWrapper;
+	List<GameObject> uiElements = new List<GameObject>();
 
 	[SerializeField] GameObject lifePanel;
 	[SerializeField] GameObject throwPanel;
@@ -68,8 +78,29 @@ public class serial : MonoBehaviour
 	private int gameModeMax = 4;
 
 
-
-
+	private void AddScorePannel() {
+		var inst = Instantiate(scoreUIElementPrefab, Vector3.zero, Quaternion.identity);
+		inst.transform.SetParent(elementWrapper, false);
+		uiElements.Add(inst);
+		print(uiElements.Count);
+	}
+	private TextMeshProUGUI[] GetChildText(GameObject prefab, Vector3 position) {
+		var inst = Instantiate(prefab, position, Quaternion.identity);
+		inst.transform.SetParent(MainCanvas, false);
+		uiElements.Add(inst);
+		tempText1 = inst.GetComponentsInChildren<TextMeshProUGUI>();
+		TextMeshProUGUI[] tempText2 = new TextMeshProUGUI[tempText1.Length / 2];
+		//uiElements[uiElements.Count -1].transform.localPosition = position;
+		int j = 0;
+		for(int i = 1; i < tempText1.Length; i++) {
+			//tempText1[i].fontSize = size;
+			if(i % 2 == 1) {
+				tempText2[j] = tempText1[i];
+				j += 1;
+			}
+		}
+		return tempText2;
+	}
 	private TextMeshProUGUI[] GetChildText(GameObject panel) {
 		tempText1 = panel.GetComponentsInChildren<TextMeshProUGUI>();
 		TextMeshProUGUI[] tempText2 = new TextMeshProUGUI[tempText1.Length/2];
@@ -118,16 +149,38 @@ public class serial : MonoBehaviour
 		EventManager.ChangedDir += changeGame;
 		EventManager.NewScore += updateScore;
 		lifePanel.transform.localPosition = new Vector3(326, 385, 0);
-		
-		score1 = GetChildText(scorePanel1);
-		score2 = GetChildText(scorePanel2);
-		score3 = GetChildText(scorePanel3);
-		score4 = GetChildText(scorePanel4);
-		score5 = GetChildText(scorePanel5);
-		totalScores = GetChildText(totalScorePanel);
-		totalthrows = GetChildText(throwPanel);
-		totalLives = GetChildText(lifePanel);
+		//score1 = GetChildText(scorePanel1);
+		//AddScorePannel();
+		//score2 = GetChildText(uiElements[0]);
+		//AddScorePannel();
+		//score3 = GetChildText(uiElements[1]);
+		//AddScorePannel();
+		//score4 = GetChildText(uiElements[2]);
+		//AddScorePannel();
+		//score5 = GetChildText(uiElements[3]);
+		score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
+		score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
+		score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
+		score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
+		score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
+
+		//score2 = GetChildText(scorePanel2);
+		//score3 = GetChildText(scorePanel3);
+		//score4 = GetChildText(scorePanel4);
+		//score5 = GetChildText(scorePanel5);
+		totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
+		//totalScores = GetChildText(totalScorePanel);
+		//totalthrows = GetChildText(throwPanel);
+		totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
+		//totalLives = GetChildText(lifePanel);
+		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
+		//totalLives = GetChildText(lifePanel, new Vector3(326, 385, 0));
+		//totalLives[0].fontSize = 400;
+		//TextMeshProUGUI[] tempTextt = totalLives[0].GetComponentsInParent<TextMeshProUGUI>();
+		//tempTextt[1].fontSize = 400;
+		//print(tempTextt.Length);
 		GameName.text = CurrentGame;
+
 
 
 
