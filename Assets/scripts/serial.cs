@@ -32,6 +32,8 @@ public class serial : MonoBehaviour
 	[SerializeField] Sprite Sprite1;
 	[SerializeField] Sprite Sprite2;
 
+	[SerializeField] GameObject PlayerNrPanel;
+
 	[SerializeField] GameObject lifePanel;
 	[SerializeField] GameObject throwPanel;
 	[SerializeField] GameObject totalScorePanel;
@@ -76,11 +78,12 @@ public class serial : MonoBehaviour
 	private int totalScore = 0;
 	private int totalThrows = 0;
 	private bool gameOver = false;
-	private int gameMode = 3;
+	private int gameMode = 4;
 	private int gameModeMultiplyer = 1;
 	private string score = "   ";
 	private string totScore = "    ";
-	private int gameModeMax = 4;
+	private int gameModeMax = 5;
+	private int players = 0;
 
 
 	private void AddScorePannel() {
@@ -159,7 +162,17 @@ public class serial : MonoBehaviour
 		EventManager.NewGame += newGame;
 		EventManager.ChangedDir += changeGame;
 		EventManager.NewScore += updateScore;
-		MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;
+
+
+		//PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(112, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(172, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(234, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(293, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(355, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(416, 760, 0);
+		//PlayerNrPanel.transform.localPosition = new Vector3(477, 760, 0);
+
 		//lifePanel.transform.localPosition = new Vector3(326, 385, 0);
 		//score1 = GetChildText(scorePanel1);
 		//AddScorePannel();
@@ -204,19 +217,6 @@ public class serial : MonoBehaviour
 	}
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false) {
-
-
-			RemoveAllListObjects();
-			score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
-			score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
-			score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
-			score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
-			score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
-			totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
-			totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
-			totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
-
-
 			if(increse) {
 				gameMode += 1;
 				if(gameMode > gameModeMax) {
@@ -247,10 +247,51 @@ public class serial : MonoBehaviour
 		}
 	}
 
+	private void AddPlayer() {
+		if(PlayerNrPanel.activeSelf == false) {
+			PlayerNrPanel.SetActive(true);
+		}
+		players++;
+		if(players > 8) {
+			players = 1;
+		}
+		switch(players) {
+			case 1:
+				PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
+				break;
+			case 2:
+				PlayerNrPanel.transform.localPosition = new Vector3(112, 760, 0);
+				break;
+			case 3:
+				PlayerNrPanel.transform.localPosition = new Vector3(172, 760, 0);
+				break;
+			case 4:
+				PlayerNrPanel.transform.localPosition = new Vector3(234, 760, 0);
+				break;
+			case 5:
+				PlayerNrPanel.transform.localPosition = new Vector3(293, 760, 0);
+				break;
+			case 6:
+				PlayerNrPanel.transform.localPosition = new Vector3(355, 760, 0);
+				break;
+			case 7:
+				PlayerNrPanel.transform.localPosition = new Vector3(416, 760, 0);
+				break;
+			case 8:
+				PlayerNrPanel.transform.localPosition = new Vector3(477, 760, 0);
+				break;
+			default:
+				PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
+				break;
+		}
 
+	}
 	private void newGame() {
 		if(setHighScorePanel.activeSelf == false) {
 			highScorePanel.SetActive(false);
+			if(gameMode == 5) {
+				AddPlayer();
+			}
 			NewGame();
 		}
 
@@ -285,7 +326,7 @@ public class serial : MonoBehaviour
 				case 4:
 					return "LowerLower";
 				case 5:
-					return "LowerLower";
+					return "Kasta_Lagom";
 				default:
 					return "HighScore";
 			}
@@ -364,60 +405,84 @@ public class serial : MonoBehaviour
 		}
 	}
 	private void NewGame() {
-		changeColor2(new Color32(0, 255, 0, 220), score1);
 
+		if(gameMode < 5) {
+			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;
+			RemoveAllListObjects();
+			score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
+			score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
+			score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
+			score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
+			score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
+			totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
+			totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
+			totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
+			GameName.GetComponentInParent<Transform>().localPosition =  new Vector3(-129, 469, 0);
 
-		ResetScore(score1, true, false);
-		ResetScore(score2, true, false);
-		ResetScore(score3, true, false);
-		ResetScore(score4, true, false);
-		ResetScore(score5, true, false);
+			changeColor2(new Color32(0, 255, 0, 220), score1);
+			ResetScore(score1, true, false);
+			ResetScore(score2, true, false);
+			ResetScore(score3, true, false);
+			ResetScore(score4, true, false);
+			ResetScore(score5, true, false);
+			ResetScore(totalScores, true, true);
 
-		ResetScore(totalScores, true, true);
-
-
-		totalthrows[0].text = "";
-		totalthrows[1].text = "0";
-		score3[4].text = "";
-		score4[4].text = "";
-		score5[4].text = "";
-
-		totalLives[0].text = "";
-		totalLifes = 0;
-
-		if(gameMode == 0) {                 // no decimal
-			totalScores[5].text = "";
-			score1[4].text = "";
-			score2[4].text = "";
+			totalthrows[0].text = "";
+			totalthrows[1].text = "0";
 			score3[4].text = "";
 			score4[4].text = "";
 			score5[4].text = "";
-			totalScores[4].text = "";
-			gameModeMultiplyer = 1;
-		}
-		else if((gameMode == 1) || (gameMode == 2) || (gameMode == 3) || gameMode == 4) {
-			totalScores[5].text = ".";
-			score1[4].text = ".";
-			score2[4].text = ".";
-			if(gameMode != 2) {
-				score3[4].text = ".";
-				score4[4].text = ".";
-				score5[4].text = ".";
-				if(gameMode == 3 || gameMode == 4) {
-					totalLives[0].text = "1";
-					totalLifes = 1;
+
+			totalLives[0].text = "";
+			totalLifes = 0;
+
+			if(gameMode == 0) {                 // no decimal
+				totalScores[5].text = "";
+				score1[4].text = "";
+				score2[4].text = "";
+				score3[4].text = "";
+				score4[4].text = "";
+				score5[4].text = "";
+				totalScores[4].text = "";
+				gameModeMultiplyer = 1;
+			} else if((gameMode == 1) || (gameMode == 2) || (gameMode == 3) || gameMode == 4) {
+				totalScores[5].text = ".";
+				score1[4].text = ".";
+				score2[4].text = ".";
+				if(gameMode != 2) {
+					score3[4].text = ".";
+					score4[4].text = ".";
+					score5[4].text = ".";
+					if(gameMode == 3 || gameMode == 4) {
+						totalLives[0].text = "1";
+						totalLifes = 1;
+					}
 				}
+
+				totalScores[4].text = "0";
+				gameModeMultiplyer = 10;
 			}
 
-			totalScores[4].text = "0";
-			gameModeMultiplyer = 10;
-		}
+			totalScore = 0;
+			oldScore = 0;
+			oldScore2 = 0;
+			totalThrows = 0;
+			gameOver = false;
+		} else if(gameMode == 5) {
+			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite2;
+			RemoveAllListObjects();
+			print("removed");
+			//score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
+			//score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
+			//score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
+			//score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
+			//score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
+			//totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
+			//totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
+			//totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
+			//GameName.GetComponentInParent<Transform>().localPosition = new Vector3(0, 888, 0);
 
-		totalScore = 0;
-		oldScore = 0;
-		oldScore2 = 0;
-		totalThrows = 0;
-		gameOver = false;
+		}
 
 
 	}
