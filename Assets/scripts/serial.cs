@@ -63,7 +63,7 @@ public class serial : MonoBehaviour
 	private TextMeshProUGUI[] score5;
 	private int[] playerScores = new int[8];
 	private int[] playerLives = new int[] {0,0,0,0,0,0,0,0,0 };
-	private int playerTurn = 1;
+	private int playerTurn = 0;// change to 1
 	private int lastPlayerTurn = 0;
 	private TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
 	//private TextMeshProUGUI[] player1 = new TextMeshProUGUI[20];
@@ -337,7 +337,11 @@ public class serial : MonoBehaviour
 	private void MoveLowerHigherScore(int point) {
 		for(int i = 0; i < playerScoreList.Count; i++) {
 			if(playerScoreList[i] == point) {
-				MoveText(playersListActiveDisplay[i], new TextMeshProUGUI[] { playersList[i][7], playersList[i][8], playersList[i][9], playersList[i][10], playersList[i][11] });
+				MoveText(playersListActiveDisplay[i], MakeScoreArray(playersList[nextPlayerTurnList[i]], 7));
+				ResetScore(playersListActiveDisplay[i], true, false);
+				playersListActiveDisplay[i] = MakeScoreArray(playersList[i], 7);
+
+				//MoveText(playersListActiveDisplay[i], new TextMeshProUGUI[] { playersList[i][7], playersList[i][8], playersList[i][9], playersList[i][10], playersList[i][11] });
 				break;
 			}
 		}
@@ -350,68 +354,92 @@ public class serial : MonoBehaviour
 	//		}
 	//	}
 	//}
-	//private TextMeshProUGUI[] MakeScoreArray(TextMeshProUGUI[] array, int start) {
-	//	TextMeshProUGUI[] returnArray = new TextMeshProUGUI[5];
-	//	int j = 0;
-	//	for(int i = start; i < start + 5; i++) {
-	//		returnArray[j] = array[i];
-	//		j++;
-	//	}
-	//	return returnArray;
-
-
-	//}
-	private void MakeScoreArray(int player , int start) {
+	private TextMeshProUGUI[] MakeScoreArray(TextMeshProUGUI[] array, int start) {
 		TextMeshProUGUI[] returnArray = new TextMeshProUGUI[5];
 		int j = 0;
 		for(int i = start; i < start + 5; i++) {
-			playersList[player][j] = playersList[player][i];
-			if(playersList[player][i].text != ".") {
-				playersList[player][i].text = "";
-			}
+			returnArray[j] = array[i];
 			j++;
 		}
-
+		return returnArray;
 
 
 	}
+	//private void MakeScoreArray(int player , int start) {
+	//	TextMeshProUGUI[] returnArray = new TextMeshProUGUI[5];
+	//	int j = 0;
+	//	for(int i = start; i < start + 5; i++) {
+	//		playersList[player][j] = playersList[player][i];
+	//		if(playersList[player][i].text != ".") {
+	//			playersList[player][i].text = "";
+	//		}
+	//		j++;
+	//	}
+	//}
 	private void UpdateDisplayGameMode5(int point) {
-		while(playerLives[playerTurn - 1] < 1) {
-			if(playerTurn > players) {
-				playerTurn = 1;
-				playerScoreList.Clear();
-				foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
-					ResetScore(ActiveDisplay, true, false);
-				}
-				playersListActiveDisplay.Clear();
-			} else {
-				playerTurn++;
+		//if(nextPlayerTurnList[playerTurn] >= nextPlayerTurnList.Count) {
+		if(playerTurn >= nextPlayerTurnList.Count) {
+			playerTurn = 0;
+			playerScoreList.Clear();
+			foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
+				ResetScore(ActiveDisplay, true, false);
 			}
+			playersListActiveDisplay.Clear();
 		}
+		//while(playerLives[playerTurn - 1] < 1) {
+		//	if(playerTurn > players) {
+		//		playerTurn = 1;
+		//		playerScoreList.Clear();
+		//		foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
+		//			ResetScore(ActiveDisplay, true, false);
+		//		}
+		//		playersListActiveDisplay.Clear();
+		//	} else {
+		//		playerTurn++;
+		//	}
+		//}
 		if(playerScoreList.Count > 1) {
 			List<int> cloneScoreList = new List<int>(playerScoreList);
 			cloneScoreList.Sort();
 			if(cloneScoreList[0] > point) {
 				MoveLowerHigherScore(cloneScoreList[0]);
-				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
+				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1] , 1);
+				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
 			} else if(cloneScoreList[cloneScoreList.Count - 1] < point) {
 				MoveLowerHigherScore(cloneScoreList.Count - 1);
-				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
+				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
+				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
 			} else {
-				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
+				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
+				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
 			}
 		} else if(playerScoreList.Count == 1) {
 			if(playerScoreList[0] < point) {
 				//MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[lastPlayerTurn - 1], 1));
-				MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] { playersList[lastPlayerTurn - 1][1], playersList[lastPlayerTurn - 1][2], playersList[lastPlayerTurn - 1][3], playersList[lastPlayerTurn - 1][4], playersList[lastPlayerTurn - 1][5] });
-				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
+				//MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] { playersList[lastPlayerTurn - 1][1], playersList[lastPlayerTurn - 1][2], playersList[lastPlayerTurn - 1][3], playersList[lastPlayerTurn - 1][4], playersList[lastPlayerTurn - 1][5] });
+
+				
+				MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 1));
+				ResetScore(playersListActiveDisplay[0], true, false);
+				playersListActiveDisplay[0] = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 1);
+
+
+				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
+				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
 			} else {
-				MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] {playersList[lastPlayerTurn - 1][13],  playersList[lastPlayerTurn - 1][14], playersList[lastPlayerTurn - 1][15], playersList[lastPlayerTurn - 1][16], playersList[lastPlayerTurn - 1][17] });
-				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
+				//MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] {playersList[lastPlayerTurn - 1][13],  playersList[lastPlayerTurn - 1][14], playersList[lastPlayerTurn - 1][15], playersList[lastPlayerTurn - 1][16], playersList[lastPlayerTurn - 1][17] });
+				MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 13));
+				ResetScore(playersListActiveDisplay[0], true, false);
+				playersListActiveDisplay[0] = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 13);
+
+				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 1);
+				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
 			}
 			
 		} else {
-			score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
+
+			score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
+			//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
 		}
 		playerScoreList.Add(point);
 		playersListActiveDisplay.Add(score1);
