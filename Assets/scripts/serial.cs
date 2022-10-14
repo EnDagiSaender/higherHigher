@@ -62,7 +62,9 @@ public class serial : MonoBehaviour
 	private TextMeshProUGUI[] score4;
 	private TextMeshProUGUI[] score5;
 	private int[] playerScores = new int[8];
+	private int[] playerLives = new int[] {0,0,0,0,0,0,0,0,0 };
 	private int playerTurn = 1;
+	private int lastPlayerTurn = 0;
 	private TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
 	//private TextMeshProUGUI[] player1 = new TextMeshProUGUI[20];
 	//private TextMeshProUGUI[] player2 = new TextMeshProUGUI[20];
@@ -73,7 +75,9 @@ public class serial : MonoBehaviour
 	//private TextMeshProUGUI[] player7 = new TextMeshProUGUI[20];
 	//private TextMeshProUGUI[] player8 = new TextMeshProUGUI[20];
 	List<TextMeshProUGUI[]> playersList = new List<TextMeshProUGUI[]>();
+	List<TextMeshProUGUI[]> playersListActiveDisplay = new List<TextMeshProUGUI[]>();
 	List<int> playerScoreList = new List<int>();
+	List<int> nextPlayerTurnList = new List<int>();
 
 
 
@@ -154,6 +158,9 @@ public class serial : MonoBehaviour
 	private void MoveText(TextMeshProUGUI[] from, TextMeshProUGUI[] to) {
 		for(int i = 0; i < from.Length; i++) {
 			to[i].text  = from[i].text;
+			if(from[i].text != ".") {
+				from[i].text = "";
+			}
 		}
 	}
 	private void RemoveAllListObjects() {
@@ -327,40 +334,103 @@ public class serial : MonoBehaviour
 			gameOn = true;
 		}
 	}
+	private void MoveLowerHigherScore(int point) {
+		for(int i = 0; i < playerScoreList.Count; i++) {
+			if(playerScoreList[i] == point) {
+				MoveText(playersListActiveDisplay[i], new TextMeshProUGUI[] { playersList[i][7], playersList[i][8], playersList[i][9], playersList[i][10], playersList[i][11] });
+				break;
+			}
+		}
+	}
+	//private void UpdateDisplayHigherScore(int point) {
+	//	for(int i = 0; i < playerScoreList.Count; i++) {
+	//		if(playerScoreList[i] == point) {
+	//			MoveText(playersListActiveDisplay[i], new TextMeshProUGUI[] { playersList[i][7], playersList[i][8], playersList[i][9], playersList[i][10], playersList[i][11] });
+	//			break;
+	//		}
+	//	}
+	//}
+	//private TextMeshProUGUI[] MakeScoreArray(TextMeshProUGUI[] array, int start) {
+	//	TextMeshProUGUI[] returnArray = new TextMeshProUGUI[5];
+	//	int j = 0;
+	//	for(int i = start; i < start + 5; i++) {
+	//		returnArray[j] = array[i];
+	//		j++;
+	//	}
+	//	return returnArray;
+
+
+	//}
+	private void MakeScoreArray(int player , int start) {
+		TextMeshProUGUI[] returnArray = new TextMeshProUGUI[5];
+		int j = 0;
+		for(int i = start; i < start + 5; i++) {
+			playersList[player][j] = playersList[player][i];
+			if(playersList[player][i].text != ".") {
+				playersList[player][i].text = "";
+			}
+			j++;
+		}
+
+
+
+	}
 	private void UpdateDisplayGameMode5(int point) {
-		if(playerTurn > players) {
-			playerTurn = 1;
-			playerScoreList.Clear();
+		while(playerLives[playerTurn - 1] < 1) {
+			if(playerTurn > players) {
+				playerTurn = 1;
+				playerScoreList.Clear();
+				foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
+					ResetScore(ActiveDisplay, true, false);
+				}
+				playersListActiveDisplay.Clear();
+			} else {
+				playerTurn++;
+			}
 		}
 		if(playerScoreList.Count > 1) {
 			List<int> cloneScoreList = new List<int>(playerScoreList);
 			cloneScoreList.Sort();
 			if(cloneScoreList[0] > point) {
+				MoveLowerHigherScore(cloneScoreList[0]);
 				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
 			} else if(cloneScoreList[cloneScoreList.Count - 1] < point) {
+				MoveLowerHigherScore(cloneScoreList.Count - 1);
 				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
 			} else {
 				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
 			}
+		} else if(playerScoreList.Count == 1) {
+			if(playerScoreList[0] < point) {
+				//MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[lastPlayerTurn - 1], 1));
+				MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] { playersList[lastPlayerTurn - 1][1], playersList[lastPlayerTurn - 1][2], playersList[lastPlayerTurn - 1][3], playersList[lastPlayerTurn - 1][4], playersList[lastPlayerTurn - 1][5] });
+				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
+			} else {
+				MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] {playersList[lastPlayerTurn - 1][13],  playersList[lastPlayerTurn - 1][14], playersList[lastPlayerTurn - 1][15], playersList[lastPlayerTurn - 1][16], playersList[lastPlayerTurn - 1][17] });
+				score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
+			}
+			
 		} else {
 			score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
 		}
 		playerScoreList.Add(point);
+		playersListActiveDisplay.Add(score1);
 
 
 		score = string.Format("{0:0000}", point);
 		score1[3].text = score[3].ToString();
-		if(point >= 100 * gameModeMultiplyer) {
+		if(point >= 1000) {
 			score1[0].text = score[0].ToString();
 		} else {
 			score1[0].text = "";
 		}
-		if(point >= 10 * gameModeMultiplyer) {
+		if(point >= 100) {
 			score1[1].text = score[1].ToString();
 		} else {
 			score1[1].text = "";
 		}
 		score1[2].text = score[2].ToString();
+		lastPlayerTurn = playerTurn;
 		playerTurn++;
 
 	}
@@ -371,6 +441,7 @@ public class serial : MonoBehaviour
 		players++;
 		if(players > 8) {
 			players = 1;
+			nextPlayerTurnList.Clear();
 		}
 		switch(players) {
 			case 1:
@@ -403,22 +474,26 @@ public class serial : MonoBehaviour
 				PlayerNrPanel.transform.localPosition = new Vector3(293, 760, 0);
 				break;
 			case 6:
+				AddPlayerPannel(new Vector3(-506, -436, 0));
 				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -436, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(355, 760, 0);
 				break;
 			case 7:
+				AddPlayerPannel(new Vector3(-506, -613, 0));
 				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -613, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(416, 760, 0);
 				break;
 			case 8:
 				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -775, 0);
-				AddPlayerPannel(new Vector3(-506, 450, 0));
+				AddPlayerPannel(new Vector3(-506, 775, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(477, 760, 0);
 				break;
 			default:
 				PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
 				break;
 		}
+		playerLives[players - 1] = 2;
+		nextPlayerTurnList.Add(players);
 
 	}
 	private void newGame() {
@@ -499,7 +574,7 @@ public class serial : MonoBehaviour
 			flashTimer += deltaTime;
 			if((flashTimer) > 0.1) {
 				nrOfBlink += 1;
-				if(nrOfBlink > 4) {
+				if(nrOfBlink > 2) {
 					blinkOn = false;
 					nrOfBlink = 1;
 				}
