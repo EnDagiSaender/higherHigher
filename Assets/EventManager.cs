@@ -53,6 +53,77 @@ public class EventManager : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
+
+		if (Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			if (ChangedDir != null)
+			{
+				ChangedDir(false);
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.RightArrow))
+		{
+			if (ChangedDir != null)
+			{
+				ChangedDir(true);
+			}
+		}
+
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			if (NewGame != null)
+			{
+				NewGame();
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Return))
+		{
+			if (NewGame != null)
+			{
+				NewGame();
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha1))
+		{
+			if(NewScore != null) {
+				NewScore(100);
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha2))
+		{
+			if (NewScore != null)
+			{
+				NewScore(200);
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha3))
+		{
+			if (NewScore != null)
+			{
+				NewScore(300);
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha4))
+		{
+			if (NewScore != null)
+			{
+				NewScore(400);
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha5))
+		{
+			if (NewScore != null)
+			{
+				NewScore(500);
+			}
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha6))
+		{
+			if (NewScore != null)
+			{
+				NewScore(600);
+			}
+		}
 		deltaTime = Time.deltaTime;
 		timer += deltaTime;
 		if(timer > 0.1) {

@@ -36,6 +36,7 @@ public class keypress : MonoBehaviour
 
 
 	private void OnEnable() {
+		print("On Enable Keypress"); 
 		//serial.OkButton += Ok;
 		//serial.LeftButton += MoveLeft;
 		//serial.RightButton += MoveRight;
