@@ -66,6 +66,8 @@ public class serial : MonoBehaviour
 	private int[] playerLives = new int[] {0,0,0,0,0,0,0,0,0 };
 	private int playerTurn = 0;// change to 1
 	private int lastPlayerTurn = 0;
+	private int lowestScorePlayer;
+	private int highestScorePlayer;
 	private TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
 	//private TextMeshProUGUI[] player1 = new TextMeshProUGUI[20];
 	//private TextMeshProUGUI[] player2 = new TextMeshProUGUI[20];
@@ -78,13 +80,13 @@ public class serial : MonoBehaviour
 	List<TextMeshProUGUI[]> playersList = new List<TextMeshProUGUI[]>();
 	List<TextMeshProUGUI[]> playersListActiveDisplay = new List<TextMeshProUGUI[]>();
 	List<int> playerScoreList = new List<int>();
+	List<int> playerLivesList = new List<int>();
 	List<int> nextPlayerTurnList = new List<int>();
 
 
 
 
 	private Image playerFocusImage = null;
-	private Image oldPlayerFocusImage = null;
 	private TextMeshProUGUI[] testText;
 	private Transform[] tempTransform;
 	private TextMeshProUGUI[] tempText1;
@@ -332,18 +334,19 @@ public class serial : MonoBehaviour
 			} else {
 				UpdateDisplay(newScore);
 			}
-			blinkOn = true;
+			StartCoroutine(BlinkSegments(score1, 2, 0.3f));
+//			//blinkOn = true;
 			gameOn = true;
 		}
 	}
 	private void MoveLowerHigherScore(int point) {
 		for(int i = 0; i < playerScoreList.Count; i++) {
 			if(playerScoreList[i] == point) {
-				print("found" + 1);
+				//print("found" + 1);
 				MoveText(playersListActiveDisplay[i], MakeScoreArray(playersList[nextPlayerTurnList[i]-1], 7));
 				ResetScore(playersListActiveDisplay[i], true, false);
-				playersListActiveDisplay[i] = MakeScoreArray(playersList[i], 7);
-
+				playersListActiveDisplay[i] = MakeScoreArray(playersList[nextPlayerTurnList[i] - 1], 7);
+				// //playersListActiveDisplay[i] = MakeScoreArray(playersList[i], 7);
 				//MoveText(playersListActiveDisplay[i], new TextMeshProUGUI[] { playersList[i][7], playersList[i][8], playersList[i][9], playersList[i][10], playersList[i][11] });
 				break;
 			}
@@ -390,6 +393,7 @@ public class serial : MonoBehaviour
 			}
 			playersListActiveDisplay.Clear();
 		}
+
         //while(playerLives[playerTurn - 1] < 1) {
         //	if(playerTurn > players) {
         //		playerTurn = 1;
@@ -402,71 +406,55 @@ public class serial : MonoBehaviour
         //		playerTurn++;
         //	}
         //}
-        if (playerTurn > 0)
+        if (playerFocusImage != null )
         {
 			playerFocusImage.enabled = false;
-           // oldPlayerFocusImage = playerFocusImage;
         }
-
-        //oldPlayerFocusImage = playerFocusImage;
 		playerFocusImage = uiElementsPlayers[nextPlayerTurnList[playerTurn] - 1].GetComponentInChildren<Image>();
-		//print(playerFocusImage.IsActive());
-		//foreach (Image t in playersListActiveDisplay)
-		//{
-		//	//print(t[1].text + "00");
-		//}
 		playerFocusImage.enabled = true;
-		//playersList[nextPlayerTurnList[playerTurn] - 1].
+
+		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerTurn] - 1][0], 2, 0.5f));
+
+
 		if (playerScoreList.Count > 1) {
 			List<int> cloneScoreList = new List<int>(playerScoreList);
 			cloneScoreList.Sort();
 			if(cloneScoreList[0] > point) {
 				print("x1");
+				lowestScorePlayer = playerTurn;
 				MoveLowerHigherScore(cloneScoreList[0]);
-				//MoveLowerHigherScore(cloneScoreList[0]);
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1] , 1);
-				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
 			} else if(cloneScoreList[cloneScoreList.Count - 1] < point) {
 				print("x2");
-				//MoveLowerHigherScore(cloneScoreList.Count - 1);
+				highestScorePlayer = playerTurn;
 				MoveLowerHigherScore(cloneScoreList[cloneScoreList.Count - 1]);
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
-				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
 			} else {
 				print("x3");
-				//print("xx");
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
-				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
 			}
 		} else if(playerScoreList.Count == 1) {
 			if(playerScoreList[0] < point) {
 				print("x4");
-				//MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[lastPlayerTurn - 1], 1));
-				//MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] { playersList[lastPlayerTurn - 1][1], playersList[lastPlayerTurn - 1][2], playersList[lastPlayerTurn - 1][3], playersList[lastPlayerTurn - 1][4], playersList[lastPlayerTurn - 1][5] });
-
-
+				lowestScorePlayer = 0;
+				highestScorePlayer = playerTurn;
 				MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 1));
 				ResetScore(playersListActiveDisplay[0], true, false);
 				playersListActiveDisplay[0] = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 1);
-
-
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
-				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][13], playersList[playerTurn - 1][14], playersList[playerTurn - 1][15], playersList[playerTurn - 1][16], playersList[playerTurn - 1][17] };
 			} else {
 				print("x5");
-				//MoveText(playersListActiveDisplay[0], new TextMeshProUGUI[] {playersList[lastPlayerTurn - 1][13],  playersList[lastPlayerTurn - 1][14], playersList[lastPlayerTurn - 1][15], playersList[lastPlayerTurn - 1][16], playersList[lastPlayerTurn - 1][17] });
+				lowestScorePlayer = playerTurn;
+				highestScorePlayer = 0;
 				MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 13));
 				ResetScore(playersListActiveDisplay[0], true, false);
 				playersListActiveDisplay[0] = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 13);
-
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 1);
-				//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][1], playersList[playerTurn - 1][2], playersList[playerTurn - 1][3], playersList[playerTurn - 1][4], playersList[playerTurn - 1][5] };
 			}
 			
 		} else {
 			print("x6");
 			score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
-			//score1 = new TextMeshProUGUI[] { playersList[playerTurn - 1][7], playersList[playerTurn - 1][8], playersList[playerTurn - 1][9], playersList[playerTurn - 1][10], playersList[playerTurn - 1][11] };
 		}
 		playerScoreList.Add(point);
 		playersListActiveDisplay.Add(score1);
@@ -494,10 +482,57 @@ public class serial : MonoBehaviour
 			score1[1].text = "";
 		}
 		score1[2].text = score[2].ToString();
+
+
 		lastPlayerTurn = playerTurn;
 		playerTurn++;
+		if(playerTurn >= nextPlayerTurnList.Count) {
+			
+			//playerLivesList[lowestScorePlayer]--;
+			//playerLivesList[highestScorePlayer]--;
+			//playersList[nextPlayerTurnList[lowestScorePlayer] - 1][19].text = playerLivesList[lowestScorePlayer].ToString();
+			//playersList[nextPlayerTurnList[highestScorePlayer] - 1][19].text = playerLivesList[highestScorePlayer].ToString();
+			//StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[lowestScorePlayer] - 1][19], 4, 0.2f));
+			//StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[highestScorePlayer] - 1][19], 4, 0.2f));
 
+			if(lowestScorePlayer > highestScorePlayer) {
+				RemovePlayerIfDead(lowestScorePlayer);
+				RemovePlayerIfDead(highestScorePlayer);
+			} else {				
+				RemovePlayerIfDead(highestScorePlayer);
+				RemovePlayerIfDead(lowestScorePlayer);
+			}
+
+			//if(playerLivesList[lowestScorePlayer] <= 0) {
+			//	print("player " + nextPlayerTurnList[lowestScorePlayer] + " is dead!");
+			//	playersList[nextPlayerTurnList[lowestScorePlayer] - 1][0].text = "";
+			//	nextPlayerTurnList.Remove(lowestScorePlayer);
+			//	playerLivesList.Remove(lowestScorePlayer);
+			//	//playersList[nextPlayerTurnList[playerTurn] - 1]
+			//}
+			//if(playerLivesList[highestScorePlayer] <= 0) {
+			//	print("player " + nextPlayerTurnList[highestScorePlayer] + " is dead!");
+			//	playersList[nextPlayerTurnList[highestScorePlayer] - 1][0].text = "";
+			//	nextPlayerTurnList.Remove(highestScorePlayer);
+			//	playerLivesList.Remove(highestScorePlayer);
+			//}
+		}
 	}
+	private void RemovePlayerIfDead(int playerNr) {
+		playerLivesList[playerNr]--;
+		playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[playerNr].ToString();
+		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
+
+		if(playerLivesList[playerNr] <= 0) {
+			print("player " + nextPlayerTurnList[playerNr] + " is dead!");
+			playersList[nextPlayerTurnList[playerNr] - 1][0].text = "";
+			nextPlayerTurnList.RemoveAt(playerNr);
+			playerLivesList.RemoveAt(playerNr);
+			//playersListActiveDisplay.RemoveAt(playerNr);
+
+		}
+	}
+
 	private void AddPlayer() {
 		if(PlayerNrPanel.activeSelf == false) {
 			PlayerNrPanel.SetActive(true);
@@ -511,8 +546,6 @@ public class serial : MonoBehaviour
 			case 1:
 				AddPlayerPannel(new Vector3(-430, 450, 0));
 				GetPlayerInfo();
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, 450, 0);
-				//AddPlayerPannel(new Vector3(-506, 450, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
 				break;
 			case 2:
@@ -523,36 +556,30 @@ public class serial : MonoBehaviour
 				break;
 			case 3:
 				AddPlayerPannel(new Vector3(-430, 90, 0));
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, 90, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(172, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 4:
 				AddPlayerPannel(new Vector3(-430, -90, 0));
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -90, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(234, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 5:
 				AddPlayerPannel(new Vector3(-430, -258, 0));
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -258, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(293, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 6:
 				AddPlayerPannel(new Vector3(-430, -436, 0));
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -436, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(355, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 7:
 				AddPlayerPannel(new Vector3(-430, -613, 0));
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -613, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(416, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 8:
-				//PlayerXPrefab.transform.localPosition = new Vector3(-506, -775, 0);
 				AddPlayerPannel(new Vector3(-430, -775, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(477, 760, 0);
 				GetPlayerInfo();
@@ -562,6 +589,7 @@ public class serial : MonoBehaviour
 				break;
 		}
 		playerLives[players - 1] = 2;
+		playerLivesList.Add(2);
 		nextPlayerTurnList.Add(players);
 		//foreach( int t in nextPlayerTurnList){
 		//	print(t);
@@ -672,16 +700,43 @@ public class serial : MonoBehaviour
 			Text.color = color;
 		}
 	}
+	private IEnumerator  BlinkSegments(TextMeshProUGUI[] segments, int nrOfBlinks, float blinkInterval) {
+		for(int i = 0; i <= nrOfBlinks*2; i++){
+			foreach(TextMeshProUGUI segment in segments) {
+				if(i % 2 == 1) {
+					segment.enabled = false;
+				} else {
+					segment.enabled = true;
+				}
+			}
+			yield return new WaitForSeconds(blinkInterval);
 
-	void readByte(int stat) {
-		//if(stat == 2) {
-		//print(stat);
-		blinkOn = true;
-		UpdateDisplay(stat);
-		//} ///else {
-		///	print(0);
-		///}
+		}
+
 	}
+	private IEnumerator BlinkSegments(TextMeshProUGUI segment, int nrOfBlinks, float blinkInterval) {
+		for(int i = 0; i <= nrOfBlinks*2; i++) {
+				if(i % 2 == 1) {
+					segment.enabled = false;
+				} else {
+					segment.enabled = true;
+				}
+			yield return new WaitForSeconds(blinkInterval);
+
+		}
+
+	}
+
+
+	//void readByte(int stat) {
+	//	//if(stat == 2) {
+	//	//print(stat);
+	//	blinkOn = true;
+	//	UpdateDisplay(stat);
+	//	//} ///else {
+	//	///	print(0);
+	//	///}
+	//}
 	private void blinkDisplay(bool enabled) {
 		score1[0].enabled = enabled;
 		score1[1].enabled = enabled;
@@ -758,7 +813,7 @@ public class serial : MonoBehaviour
 			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite2;
 			RemoveAllListObjects();
 			GameName.GetComponentInParent<Transform>().localPosition = new Vector3(0, 888, 0);
-			print("removed");
+//			//print("removed");
 			//score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
 			//score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
 			//score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));

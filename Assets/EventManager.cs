@@ -7,6 +7,7 @@ public class EventManager : MonoBehaviour
 {
 	private float timer = 0;
 	private float deltaTime;
+	private bool anyPortOpen = false;
 
 	public delegate void ChangeDirection(bool right);
 	public static event ChangeDirection ChangedDir;
@@ -27,25 +28,32 @@ public class EventManager : MonoBehaviour
 	void Open() {
 
 		string[] ports = { };
-		while(ports.Length < 1) {
-			ports = SerialPort.GetPortNames();
-			if(ports.Length < 1) {
-				//print("no port, try again");
-				new WaitForSeconds(1);
-			} else {
-				//print(ports[0]);
+		//while(ports.Length < 1) {
+		//	ports = SerialPort.GetPortNames();
+		//	if(ports.Length < 1) {
+		//		//print("no port, try again");
+		//		new WaitForSeconds(1);
+		//	} else {
+		//		//print(ports[0]);
+		//	}
+		//}
+		if(ports.Length > 0) {
+			foreach(string port in ports) {
+				print(port);
 			}
-		}
-		foreach(string port in ports) {
-			print(port);
-		}
 
-		portNo = new SerialPort("\\\\.\\" + ports[0], 115200);
-		try {
-			portNo.Open();
-			portNo.ReadTimeout = 500;
-		} catch {
-			print("no port to open");
+			portNo = new SerialPort("\\\\.\\" + ports[0], 115200);
+			try {
+				portNo.Open();
+				portNo.ReadTimeout = 500;
+				anyPortOpen = true;
+			} catch {
+				print("no port to open");
+			}
+		} else {
+			Invoke("Open",10f);
+			//print("try open a port in 10 sec again");
+
 		}
 
 	}
@@ -128,7 +136,7 @@ public class EventManager : MonoBehaviour
 		timer += deltaTime;
 		if(timer > 0.1) {
 			timer = 0;
-			if(portNo.IsOpen) {
+			if(anyPortOpen && portNo.IsOpen) {
 				try {
 					///readByte(portNo.ReadByte());
 					string msg = portNo.ReadLine();
