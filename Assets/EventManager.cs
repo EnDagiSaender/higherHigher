@@ -37,6 +37,7 @@ public class EventManager : MonoBehaviour
 		//		//print(ports[0]);
 		//	}
 		//}
+		ports = SerialPort.GetPortNames();
 		if(ports.Length > 0) {
 			foreach(string port in ports) {
 				print(port);
