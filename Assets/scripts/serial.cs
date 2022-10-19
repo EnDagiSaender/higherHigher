@@ -20,6 +20,7 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
 	[SerializeField] Transform MainCanvas;
+	[SerializeField] GameObject WinnerCanvas;
 
 
 	[SerializeField] GameObject lagomUIElementPrefab;
@@ -86,10 +87,13 @@ public class serial : MonoBehaviour
 
 	int lowNr;
 	int highNr;
-	private bool inBetween = false; 
+	private bool inBetween = false;
 
 
-
+	private int winnerFontSizeMin = 55;
+	private int winnerFontSizeMax = 84;
+	private int winnerFontSize = 55;
+	private int winnerFontSizeIncrease = 1;
 
 	private Image playerFocusImage = null;
 	//private Image[] playerFocusImage2 = null;
@@ -110,8 +114,8 @@ public class serial : MonoBehaviour
 	private float timer = 0;
 	private float flashTimer = 0;
 	private float deltaTime;
-	private bool even = false;
-	private bool blinkOn = false;
+	//private bool even = false;
+	//private bool blinkOn = false;
 	private int totalScore = 0;
 	private int totalThrows = 0;
 	private bool gameOver = false;
@@ -121,8 +125,10 @@ public class serial : MonoBehaviour
 	private string totScore = "    ";
 	private int gameModeMax = 7;
 	private int players = 0;
-	private bool gameOn;
-	
+	private bool busyThinking = false;
+	private bool gameStarted = true;
+
+
 
 	private void AddPlayerPannel(Vector3 position) {
 		var inst = Instantiate(lagomUIElementPrefab, position, Quaternion.identity);
@@ -321,31 +327,37 @@ public class serial : MonoBehaviour
 	}
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false) {
-			if(blinkOn == false) {
-				if(increse) {
-					gameMode += 1;
-					if(gameMode > gameModeMax) {
-						gameMode = 0;////change to 0!!!!
-					}
-				} else {
-					gameMode -= 1;
-					if(gameMode < 0) {
-						gameMode = gameModeMax;
-					}
+			
+		//	if(blinkOn == false) {
+			if(increse) {
+				gameMode += 1;
+				if(gameMode > gameModeMax) {
+					gameMode = 0;////change to 0!!!!
 				}
-				highScorePanel.SetActive(false);
-				GameName.text = CurrentGame;
-				NewGame(); ////change to NewGame if not working
-				if(GameChanged != null) {
-					GameChanged();
+			} else {
+				gameMode -= 1;
+				if(gameMode < 0) {
+					gameMode = gameModeMax;
 				}
 			}
+			highScorePanel.SetActive(false);
+			GameName.text = CurrentGame;
+			//busyThinking = true;
+			gameStarted = true;
+			newGame(); ////change to NewGame if not working
+			if(GameChanged != null) {
+				GameChanged();
+				}
+			//}
 		}
 	}
 	private void updateScore(int newScore) {
-		if(gameOver == false && blinkOn == false) {
+		if(gameOver == false && busyThinking == false) {// && blinkOn == false) {
+			gameStarted = true;
+			busyThinking = true;
 			if(gameMode == 0) {
 				UpdateDisplay(Mathf.RoundToInt((float)newScore / 10));
+				busyThinking = false;
 			} else if(gameMode == 5|| gameMode == 6 || gameMode == 7) {
 				if(inBetween) {
 					BetweenNumbers(newScore);
@@ -355,11 +367,13 @@ public class serial : MonoBehaviour
 				
 			} else {
 				UpdateDisplay(newScore);
+				busyThinking = false;
 			}
 			StartCoroutine(BlinkSegments(score1, 2, 0.3f));
-//			//blinkOn = true;
-			gameOn = true;
+			//			//blinkOn = true;
+			
 		}
+		print("Not redy " + gameOver.ToString() + busyThinking.ToString());
 	}
 	private void MoveLowerHigherScore(int point) {
 		for(int i = 0; i < playerScoreList.Count; i++) {
@@ -391,6 +405,7 @@ public class serial : MonoBehaviour
 		playerFocusImage.enabled = true;
 
 		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerTurn] - 1][0], 2, 0.5f));
+		busyThinking = false;
 	}
 	private void UpdateDisplayGameMode5(int point) {
 		
@@ -402,10 +417,12 @@ public class serial : MonoBehaviour
 			}
 			playersListActiveDisplay.Clear();
 			CancelInvoke("NextRound");
+			print("THIS IS NOT GOOD!2");
 		}
 		if(nextPlayerTurnList.Count <= 2) {
 
 			BetweenNumbers(point);
+			print("THIS IS NOT GOOD!3");
 			return;
 		}
 
@@ -472,6 +489,9 @@ public class serial : MonoBehaviour
 					inBetween = true;
 				}
 
+			} else {
+				// Make it display 2 times new round otherwise
+				CancelInvoke("DisplayBetweenNumbers");
 			}
 			if(nextPlayerTurnList.Count < 2) {
 				Winner();
@@ -479,6 +499,7 @@ public class serial : MonoBehaviour
 			
 			CancelInvoke("NextRound");
 			Invoke("NextRound", 2.5f);
+			playerTurn = 0;
 		} else {
 			CancelInvoke("FlashActivePlayer");
 			Invoke("FlashActivePlayer", 1.5f);
@@ -488,11 +509,17 @@ public class serial : MonoBehaviour
 	private void Winner() {
 		string winnerText;
 		if(nextPlayerTurnList.Count == 0) {
-			winnerText = "DRAW";
+			winnerText = "DRAW!";
 		} else {
-			winnerText = "Winner! Player " + nextPlayerTurnList[0].ToString();
+			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
 		}
 		print(winnerText);
+		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().text = winnerText;
+		WinnerCanvas.SetActive(true);
+		
+
+		//busyThinking = true;
+		gameOver = true;
 
 
 	}
@@ -502,13 +529,16 @@ public class serial : MonoBehaviour
 			lowNr = UnityEngine.Random.Range(1, 8) * 50;
 			highNr = lowNr + 50;
 		}
-		TextMeshProUGUI[] tempScore = new TextMeshProUGUI[5];
-		tempScore = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 1);
-		ScoreToDisplay(tempScore, lowNr);
-		playersListActiveDisplay.Add(tempScore);
+		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
+		score2 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] -1], 1);
+		ScoreToDisplay(score2, lowNr);
+		//StartCoroutine(BlinkSegments(score2, 1, 0.2f));
+		playersListActiveDisplay.Add(score2);
 		tempScore = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
 		ScoreToDisplay(tempScore, highNr);
+		//StartCoroutine(BlinkSegments(tempScore, 1, 0.2f));
 		playersListActiveDisplay.Add(tempScore);
+		busyThinking = false;
 
 	}
 	private void BetweenNumbers(int point) {
@@ -520,6 +550,7 @@ public class serial : MonoBehaviour
 			}
 			playersListActiveDisplay.Clear();
 			CancelInvoke("NextRound");
+			print("THIS IS NOT GOOD!");
 		}
 
 		score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
@@ -527,18 +558,21 @@ public class serial : MonoBehaviour
 		if(point < lowNr || point > highNr) {
 			changeColor2(new Color32(255, 0, 0, 220), score1);
 			RemovePlayerIfDead2(playerTurn);
-			if(nextPlayerTurnList.Count == 1) {
-				Winner();
-			}
+			//if(nextPlayerTurnList.Count == 1) {
+			//	Winner();
+			//}
 		} else {
 			changeColor2(new Color32(0, 255, 0, 220), score1);
 		}
 		playersListActiveDisplay.Add(score1);
 		playerTurn++;
+		Invoke("DisplayBetweenNumbers", 1.5f);
 		checkekIfNewRound();
-		if(playerTurn != 0) {
-			Invoke("DisplayBetweenNumbers", 1.5f);
-		}
+		 
+		//if(playerTurn != 0) {
+		//	Invoke("DisplayBetweenNumbers", 1.5f);
+		//	//DisplayBetweenNumbers();
+		//}
 	}
 	private void ScoreToDisplay(TextMeshProUGUI[] display,int score) {
 		string stringScore = string.Format("{0:0000}", score);
@@ -586,18 +620,18 @@ public class serial : MonoBehaviour
 			DisplayBetweenNumbers();
 		}
 	}
-	private void RemovePlayerIfDead(int playerNr) {
-		playerLivesList[playerNr]--; //playerLivesList[playerNr]--;
-		playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[playerNr].ToString();
-		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
+	//private void RemovePlayerIfDead(int playerNr) {
+	//	playerLivesList[playerNr]--; //playerLivesList[playerNr]--;
+	//	playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[playerNr].ToString();
+	//	StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
 
-		if(playerLivesList[playerNr] <= 0) {
-			print("player " + nextPlayerTurnList[playerNr] + " is dead!");
-			playersList[nextPlayerTurnList[playerNr] - 1][0].text = "";
-			nextPlayerTurnList.RemoveAt(playerNr);
-			playerLivesList.RemoveAt(playerNr);
-		}
-	}
+	//	if(playerLivesList[playerNr] <= 0) {
+	//		print("player " + nextPlayerTurnList[playerNr] + " is dead!");
+	//		playersList[nextPlayerTurnList[playerNr] - 1][0].text = "";
+	//		nextPlayerTurnList.RemoveAt(playerNr);
+	//		playerLivesList.RemoveAt(playerNr);
+	//	}
+	//}
 	private void RemovePlayerIfDead2(int playerNr) {
 		playerLivesList[nextPlayerTurnList[playerNr] - 1]--; //playerLivesList[playerNr]--;
 		playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[nextPlayerTurnList[playerNr] - 1].ToString();
@@ -607,6 +641,9 @@ public class serial : MonoBehaviour
 			print("player " + nextPlayerTurnList[playerNr] + " is dead!");
 			playersList[nextPlayerTurnList[playerNr] - 1][0].text = "";
 			nextPlayerTurnList.RemoveAt(playerNr);
+			if(inBetween) {
+				playerTurn--;
+			}
 			//playerLivesList.RemoveAt(playerNr);
 		}
 	}
@@ -672,7 +709,8 @@ public class serial : MonoBehaviour
 		CancelInvoke("FlashActivePlayer");
 		Invoke("FlashActivePlayer", 2f);
 		if(inBetween && nextPlayerTurnList.Count == 1) {
-			DisplayBetweenNumbers();
+			busyThinking = true;
+			Invoke("DisplayBetweenNumbers", 2f);
 		}
 		//foreach( int t in nextPlayerTurnList){
 		//	print(t);
@@ -680,10 +718,11 @@ public class serial : MonoBehaviour
 		//}
 	}
 	private void newGame() {
-		if(setHighScorePanel.activeSelf == false && blinkOn == false) {
+		if(setHighScorePanel.activeSelf == false){// && blinkOn == false) {
 			highScorePanel.SetActive(false);
+			gameOver = false;
 			if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
-				if(gameOn == true) {
+				if(gameStarted == true) {
 					RemoveAllListObjects();
 					RemoveAllListObjectsPleyers();
 				}
@@ -694,7 +733,8 @@ public class serial : MonoBehaviour
 				}
 				AddPlayer();
 			}
-			gameOn = false;
+			gameStarted = false;
+			//busyThinking = false;
 			NewGame();
 		}
 
@@ -763,21 +803,34 @@ public class serial : MonoBehaviour
 		deltaTime = Time.deltaTime;
 		timer += deltaTime;
 
-		if(blinkOn == true) {
-			flashTimer += deltaTime;
-			if((flashTimer) > 0.1) {
-				nrOfBlink += 1;
-				if(nrOfBlink > 2) {
-					blinkOn = false;
-					nrOfBlink = 1;
-				}
-				flashTimer = 0;
-				even = !even;
-				blinkDisplay(even);
 
-			} 
+		if(WinnerCanvas.activeSelf) {
+			flashTimer += deltaTime;
+			if((flashTimer) > 0.04) {
+				winnerFontSize = winnerFontSize + winnerFontSizeIncrease;
+				if(winnerFontSize >= winnerFontSizeMax || winnerFontSize <= winnerFontSizeMin) {
+					winnerFontSizeIncrease = winnerFontSizeIncrease * -1;
+				}
+				WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = winnerFontSize;
+				flashTimer = 0;
+			}
 
 		}
+		//if(blinkOn == true) {
+		//	flashTimer += deltaTime;
+		//	if((flashTimer) > 0.1) {
+		//		nrOfBlink += 1;
+		//		if(nrOfBlink > 2) {
+		//			blinkOn = false;
+		//			nrOfBlink = 1;
+		//		}
+		//		flashTimer = 0;
+		//		even = !even;
+		//		blinkDisplay(even);
+
+		//	} 
+
+		//}
 
     }
 	//void changeColor(Color32 color, string tag) {
@@ -839,7 +892,7 @@ public class serial : MonoBehaviour
 		}
 	}
 	private void NewGame() {
-
+		WinnerCanvas.SetActive(false);
 		if(gameMode < 5) {
 			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;
 			RemoveAllListObjects();
