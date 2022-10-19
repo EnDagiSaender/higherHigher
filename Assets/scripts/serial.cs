@@ -127,6 +127,7 @@ public class serial : MonoBehaviour
 	private int players = 0;
 	private bool busyThinking = false;
 	private bool gameStarted = true;
+	private bool randomizeNewNr = true;
 
 
 
@@ -326,8 +327,8 @@ public class serial : MonoBehaviour
 		EventManager.NewScore -= updateScore;
 	}
 	private void changeGame(bool increse) {
-		if(setHighScorePanel.activeSelf == false) {
-			
+		if(setHighScorePanel.activeSelf == false && busyThinking == false) {
+			//print(busyThinking);
 		//	if(blinkOn == false) {
 			if(increse) {
 				gameMode += 1;
@@ -357,7 +358,7 @@ public class serial : MonoBehaviour
 			busyThinking = true;
 			if(gameMode == 0) {
 				UpdateDisplay(Mathf.RoundToInt((float)newScore / 10));
-				busyThinking = false;
+				//busyThinking = false;
 			} else if(gameMode == 5|| gameMode == 6 || gameMode == 7) {
 				if(inBetween) {
 					BetweenNumbers(newScore);
@@ -367,13 +368,13 @@ public class serial : MonoBehaviour
 				
 			} else {
 				UpdateDisplay(newScore);
-				busyThinking = false;
+				//busyThinking = false;
 			}
 			StartCoroutine(BlinkSegments(score1, 2, 0.3f));
 			//			//blinkOn = true;
 			
 		}
-		print("Not redy " + gameOver.ToString() + busyThinking.ToString());
+		//print("Not redy " + gameOver.ToString() + busyThinking.ToString());
 	}
 	private void MoveLowerHigherScore(int point) {
 		for(int i = 0; i < playerScoreList.Count; i++) {
@@ -500,6 +501,7 @@ public class serial : MonoBehaviour
 			CancelInvoke("NextRound");
 			Invoke("NextRound", 2.5f);
 			playerTurn = 0;
+			randomizeNewNr = true;
 		} else {
 			CancelInvoke("FlashActivePlayer");
 			Invoke("FlashActivePlayer", 1.5f);
@@ -525,9 +527,10 @@ public class serial : MonoBehaviour
 	}
 
 	private void DisplayBetweenNumbers() {
-		if(playerTurn == 0) {
+		if(randomizeNewNr) {
 			lowNr = UnityEngine.Random.Range(1, 8) * 50;
 			highNr = lowNr + 50;
+			randomizeNewNr = false;
 		}
 		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
 		score2 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] -1], 1);
@@ -710,6 +713,7 @@ public class serial : MonoBehaviour
 		Invoke("FlashActivePlayer", 2f);
 		if(inBetween && nextPlayerTurnList.Count == 1) {
 			busyThinking = true;
+			randomizeNewNr = true;
 			Invoke("DisplayBetweenNumbers", 2f);
 		}
 		//foreach( int t in nextPlayerTurnList){
@@ -858,7 +862,9 @@ public class serial : MonoBehaviour
 			yield return new WaitForSeconds(blinkInterval);
 
 		}
-
+		if(!inBetween) {
+			busyThinking = false;
+		}
 	}
 	private IEnumerator BlinkSegments(TextMeshProUGUI segment, int nrOfBlinks, float blinkInterval) {
 		for(int i = 0; i <= nrOfBlinks*2; i++) {
@@ -985,10 +991,13 @@ public class serial : MonoBehaviour
 			lostLife = true;
 		} else {
 			gameOver = true;
+			busyThinking = true;
 			Invoke("GameIsOverAfterDelay", 1f);
+			
 		}
 	}
 	private void GameIsOverAfterDelay() {
+		busyThinking = false;
 		if(GameIsOver != null) {
 			GameIsOver();
 		}
