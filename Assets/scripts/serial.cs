@@ -90,10 +90,10 @@ public class serial : MonoBehaviour
 	private bool inBetween = false;
 
 
-	private int winnerFontSizeMin = 55;
-	private int winnerFontSizeMax = 84;
-	private int winnerFontSize = 55;
-	private int winnerFontSizeIncrease = 1;
+	//private int winnerFontSizeMin = 180;
+	//private int winnerFontSizeMax = 270;
+	//private int winnerFontSize = 180;
+	//private int winnerFontSizeIncrease = 5;
 
 	private Image playerFocusImage = null;
 	//private Image[] playerFocusImage2 = null;
@@ -488,6 +488,7 @@ public class serial : MonoBehaviour
 				}
 				if(nextPlayerTurnList.Count <= 2) {
 					inBetween = true;
+					totalThrows = 0;
 				}
 
 			} else {
@@ -529,7 +530,7 @@ public class serial : MonoBehaviour
 	private void DisplayBetweenNumbers() {
 		if(randomizeNewNr) {
 			lowNr = UnityEngine.Random.Range(1, 8) * 50;
-			highNr = lowNr + 50;
+			highNr = lowNr + 100 - (totalThrows *10);
 			randomizeNewNr = false;
 		}
 		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
@@ -609,6 +610,9 @@ public class serial : MonoBehaviour
 	}
 	private void NextRound() {
 		playerTurn = 0;
+		if(totalThrows < 5) {
+			totalThrows= totalThrows +2;
+		}
 		if(gameMode == 6 || gameMode == 7) {
 			Shuffle(nextPlayerTurnList);
 		}
@@ -714,7 +718,7 @@ public class serial : MonoBehaviour
 		if(inBetween && nextPlayerTurnList.Count == 1) {
 			busyThinking = true;
 			randomizeNewNr = true;
-			Invoke("DisplayBetweenNumbers", 2f);
+			Invoke("DisplayBetweenNumbers", 0.5f);
 		}
 		//foreach( int t in nextPlayerTurnList){
 		//	print(t);
@@ -804,22 +808,23 @@ public class serial : MonoBehaviour
 
 
 	void Update() {
-		deltaTime = Time.deltaTime;
-		timer += deltaTime;
+		//deltaTime = Time.deltaTime;
+		//timer += deltaTime;
 
 
-		if(WinnerCanvas.activeSelf) {
-			flashTimer += deltaTime;
-			if((flashTimer) > 0.04) {
-				winnerFontSize = winnerFontSize + winnerFontSizeIncrease;
-				if(winnerFontSize >= winnerFontSizeMax || winnerFontSize <= winnerFontSizeMin) {
-					winnerFontSizeIncrease = winnerFontSizeIncrease * -1;
-				}
-				WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = winnerFontSize;
-				flashTimer = 0;
-			}
+		//if(WinnerCanvas.activeSelf) {
+		//	flashTimer += Time.deltaTime;// deltaTime;
+		//	if((flashTimer) > 0.02) {
+		//		winnerFontSize = winnerFontSize + winnerFontSizeIncrease;
+		//		if(winnerFontSize >= winnerFontSizeMax || winnerFontSize <= winnerFontSizeMin) {
+		//			winnerFontSizeIncrease = winnerFontSizeIncrease * -1;
+		//		}
+		//		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = winnerFontSize;
+		//		flashTimer = 0;
+		//	}
+		//}
 
-		}
+
 		//if(blinkOn == true) {
 		//	flashTimer += deltaTime;
 		//	if((flashTimer) > 0.1) {
@@ -899,6 +904,7 @@ public class serial : MonoBehaviour
 	}
 	private void NewGame() {
 		WinnerCanvas.SetActive(false);
+		totalThrows = 0;
 		if(gameMode < 5) {
 			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;
 			RemoveAllListObjects();

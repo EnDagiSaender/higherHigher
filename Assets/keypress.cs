@@ -142,29 +142,5 @@ public class keypress : MonoBehaviour
 			}
 		}
 	}
-	void Update()
-    {
-		////leftKey =;
-		//if(Input.GetKeyDown(KeyCode.LeftArrow)) {
-		//	MoveLeft();
-		//}
 
-		//if(Input.GetKey(KeyCode.RightArrow)) {
-		//	MoveRight();
-
-		//}
-		//if(Input.GetKeyDown("space")) {
-		//	Ok();
-
-		//}
-			//highScoreString += letters[4].ToString();
-			//if(letterCounter == 1) {
-			//	firstLetter.text = letters[4].ToString();
-			//} else if(letterCounter == 2) {
-			//	secondLetter.text = letters[4].ToString();
-			//} else {
-			//	lastLetter.text = letters[4].ToString();
-			//}
-			//letterCounter += 1;
-	}
 }
