@@ -321,7 +321,7 @@ public class serial : MonoBehaviour
 		//TextMeshProUGUI[] tempTextt = totalLives[0].GetComponentsInParent<TextMeshProUGUI>();
 		//tempTextt[1].fontSize = 400;
 		//print(tempTextt.Length);
-		GameName.text = CurrentGame;
+		GameName.text = DisplayCurrentGameName;
 
 
 
@@ -350,7 +350,7 @@ public class serial : MonoBehaviour
 				}
 			}
 			highScorePanel.SetActive(false);
-			GameName.text = CurrentGame;
+			GameName.text = DisplayCurrentGameName;
 			//busyThinking = true;
 			gameStarted = true; // to not create more players while changing gamemode
 			newGame(); ////change to NewGame if not working
@@ -362,10 +362,10 @@ public class serial : MonoBehaviour
 	}
 
 	private void PlayWinner() {
-		audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.75f, 1f));
+		audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.4f, 0.5f));
 	}
 	private void PlayDraw() {
-		audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.75f, 1f));
+		audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.4f, 0.5f));
 	}
 
 
@@ -550,10 +550,12 @@ public class serial : MonoBehaviour
 	private void Winner() {
 		string winnerText;
 		if(nextPlayerTurnList.Count == 0) {
-			audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.75f, 1f));
+			PlayDraw();
+			//audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.75f, 1f));
 			winnerText = "DRAW!";
 		} else {
-			audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.75f, 1f));
+			PlayWinner();
+			//audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.75f, 1f));
 			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
 		}
 		print(winnerText);
@@ -701,55 +703,56 @@ public class serial : MonoBehaviour
 			PlayerNrPanel.SetActive(true);
 		}
 		players++;
-		if(players > 8) {
-			players = 1;
-			nextPlayerTurnList.Clear();
-		}
+		
 		switch(players) {
 			case 1:
 				AddPlayerPannel(new Vector3(-430, 450, 0));
 				GetPlayerInfo();
-				PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(45, 760, 0);
 				break;
 			case 2:
 				AddPlayerPannel(new Vector3(-430, 279, 0));
 				//PlayerXPrefab.transform.localPosition = new Vector3(-506, 279, 0);
-				PlayerNrPanel.transform.localPosition = new Vector3(112, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(95, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 3:
 				AddPlayerPannel(new Vector3(-430, 90, 0));
-				PlayerNrPanel.transform.localPosition = new Vector3(172, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(160, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 4:
 				AddPlayerPannel(new Vector3(-430, -90, 0));
-				PlayerNrPanel.transform.localPosition = new Vector3(234, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(225, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 5:
 				AddPlayerPannel(new Vector3(-430, -258, 0));
-				PlayerNrPanel.transform.localPosition = new Vector3(293, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(287, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 6:
 				AddPlayerPannel(new Vector3(-430, -436, 0));
-				PlayerNrPanel.transform.localPosition = new Vector3(355, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(353, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 7:
 				AddPlayerPannel(new Vector3(-430, -613, 0));
-				PlayerNrPanel.transform.localPosition = new Vector3(416, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(415, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 8:
 				AddPlayerPannel(new Vector3(-430, -775, 0));
-				PlayerNrPanel.transform.localPosition = new Vector3(477, 760, 0);
+				PlayerNrPanel.transform.localPosition = new Vector3(478, 760, 0);
 				GetPlayerInfo();
 				break;
 			default:
-				PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
+				//PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
 				break;
+		}
+		if(players > 8) {
+			players = 8;
+			nextPlayerTurnList.Clear();
 		}
 		//playerLives[players - 1] = 2;
 		playerLivesList.Add(2);
@@ -805,7 +808,30 @@ public class serial : MonoBehaviour
 			return totalScore;
 		}
 	}
-
+	public string DisplayCurrentGameName {
+		get {
+			switch(gameMode) {
+				case 0:
+					return "HigherHigher";
+				case 1:
+					return "HigherHigher";
+				case 2:
+					return "InBetween";
+				case 3:
+					return "HigherHigher";
+				case 4:
+					return "LowerLower";
+				case 5:
+					return "KastaLagom";
+				case 6:
+					return "KastaLagom";
+				case 7:
+					return "InBetween";
+				default:
+					return "HighScore";
+			}
+		}
+	}
 	public string CurrentGame {
 		get {
 			switch(gameMode) {
