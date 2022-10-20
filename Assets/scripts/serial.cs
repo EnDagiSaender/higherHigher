@@ -15,13 +15,16 @@ public class serial : MonoBehaviour
 
 	public delegate void GameIsChanged();
 	public static event GameIsChanged GameChanged;
-	
+
+	[SerializeField] AudioClip[] throwSounds;
+	[SerializeField] AudioClip[] winnerSounds;
+	[SerializeField] AudioClip[] drawSounds;
 	[SerializeField] GameObject highScorePanel;
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
 	[SerializeField] Transform MainCanvas;
 	[SerializeField] GameObject WinnerCanvas;
-
+	[SerializeField] HighscoreUI HighscoreUI;
 
 	[SerializeField] GameObject lagomUIElementPrefab;
 	[SerializeField] GameObject scoreUIElementPrefab;
@@ -129,6 +132,7 @@ public class serial : MonoBehaviour
 	private bool gameStarted = true;
 	private bool randomizeNewNr = true;
 
+	[SerializeField] AudioSource audioSource; 
 
 
 	private void AddPlayerPannel(Vector3 position) {
@@ -251,6 +255,8 @@ public class serial : MonoBehaviour
 		EventManager.NewGame += newGame;
 		EventManager.ChangedDir += changeGame;
 		EventManager.NewScore += updateScore;
+		HighscoreUI.PlayWinnerSound += PlayWinner;
+		HighscoreUI.PlayDrawSound += PlayDraw;
 
 		//AddPlayerPannel(new Vector3(-506, 450, 0));
 		//TextMeshProUGUI[] temparray = playerLagom.GetComponentsInChildren<TextMeshProUGUI>();
@@ -325,6 +331,8 @@ public class serial : MonoBehaviour
 		EventManager.NewGame -= newGame;
 		EventManager.ChangedDir -= changeGame;
 		EventManager.NewScore -= updateScore;
+		HighscoreUI.PlayWinnerSound -= PlayWinner;
+		HighscoreUI.PlayDrawSound -= PlayDraw;
 	}
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false && busyThinking == false) {
@@ -352,6 +360,15 @@ public class serial : MonoBehaviour
 			//}
 		}
 	}
+
+	private void PlayWinner() {
+		audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.75f, 1f));
+	}
+	private void PlayDraw() {
+		audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.75f, 1f));
+	}
+
+
 	private bool ToFewPlayers() {
 		//bool returnBool = false;
 		if(!gameStarted){
@@ -368,6 +385,8 @@ public class serial : MonoBehaviour
 
 	private void updateScore(int newScore) {
 		if(gameOver == false && busyThinking == false && !ToFewPlayers()) {// && blinkOn == false) {
+			audioSource.PlayOneShot(throwSounds[Random.Range(0, throwSounds.Length)], Random.Range(0.75f, 1f));
+			//AudioSource.PlayOneShot(throwSounds[0]);
 			gameStarted = true;
 			busyThinking = true;
 			if(gameMode == 0) {
@@ -531,8 +550,10 @@ public class serial : MonoBehaviour
 	private void Winner() {
 		string winnerText;
 		if(nextPlayerTurnList.Count == 0) {
+			audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.75f, 1f));
 			winnerText = "DRAW!";
 		} else {
+			audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.75f, 1f));
 			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
 		}
 		print(winnerText);

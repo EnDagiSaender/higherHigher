@@ -5155,6 +5155,7 @@ GameObject:
   - component: {fileID: 869825189}
   - component: {fileID: 869825192}
   - component: {fileID: 869825193}
+  - component: {fileID: 869825194}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -5224,11 +5225,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 570eec79f60bbeb498dc879e859fb672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  throwSounds:
+  - {fileID: 8300000, guid: 2dc23c57032b993479a8c35eec8b528b, type: 3}
+  - {fileID: 8300000, guid: d691d04c9a1a9c641beaaa5d221bee4a, type: 3}
+  - {fileID: 8300000, guid: b1a87e6b611b4304694d2bc890a5db3d, type: 3}
+  - {fileID: 8300000, guid: 74610776fc88bbb4495080ce9b1287f3, type: 3}
+  winnerSounds:
+  - {fileID: 8300000, guid: dc722893d13330844a70baf550eaa8e0, type: 3}
+  - {fileID: 8300000, guid: 4f6df935e5b1f67459e5deeafa762305, type: 3}
+  drawSounds:
+  - {fileID: 8300000, guid: d3d0d89887cbb2f43a3ac502a9da180e, type: 3}
   highScorePanel: {fileID: 1783099273}
   setHighScorePanel: {fileID: 59575908}
   EventManager: {fileID: 869825193}
   MainCanvas: {fileID: 1554936673}
   WinnerCanvas: {fileID: 1275998076}
+  HighscoreUI: {fileID: 1610253122}
   lagomUIElementPrefab: {fileID: 8811061278771108125, guid: 31af2d18c97bf4d408d3b830e6c0e654, type: 3}
   scoreUIElementPrefab: {fileID: 2045298420035168899, guid: 0f2c4d3241db20d40a51184402f8d9f2, type: 3}
   BigScoreUIElementPrefab: {fileID: 3165314530952002410, guid: 3b95abd78967b144896b49d7058bdf99, type: 3}
@@ -5250,6 +5262,7 @@ MonoBehaviour:
   scorePanel4: {fileID: 534383960}
   scorePanel5: {fileID: 1771770243}
   GameName: {fileID: 206611971}
+  audioSource: {fileID: 869825194}
 --- !u!114 &869825193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5262,6 +5275,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29ff99dfd36e25140bfb6c8f2d93671f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &869825194
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869825188}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &880194348
 GameObject:
   m_ObjectHideFlags: 0

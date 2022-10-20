@@ -14,6 +14,12 @@ public class HighscoreUI : MonoBehaviour {
 	[SerializeField] private TextMeshProUGUI gameName;
 	[SerializeField] keypress keypress;
 
+	public delegate void PlayWinner();
+	public static event PlayWinner PlayWinnerSound;
+
+	public delegate void PlayDraw();
+	public static event PlayDraw PlayDrawSound;
+
 	//[SerializeField] keypress enterHighscore;
 
 	List<GameObject> uiElements = new List<GameObject> ();
@@ -54,10 +60,16 @@ public class HighscoreUI : MonoBehaviour {
 		if(highscoreHandler.IfHighscore2(serial.Points, serial.Throws)) {
 			//keypress.enabled = true;
 			setHighScorePanel.SetActive(true);
+			if(PlayWinnerSound != null) {
+				PlayWinnerSound();
+			}
 			//print("true");
 			//highscoreHandler.AddHighscoreIfPossible(new HighscoreElement("ABC", serial.Points));
 		} else {
 			panel.SetActive(true);
+			if(PlayDrawSound != null) {
+				PlayDrawSound();
+			}
 		}
 	}
 

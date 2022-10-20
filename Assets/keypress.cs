@@ -30,6 +30,9 @@ public class keypress : MonoBehaviour
 	[SerializeField] serial serial;
 	[SerializeField] EventManager EventManager;
 
+	
+
+
 	private int letterCounter = 0;
 	//char[] highScoreChar = new char[] { ' ', ' ', ' ' };
 	string highScoreString = "";
