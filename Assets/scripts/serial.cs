@@ -344,7 +344,7 @@ public class serial : MonoBehaviour
 			highScorePanel.SetActive(false);
 			GameName.text = CurrentGame;
 			//busyThinking = true;
-			gameStarted = true;
+			gameStarted = true; // to not create more players while changing gamemode
 			newGame(); ////change to NewGame if not working
 			if(GameChanged != null) {
 				GameChanged();
@@ -352,29 +352,46 @@ public class serial : MonoBehaviour
 			//}
 		}
 	}
+	private bool ToFewPlayers() {
+		//bool returnBool = false;
+		if(!gameStarted){
+			if(gameMode == 5 || gameMode == 6) {
+				if(players < 3)
+				return true;
+			} else if(gameMode == 7) {
+				if(players < 2)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	private void updateScore(int newScore) {
-		if(gameOver == false && busyThinking == false) {// && blinkOn == false) {
+		if(gameOver == false && busyThinking == false && !ToFewPlayers()) {// && blinkOn == false) {
 			gameStarted = true;
 			busyThinking = true;
 			if(gameMode == 0) {
 				UpdateDisplay(Mathf.RoundToInt((float)newScore / 10));
 				//busyThinking = false;
-			} else if(gameMode == 5|| gameMode == 6 || gameMode == 7) {
+			} else if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
 				if(inBetween) {
 					BetweenNumbers(newScore);
 				} else {
 					UpdateDisplayGameMode5(newScore);
 				}
-				
+
 			} else {
 				UpdateDisplay(newScore);
 				//busyThinking = false;
 			}
 			StartCoroutine(BlinkSegments(score1, 2, 0.3f));
 			//			//blinkOn = true;
-			
+
+		} else {
+			print("Not redy " + gameOver.ToString() + busyThinking.ToString() + ToFewPlayers().ToString());
+
 		}
-		//print("Not redy " + gameOver.ToString() + busyThinking.ToString());
+		
 	}
 	private void MoveLowerHigherScore(int point) {
 		for(int i = 0; i < playerScoreList.Count; i++) {
@@ -496,7 +513,9 @@ public class serial : MonoBehaviour
 				CancelInvoke("DisplayBetweenNumbers");
 			}
 			if(nextPlayerTurnList.Count < 2) {
-				Winner();
+				busyThinking = true;
+				Invoke("Winner", 1.5f);
+				return;
 			}
 			
 			CancelInvoke("NextRound");
@@ -517,6 +536,7 @@ public class serial : MonoBehaviour
 			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
 		}
 		print(winnerText);
+		busyThinking = false;
 		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().text = winnerText;
 		WinnerCanvas.SetActive(true);
 		
@@ -726,26 +746,28 @@ public class serial : MonoBehaviour
 		//}
 	}
 	private void newGame() {
-		if(setHighScorePanel.activeSelf == false){// && blinkOn == false) {
-			highScorePanel.SetActive(false);
-			gameOver = false;
-			if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
-				if(gameStarted == true) {
-					RemoveAllListObjects();
-					RemoveAllListObjectsPleyers();
-				}
+		if(!busyThinking) {
+			if(setHighScorePanel.activeSelf == false) {// && blinkOn == false) {
+				highScorePanel.SetActive(false);
+				gameOver = false;
 				if(gameMode == 7) {
 					inBetween = true;
 				} else {
 					inBetween = false;
 				}
-				AddPlayer();
-			}
-			gameStarted = false;
-			//busyThinking = false;
-			NewGame();
-		}
+				if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
+					if(gameStarted == true) {
+						RemoveAllListObjects();
+						RemoveAllListObjectsPleyers();
+					}
+					AddPlayer();
+				}
 
+				gameStarted = false;
+				//busyThinking = false;
+				NewGame();
+			}
+		}
 	}
 
 
