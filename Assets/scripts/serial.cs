@@ -116,8 +116,8 @@ public class serial : MonoBehaviour
 	private int oldScore = 0;
 	private int oldScore2 = 0;
 	private int nrOfBlink;
-	private float timer = 0;
-	private float flashTimer = 0;
+	//private float timer = 0;
+	//private float flashTimer = 0;
 	private float deltaTime;
 	//private bool even = false;
 	//private bool blinkOn = false;
@@ -133,6 +133,7 @@ public class serial : MonoBehaviour
 	private bool busyThinking = false;
 	private bool gameStarted = true;
 	private bool randomizeNewNr = true;
+	private bool onePlayerGame = false;
 
 	[SerializeField] AudioSource audioSource; 
 
@@ -384,10 +385,11 @@ public class serial : MonoBehaviour
 			if(gameMode == 5 || gameMode == 6) {
 				if(players < 3)
 				return true;
-			} else if(gameMode == 7) {
-				if(players < 2)
-					return true;
-			}
+			} 
+			//else if(gameMode == 7) {
+			//	if(players < 2)
+			//		return true;
+			//}
 		}
 		return false;
 	}
@@ -415,10 +417,11 @@ public class serial : MonoBehaviour
 			StartCoroutine(BlinkSegments(score1, 2, 0.3f));
 			//			//blinkOn = true;
 
-		} else {
-			print("Not redy " + gameOver.ToString() + busyThinking.ToString() + ToFewPlayers().ToString());
-
 		}
+		//else {
+		//	print("Not redy " + gameOver.ToString() + busyThinking.ToString() + ToFewPlayers().ToString());
+
+		//}
 		
 	}
 	private void MoveLowerHigherScore(int point) {
@@ -540,9 +543,15 @@ public class serial : MonoBehaviour
 				// Make it display 2 times new round otherwise
 				CancelInvoke("DisplayBetweenNumbers");
 			}
-			if(nextPlayerTurnList.Count < 2) {
+			if(nextPlayerTurnList.Count < 2 && !onePlayerGame) {
 				busyThinking = true;
 				Invoke("Winner", 1.5f);
+				return;
+			} else if(nextPlayerTurnList.Count == 0) {
+				gameOver = true;
+				busyThinking = true;
+				//print(totalScore.ToString() + " " + totalThrows.ToString());
+				Invoke("GameIsOverAfterDelay", 1f);
 				return;
 			}
 			
@@ -581,8 +590,8 @@ public class serial : MonoBehaviour
 
 	private void DisplayBetweenNumbers() {
 		if(randomizeNewNr) {
-			lowNr = UnityEngine.Random.Range(1, 8) * 50;
-			highNr = lowNr + 100 - (totalThrows *10);
+			lowNr = UnityEngine.Random.Range(10, 35) * 10;
+			highNr = lowNr + 120 - (totalThrows *10);
 			randomizeNewNr = false;
 		}
 		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
@@ -619,6 +628,13 @@ public class serial : MonoBehaviour
 			//}
 		} else {
 			changeColor2(new Color32(0, 255, 0, 220), score1);
+			if(onePlayerGame) {
+				totalScore += Mathf.CeilToInt(60-Mathf.Abs(((highNr + lowNr)/2)-point));
+				
+
+
+
+			}
 		}
 		playersListActiveDisplay.Add(score1);
 		playerTurn++;
@@ -662,8 +678,8 @@ public class serial : MonoBehaviour
 	}
 	private void NextRound() {
 		playerTurn = 0;
-		if(totalThrows < 5) {
-			totalThrows = totalThrows + 2;
+		if(totalThrows < 11) {
+			totalThrows++;
 		}
 		if(gameMode == 6){ //  || gameMode == 7) {
 			Shuffle(nextPlayerTurnList);
@@ -772,6 +788,9 @@ public class serial : MonoBehaviour
 			busyThinking = true;
 			randomizeNewNr = true;
 			Invoke("DisplayBetweenNumbers", 0.5f);
+			onePlayerGame = true;
+		} else {
+			onePlayerGame = false;
 		}
 		//foreach( int t in nextPlayerTurnList){
 		//	print(t);
@@ -824,7 +843,7 @@ public class serial : MonoBehaviour
 				case 0:
 					return "HigherHigher";
 				case 1:
-					return "HigherHigher";
+					return "FastBall";
 				case 2:
 					return "InBetween";
 				case 3:
@@ -848,7 +867,7 @@ public class serial : MonoBehaviour
 				case 0:
 					return "HigherHigher_";
 				case 1:
-					return "HigherHigher_no_life";
+					return "FastBall";
 				case 2:
 					return "InBetween_1P";
 				case 3:
@@ -1032,7 +1051,7 @@ public class serial : MonoBehaviour
 					score3[4].text = ".";
 					score4[4].text = ".";
 					score5[4].text = ".";
-					if(gameMode == 3 || gameMode == 4) {
+					if(gameMode == 3 || gameMode == 4 ) {//Set Lives
 						totalLives[0].text = "1";
 						totalLifes = 1;
 					}
@@ -1069,7 +1088,9 @@ public class serial : MonoBehaviour
 	
 
 	private void GameOver() {
-		changeColor2(new Color32(255, 0, 0, 220), score1);
+		if(gameMode != 1) {
+			changeColor2(new Color32(255, 0, 0, 220), score1);
+		}
 		if(totalLifes > 0) {
 			totalLifes -= 1;
 			totalLives[0].text = totalLifes.ToString();
@@ -1118,6 +1139,18 @@ public class serial : MonoBehaviour
 			} else {
 				GameOver();
 			}
+
+		} else if(gameMode == 1) {
+			totalScore += point;
+			if(point> oldScore) {
+				oldScore = point;
+			}			
+			totalThrows += 1;
+			if(totalThrows > 4) {
+				totalThrows = oldScore;
+				GameOver();
+			}
+
 		} else {
 			if(point >= oldScore) {
 				totalScore += point;
