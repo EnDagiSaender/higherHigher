@@ -69,21 +69,11 @@ public class serial : MonoBehaviour
 	private TextMeshProUGUI[] score3;
 	private TextMeshProUGUI[] score4;
 	private TextMeshProUGUI[] score5;
-	//private int[] playerScores = new int[8];
-	//private int[] playerLives = new int[] {0,0,0,0,0,0,0,0,0 };
 	private int playerTurn = 0;// change to 1
 	//private int lastPlayerTurn = 0;
 	private int lowestScorePlayer;
 	private int highestScorePlayer;
 	private TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player1 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player2 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player3 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player4 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player5 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player6 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player7 = new TextMeshProUGUI[20];
-	//private TextMeshProUGUI[] player8 = new TextMeshProUGUI[20];
 	List<TextMeshProUGUI[]> playersList = new List<TextMeshProUGUI[]>();
 	List<TextMeshProUGUI[]> playersListActiveDisplay = new List<TextMeshProUGUI[]>();
 	List<int> playerScoreList = new List<int>();
@@ -260,70 +250,9 @@ public class serial : MonoBehaviour
 		EventManager.NewScore += updateScore;
 		HighscoreUI.PlayWinnerSound += PlayWinner;
 		HighscoreUI.PlayDrawSound += PlayDraw;
-
-		//AddPlayerPannel(new Vector3(-506, 450, 0));
-		//TextMeshProUGUI[] temparray = playerLagom.GetComponentsInChildren<TextMeshProUGUI>();
-		//TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
-		//int w = 0;
-		//foreach(TextMeshProUGUI t in temparray) {
-		//	if(t.text != "8") {
-		//		playerInfo[w] = t;
-		//		//print(t.text);
-		//		w++;
-		//	}
-		//	//print(t.text);
-		//}
-		//playersList.Add(playerInfo);
-		////score1 = new TextMeshProUGUI[] { playerInfo[1], playerInfo[2], playerInfo[3], playerInfo[4], playerInfo[5] };
-		//print(score1[0].text);
-		//print(playersList[0][1].text);
-		//print(temparray2.Length);
-		//GameObject[] gameObjects = playerLagom.gameObject.FindGameObjectsWithTag("Score1");
-		//GameObject[] gameObjects = playerLagom.FindGameObjectsWithTag("Score1");
-		//PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(112, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(172, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(234, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(293, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(355, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(416, 760, 0);
-		//PlayerNrPanel.transform.localPosition = new Vector3(477, 760, 0);
-
-		//lifePanel.transform.localPosition = new Vector3(326, 385, 0);
-		//score1 = GetChildText(scorePanel1);
-		//AddScorePannel();
-		//score2 = GetChildText(uiElements[0]);
-		//AddScorePannel();
-		//score3 = GetChildText(uiElements[1]);
-		//AddScorePannel();
-		//score4 = GetChildText(uiElements[2]);
-		//AddScorePannel();
-		//score5 = GetChildText(uiElements[3]);
-
-
-
-
-		//score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
-		//score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
-		//score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
-		//score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
-		//score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
-
-		//score2 = GetChildText(scorePanel2);
-		//score3 = GetChildText(scorePanel3);
-		//score4 = GetChildText(scorePanel4);
-		//score5 = GetChildText(scorePanel5);
 		totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
-		//totalScores = GetChildText(totalScorePanel);
-		//totalthrows = GetChildText(throwPanel);
 		totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
-		//totalLives = GetChildText(lifePanel);
 		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
-		//totalLives = GetChildText(lifePanel, new Vector3(326, 385, 0));
-		//totalLives[0].fontSize = 400;
-		//TextMeshProUGUI[] tempTextt = totalLives[0].GetComponentsInParent<TextMeshProUGUI>();
-		//tempTextt[1].fontSize = 400;
-		//print(tempTextt.Length);
 		GameName.text = DisplayCurrentGameName;
 
 
@@ -340,8 +269,6 @@ public class serial : MonoBehaviour
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false && busyThinking == false) {
 			PlayChangeGame();
-			//print(busyThinking);
-			//	if(blinkOn == false) {
 			if(increse) {
 				gameMode += 1;
 				if(gameMode > gameModeMax) {
@@ -355,13 +282,11 @@ public class serial : MonoBehaviour
 			}
 			highScorePanel.SetActive(false);
 			GameName.text = DisplayCurrentGameName;
-			//busyThinking = true;
 			gameStarted = true; // to not create more players while changing gamemode
 			newGame(); ////change to NewGame if not working
 			if(GameChanged != null) {
 				GameChanged();
 				}
-			//}
 		}
 	}
 
@@ -375,7 +300,7 @@ public class serial : MonoBehaviour
 		audioSource.PlayOneShot(changeGameSounds[Random.Range(0, changeGameSounds.Length)], Random.Range(0.7f, 1f));
 	}
 	public void PlayOk() {
-		audioSource.PlayOneShot(okSounds[Random.Range(0, okSounds.Length)], Random.Range(0.7f, 1f));
+		audioSource.PlayOneShot(okSounds[Random.Range(0, okSounds.Length)], Random.Range(0.4f, 0.5f));
 	}
 
 
@@ -525,7 +450,6 @@ public class serial : MonoBehaviour
 
 	private void checkekIfNewRound() {
 		if(playerTurn >= nextPlayerTurnList.Count) {
-			//if(nextPlayerTurnList.Count != 2) {
 			if(inBetween == false) {
 				if(lowestScorePlayer > highestScorePlayer) {
 					RemovePlayerIfDead2(lowestScorePlayer);
@@ -550,7 +474,6 @@ public class serial : MonoBehaviour
 			} else if(nextPlayerTurnList.Count == 0) {
 				gameOver = true;
 				busyThinking = true;
-				//print(totalScore.ToString() + " " + totalThrows.ToString());
 				Invoke("GameIsOverAfterDelay", 1f);
 				return;
 			}
@@ -573,16 +496,12 @@ public class serial : MonoBehaviour
 			winnerText = "DRAW!";
 		} else {
 			PlayWinner();
-			//audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.75f, 1f));
 			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
 		}
 		print(winnerText);
 		busyThinking = false;
 		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().text = winnerText;
 		WinnerCanvas.SetActive(true);
-		
-
-		//busyThinking = true;
 		gameOver = true;
 
 
@@ -595,13 +514,12 @@ public class serial : MonoBehaviour
 			randomizeNewNr = false;
 		}
 		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
-		score2 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] -1], 1);
-		ScoreToDisplay(score2, lowNr);
+		tempScore = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] -1], 1);
+		ScoreToDisplay(tempScore, lowNr);
 		//StartCoroutine(BlinkSegments(score2, 1, 0.2f));
-		playersListActiveDisplay.Add(score2);
+		playersListActiveDisplay.Add(tempScore);
 		tempScore = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
 		ScoreToDisplay(tempScore, highNr);
-		//StartCoroutine(BlinkSegments(tempScore, 1, 0.2f));
 		playersListActiveDisplay.Add(tempScore);
 		busyThinking = false;
 
@@ -623,9 +541,6 @@ public class serial : MonoBehaviour
 		if(point < lowNr || point > highNr) {
 			changeColor2(new Color32(255, 0, 0, 220), score1);
 			RemovePlayerIfDead2(playerTurn);
-			//if(nextPlayerTurnList.Count == 1) {
-			//	Winner();
-			//}
 		} else {
 			changeColor2(new Color32(0, 255, 0, 220), score1);
 			if(onePlayerGame) {
@@ -641,10 +556,6 @@ public class serial : MonoBehaviour
 		Invoke("DisplayBetweenNumbers", 1.5f);
 		checkekIfNewRound();
 		 
-		//if(playerTurn != 0) {
-		//	Invoke("DisplayBetweenNumbers", 1.5f);
-		//	//DisplayBetweenNumbers();
-		//}
 	}
 	private void ScoreToDisplay(TextMeshProUGUI[] display,int score) {
 		string stringScore = string.Format("{0:0000}", score);
@@ -684,7 +595,6 @@ public class serial : MonoBehaviour
 		if(gameMode == 6){ //  || gameMode == 7) {
 			Shuffle(nextPlayerTurnList);
 		}
-		//nextPlayerTurnList = nextPlayerTurnList.OrderBy(x => Random.value).ToList();
 		playerScoreList.Clear();
 		foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
 			ResetScore(ActiveDisplay, true, false);
@@ -695,18 +605,7 @@ public class serial : MonoBehaviour
 			DisplayBetweenNumbers();
 		}
 	}
-	//private void RemovePlayerIfDead(int playerNr) {
-	//	playerLivesList[playerNr]--; //playerLivesList[playerNr]--;
-	//	playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[playerNr].ToString();
-	//	StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
 
-	//	if(playerLivesList[playerNr] <= 0) {
-	//		print("player " + nextPlayerTurnList[playerNr] + " is dead!");
-	//		playersList[nextPlayerTurnList[playerNr] - 1][0].text = "";
-	//		nextPlayerTurnList.RemoveAt(playerNr);
-	//		playerLivesList.RemoveAt(playerNr);
-	//	}
-	//}
 	private void RemovePlayerIfDead2(int playerNr) {
 		playerLivesList[nextPlayerTurnList[playerNr] - 1]--; //playerLivesList[playerNr]--;
 		playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[nextPlayerTurnList[playerNr] - 1].ToString();
@@ -719,7 +618,6 @@ public class serial : MonoBehaviour
 			if(inBetween) {
 				playerTurn--;
 			}
-			//playerLivesList.RemoveAt(playerNr);
 		}
 	}
 
@@ -772,14 +670,12 @@ public class serial : MonoBehaviour
 				GetPlayerInfo();
 				break;
 			default:
-				//PlayerNrPanel.transform.localPosition = new Vector3(52, 760, 0);
 				break;
 		}
 		if(players > 8) {
 			players = 8;
 			nextPlayerTurnList.Clear();
 		}
-		//playerLives[players - 1] = 2;
 		playerLivesList.Add(2);
 		nextPlayerTurnList.Add(players);
 		CancelInvoke("FlashActivePlayer");
@@ -792,10 +688,6 @@ public class serial : MonoBehaviour
 		} else {
 			onePlayerGame = false;
 		}
-		//foreach( int t in nextPlayerTurnList){
-		//	print(t);
-
-		//}
 	}
 	private void newGame() {
 		if(!busyThinking) {
@@ -817,7 +709,6 @@ public class serial : MonoBehaviour
 				}
 
 				gameStarted = false;
-				//busyThinking = false;
 				NewGame();
 			}
 		}
@@ -827,9 +718,6 @@ public class serial : MonoBehaviour
 	void Start()
     {
 		NewGame();
-
-		//Open();
-		
 	}
 
 	public int Points {
@@ -905,7 +793,7 @@ public class serial : MonoBehaviour
 	}
 
 
-	void Update() {
+//	void Update() {
 		//deltaTime = Time.deltaTime;
 		//timer += deltaTime;
 
@@ -921,33 +809,7 @@ public class serial : MonoBehaviour
 		//		flashTimer = 0;
 		//	}
 		//}
-
-
-		//if(blinkOn == true) {
-		//	flashTimer += deltaTime;
-		//	if((flashTimer) > 0.1) {
-		//		nrOfBlink += 1;
-		//		if(nrOfBlink > 2) {
-		//			blinkOn = false;
-		//			nrOfBlink = 1;
-		//		}
-		//		flashTimer = 0;
-		//		even = !even;
-		//		blinkDisplay(even);
-
-		//	} 
-
-		//}
-
-    }
-	//void changeColor(Color32 color, string tag) {
-	//	GameObject[] gameObjects = GameObject.FindGameObjectsWithTag(tag);
-	//	for (int i = 0; i < gameObjects.Length; i++) {
-	//		//score1[i] = gameObjects[i].GetComponent<TMPro.TextMeshProUGUI>();
-	//		gameObjects[i].GetComponent<TMPro.TextMeshProUGUI>().color = color;
-	//	}
-
-	//}
+//    }
 	private void changeColor2(Color32 color, TextMeshProUGUI[] text) {
 		foreach(TextMeshProUGUI Text in text) {
 			Text.color = color;
@@ -982,16 +844,6 @@ public class serial : MonoBehaviour
 
 	}
 
-
-	//void readByte(int stat) {
-	//	//if(stat == 2) {
-	//	//print(stat);
-	//	blinkOn = true;
-	//	UpdateDisplay(stat);
-	//	//} ///else {
-	//	///	print(0);
-	//	///}
-	//}
 	private void blinkDisplay(bool enabled) {
 		score1[0].enabled = enabled;
 		score1[1].enabled = enabled;
@@ -1052,7 +904,7 @@ public class serial : MonoBehaviour
 					score4[4].text = ".";
 					score5[4].text = ".";
 					if(gameMode == 3 || gameMode == 4 ) {//Set Lives
-						totalLives[0].text = "1";
+						totalLives[0].text = "2";
 						totalLifes = 1;
 					}
 				}
@@ -1070,20 +922,7 @@ public class serial : MonoBehaviour
 			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite2;
 			RemoveAllListObjects();
 			GameName.GetComponentInParent<Transform>().localPosition = new Vector3(0, 888, 0);
-			//print("removed");
-			//score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
-			//score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
-			//score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
-			//score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
-			//score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
-			//totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
-			//totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
-			//totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
-			//GameName.GetComponentInParent<Transform>().localPosition = new Vector3(0, 888, 0);
-
 		}
-
-
 	}
 	
 
@@ -1093,7 +932,7 @@ public class serial : MonoBehaviour
 		}
 		if(totalLifes > 0) {
 			totalLifes -= 1;
-			totalLives[0].text = totalLifes.ToString();
+			totalLives[0].text = (totalLifes +1).ToString();
 			lostLife = true;
 		} else {
 			gameOver = true;
@@ -1109,10 +948,7 @@ public class serial : MonoBehaviour
 		}
 	}
 	private bool IsWithin(int a, int b, int c) {
-		//bool returnIsWithin = (c >= Mathf.Min(a, b) && c <= Mathf.Max(a, b));
 		return (c >= Mathf.Min(a, b) && c <= Mathf.Max(a, b)); //returnIsWithin;
-
-		//return true;
 	}
 
 	private void UpdateDisplay(int point) {
@@ -1190,9 +1026,6 @@ public class serial : MonoBehaviour
 			totScore = string.Format("{0:00000}", totalScore);
 			totalScores[4].text = totScore[4].ToString();
 		}
-		//for(int j = 0; j < totScore.Length; j++) {
-		//	totalScores[j].text = totScore[j].ToString();
-		//}
 		if(totalScore >= 1000 * gameModeMultiplyer) {
 			totalScores[0].text = totScore[0].ToString();
 		} else {
