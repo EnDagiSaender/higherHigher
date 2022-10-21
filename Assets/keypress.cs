@@ -93,6 +93,7 @@ public class keypress : MonoBehaviour
 		//print("done");
 	}
 	void Move(bool right) {
+		serial.PlayChangeGame();
 		if(right == true) {
 			MoveRight();
 		} else {
@@ -126,6 +127,7 @@ public class keypress : MonoBehaviour
 		UpdateLetters();
 	}
 	void Ok() {
+		serial.PlayOk();
 		//print(letters[4].ToString());
 		if(letters[4] == '<') {
 			if(letterCounter > 0) {

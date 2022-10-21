@@ -19,6 +19,8 @@ public class serial : MonoBehaviour
 	[SerializeField] AudioClip[] throwSounds;
 	[SerializeField] AudioClip[] winnerSounds;
 	[SerializeField] AudioClip[] drawSounds;
+	[SerializeField] AudioClip[] changeGameSounds;
+	[SerializeField] AudioClip[] okSounds;
 	[SerializeField] GameObject highScorePanel;
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
@@ -336,8 +338,9 @@ public class serial : MonoBehaviour
 	}
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false && busyThinking == false) {
+			PlayChangeGame();
 			//print(busyThinking);
-		//	if(blinkOn == false) {
+			//	if(blinkOn == false) {
 			if(increse) {
 				gameMode += 1;
 				if(gameMode > gameModeMax) {
@@ -366,6 +369,12 @@ public class serial : MonoBehaviour
 	}
 	private void PlayDraw() {
 		audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.4f, 0.5f));
+	}
+	public void PlayChangeGame() {
+		audioSource.PlayOneShot(changeGameSounds[Random.Range(0, changeGameSounds.Length)], Random.Range(0.7f, 1f));
+	}
+	public void PlayOk() {
+		audioSource.PlayOneShot(okSounds[Random.Range(0, okSounds.Length)], Random.Range(0.7f, 1f));
 	}
 
 
@@ -654,9 +663,9 @@ public class serial : MonoBehaviour
 	private void NextRound() {
 		playerTurn = 0;
 		if(totalThrows < 5) {
-			totalThrows= totalThrows +2;
+			totalThrows = totalThrows + 2;
 		}
-		if(gameMode == 6 || gameMode == 7) {
+		if(gameMode == 6){ //  || gameMode == 7) {
 			Shuffle(nextPlayerTurnList);
 		}
 		//nextPlayerTurnList = nextPlayerTurnList.OrderBy(x => Random.value).ToList();
@@ -785,6 +794,7 @@ public class serial : MonoBehaviour
 						RemoveAllListObjectsPleyers();
 					}
 					AddPlayer();
+					//PlayOk();
 				}
 
 				gameStarted = false;
