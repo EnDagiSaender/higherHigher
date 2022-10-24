@@ -85,10 +85,10 @@ public class serial : MonoBehaviour
 	private bool inBetween = false;
 
 
-	//private int winnerFontSizeMin = 180;
-	//private int winnerFontSizeMax = 270;
-	//private int winnerFontSize = 180;
-	//private int winnerFontSizeIncrease = 5;
+	private int winnerFontSizeMin = 180;
+	private int winnerFontSizeMax = 250;
+	private int winnerFontSize = 180;
+	private int winnerFontSizeIncrease = 5;
 
 	private Image playerFocusImage = null;
 	//private Image[] playerFocusImage2 = null;
@@ -107,7 +107,7 @@ public class serial : MonoBehaviour
 	private int oldScore2 = 0;
 	private int nrOfBlink;
 	//private float timer = 0;
-	//private float flashTimer = 0;
+	private float flashTimer = 0;
 	private float deltaTime;
 	//private bool even = false;
 	//private bool blinkOn = false;
@@ -793,23 +793,23 @@ public class serial : MonoBehaviour
 	}
 
 
-//	void Update() {
+	void Update() {
 		//deltaTime = Time.deltaTime;
 		//timer += deltaTime;
 
 
-		//if(WinnerCanvas.activeSelf) {
-		//	flashTimer += Time.deltaTime;// deltaTime;
-		//	if((flashTimer) > 0.02) {
-		//		winnerFontSize = winnerFontSize + winnerFontSizeIncrease;
-		//		if(winnerFontSize >= winnerFontSizeMax || winnerFontSize <= winnerFontSizeMin) {
-		//			winnerFontSizeIncrease = winnerFontSizeIncrease * -1;
-		//		}
-		//		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = winnerFontSize;
-		//		flashTimer = 0;
-		//	}
-		//}
-//    }
+		if(WinnerCanvas.activeSelf) {
+			flashTimer += Time.deltaTime;// deltaTime;
+			if((flashTimer) > 0.02) {
+				winnerFontSize = winnerFontSize + winnerFontSizeIncrease;
+				if(winnerFontSize >= winnerFontSizeMax || winnerFontSize <= winnerFontSizeMin) {
+					winnerFontSizeIncrease = winnerFontSizeIncrease * -1;
+				}
+				WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = winnerFontSize;
+				flashTimer = 0;
+			}
+		}
+	}
 	private void changeColor2(Color32 color, TextMeshProUGUI[] text) {
 		foreach(TextMeshProUGUI Text in text) {
 			Text.color = color;
