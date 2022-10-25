@@ -43,6 +43,7 @@ public class serial : MonoBehaviour
 	[SerializeField] Transform elementWrapper;
 	List<GameObject> uiElements = new List<GameObject>();
 	List<GameObject> uiElementsPlayers = new List<GameObject>();
+	List<GameObject> uiElementsPlayersSingleGame = new List<GameObject>();
 
 	[SerializeField] Sprite Sprite1;
 	[SerializeField] Sprite Sprite2;
@@ -125,7 +126,8 @@ public class serial : MonoBehaviour
 	private bool randomizeNewNr = true;
 	private bool onePlayerGame = false;
 
-	[SerializeField] AudioSource audioSource; 
+	[SerializeField] AudioSource audioSource;
+	private bool modifiedLives = false; 
 
 
 	private void AddPlayerPannel(Vector3 position) {
@@ -188,7 +190,11 @@ public class serial : MonoBehaviour
 		foreach(GameObject t in uiElementsPlayers) {
 			Destroy(t);
 		}
+		foreach(GameObject t in uiElementsPlayersSingleGame) {
+			Destroy(t);
+		}
 		//uiElementsPlayers.RemoveRange(0, uiElementsPlayers.Count);
+		uiElementsPlayersSingleGame.Clear();
 		uiElementsPlayers.Clear();
 		playerLivesList.Clear();
 		nextPlayerTurnList.Clear();
@@ -247,6 +253,7 @@ public class serial : MonoBehaviour
 	private void OnEnable() {
 		EventManager.NewGame += newGame;
 		EventManager.ChangedDir += changeGame;
+		EventManager.ChangeLives += ChangeTotalLives;
 		EventManager.NewScore += updateScore;
 		HighscoreUI.PlayWinnerSound += PlayWinner;
 		HighscoreUI.PlayDrawSound += PlayDraw;
@@ -254,15 +261,12 @@ public class serial : MonoBehaviour
 		totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
 		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
 		GameName.text = DisplayCurrentGameName;
-
-
-
-
 	}
 	private void OnDisable() {
 		EventManager.NewGame -= newGame;
 		EventManager.ChangedDir -= changeGame;
 		EventManager.NewScore -= updateScore;
+		EventManager.ChangeLives -= ChangeTotalLives;
 		HighscoreUI.PlayWinnerSound -= PlayWinner;
 		HighscoreUI.PlayDrawSound -= PlayDraw;
 	}
@@ -383,43 +387,43 @@ public class serial : MonoBehaviour
 	}
 	private void UpdateDisplayGameMode5(int point) {
 		
-		if(playerTurn >= nextPlayerTurnList.Count) {
-			playerTurn = 0;
-			playerScoreList.Clear();
-			foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
-				ResetScore(ActiveDisplay, true, false);
-			}
-			playersListActiveDisplay.Clear();
-			CancelInvoke("NextRound");
-			print("THIS IS NOT GOOD!2");
-		}
-		if(nextPlayerTurnList.Count <= 2) {
+		//if(playerTurn >= nextPlayerTurnList.Count) {
+		//	playerTurn = 0;
+		//	playerScoreList.Clear();
+		//	foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
+		//		ResetScore(ActiveDisplay, true, false);
+		//	}
+		//	playersListActiveDisplay.Clear();
+		//	CancelInvoke("NextRound");
+		//	print("THIS IS NOT GOOD!2");
+		//}
+		//if(nextPlayerTurnList.Count <= 2) {
 
-			BetweenNumbers(point);
-			print("THIS IS NOT GOOD!3");
-			return;
-		}
+		//	BetweenNumbers(point);
+		//	print("THIS IS NOT GOOD!3");
+		//	return;
+		//}
 
 		if (playerScoreList.Count > 1) {
 			List<int> cloneScoreList = new List<int>(playerScoreList);
 			cloneScoreList.Sort();
 			if(cloneScoreList[0] > point) {
-				print("x1");
+				//print("x1");
 				lowestScorePlayer = playerTurn;
 				MoveLowerHigherScore(cloneScoreList[0]);
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1] , 1);
 			} else if(cloneScoreList[cloneScoreList.Count - 1] < point) {
-				print("x2");
+				//print("x2");
 				highestScorePlayer = playerTurn;
 				MoveLowerHigherScore(cloneScoreList[cloneScoreList.Count - 1]);
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
 			} else {
-				print("x3");
+				//print("x3");
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
 			}
 		} else if(playerScoreList.Count == 1) {
 			if(playerScoreList[0] < point) {
-				print("x4");
+				//print("x4");
 				lowestScorePlayer = 0;
 				highestScorePlayer = playerTurn;
 				MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 1));
@@ -427,7 +431,7 @@ public class serial : MonoBehaviour
 				playersListActiveDisplay[0] = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 1);
 				score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 13);
 			} else {
-				print("x5");
+				//print("x5");
 				lowestScorePlayer = playerTurn;
 				highestScorePlayer = 0;
 				MoveText(playersListActiveDisplay[0], MakeScoreArray(playersList[nextPlayerTurnList[playerTurn - 1] - 1], 13));
@@ -437,7 +441,7 @@ public class serial : MonoBehaviour
 			}
 			
 		} else {
-			print("x6");
+			//print("x6");
 			score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
 		}
 		playerScoreList.Add(point);
@@ -498,7 +502,7 @@ public class serial : MonoBehaviour
 			PlayWinner();
 			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
 		}
-		print(winnerText);
+		//print(winnerText);
 		busyThinking = false;
 		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().text = winnerText;
 		WinnerCanvas.SetActive(true);
@@ -510,7 +514,12 @@ public class serial : MonoBehaviour
 	private void DisplayBetweenNumbers() {
 		if(randomizeNewNr) {
 			lowNr = UnityEngine.Random.Range(10, 35) * 10;
-			highNr = lowNr + 120 - (totalThrows *10);
+			if(totalThrows < 11) {
+				highNr = lowNr + 120 - (totalThrows * 10);
+			} else {
+				highNr = lowNr + 120 - (10 * 10);
+			}
+			
 			randomizeNewNr = false;
 		}
 		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
@@ -525,16 +534,16 @@ public class serial : MonoBehaviour
 
 	}
 	private void BetweenNumbers(int point) {
-		if(playerTurn >= nextPlayerTurnList.Count) {
-			playerTurn = 0;
-			playerScoreList.Clear();
-			foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
-				ResetScore(ActiveDisplay, true, false);
-			}
-			playersListActiveDisplay.Clear();
-			CancelInvoke("NextRound");
-			print("THIS IS NOT GOOD!");
-		}
+		//if(playerTurn >= nextPlayerTurnList.Count) {
+		//	playerTurn = 0;
+		//	playerScoreList.Clear();
+		//	foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
+		//		ResetScore(ActiveDisplay, true, false);
+		//	}
+		//	playersListActiveDisplay.Clear();
+		//	CancelInvoke("NextRound");
+		//	print("THIS IS NOT GOOD!");
+		//}
 
 		score1 = MakeScoreArray(playersList[nextPlayerTurnList[playerTurn] - 1], 7);
 		ScoreToDisplay(score1, point);
@@ -545,10 +554,8 @@ public class serial : MonoBehaviour
 			changeColor2(new Color32(0, 255, 0, 220), score1);
 			if(onePlayerGame) {
 				totalScore += Mathf.CeilToInt(60-Mathf.Abs(((highNr + lowNr)/2)-point));
-				
-
-
-
+				//print(Mathf.CeilToInt(60 - Mathf.Abs(((highNr + lowNr) / 2) - point)));
+				//print(totalScore);
 			}
 		}
 		playersListActiveDisplay.Add(score1);
@@ -588,22 +595,76 @@ public class serial : MonoBehaviour
 		}
 	}
 	private void NextRound() {
-		playerTurn = 0;
-		if(totalThrows < 11) {
-			totalThrows++;
-		}
+		playerTurn = 0;		
+		totalThrows++;		
 		if(gameMode == 6){ //  || gameMode == 7) {
 			Shuffle(nextPlayerTurnList);
+		}
+		if(onePlayerGame) {
+			OnePlayerGame();
+			return;
 		}
 		playerScoreList.Clear();
 		foreach(TextMeshProUGUI[] ActiveDisplay in playersListActiveDisplay) {
 			ResetScore(ActiveDisplay, true, false);
 		}
+		
 		playersListActiveDisplay.Clear();
 		FlashActivePlayer();
 		if(inBetween) {
 			DisplayBetweenNumbers();
 		}
+	}
+
+	private void OnePlayerGame() {
+
+		playersList[0][0].text = "Throw nr: " + totalThrows.ToString();
+		//uiElementsPlayers[0].transform.localPosition = new Vector3(-430, 279, 0);
+		uiElementsPlayersSingleGame.Insert(0, uiElementsPlayers[0]);
+		uiElementsPlayers.Clear();
+		playersList.Clear();
+		for(int i = 0; i < uiElementsPlayersSingleGame.Count; i++) {
+			switch(i) {
+				case 0:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, 279, 0));
+					break;
+				case 1:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, 90, 0));
+					break;
+				case 2:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, -90, 0));
+					break;
+				case 3:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, -258, 0));
+					break;
+				case 4:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, -436, 0));
+					break;
+				case 5:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, -613, 0));
+					break;
+				case 6:
+					uiElementsPlayersSingleGame[i].transform.localPosition = (new Vector3(-430, -775, 0));
+					break;
+				default:
+					Destroy(uiElementsPlayersSingleGame[i]);
+					uiElementsPlayersSingleGame.RemoveAt(i);
+					break;
+			}
+		}
+
+		AddPlayerPannel(new Vector3(-430, 450, 0));
+		GetPlayerInfo();
+		playersList[0][0].text = "Throw nr: " + (totalThrows+1).ToString();
+		playersList[0][19].text = playerLivesList[0].ToString();
+		playersListActiveDisplay.Clear();
+		FlashActivePlayer();
+		//PlayerNrPanel.transform.localPosition = new Vector3(45, 760, 0);
+		//GetPlayerInfo();
+
+
+
+		DisplayBetweenNumbers();
 	}
 
 	private void RemovePlayerIfDead2(int playerNr) {
@@ -612,7 +673,7 @@ public class serial : MonoBehaviour
 		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
 
 		if(playerLivesList[nextPlayerTurnList[playerNr] - 1] <= 0) {
-			print("player " + nextPlayerTurnList[playerNr] + " is dead!");
+			//print("player " + nextPlayerTurnList[playerNr] + " is dead!");
 			playersList[nextPlayerTurnList[playerNr] - 1][0].text = "";
 			nextPlayerTurnList.RemoveAt(playerNr);
 			if(inBetween) {
@@ -626,9 +687,14 @@ public class serial : MonoBehaviour
 			PlayerNrPanel.SetActive(true);
 		}
 		players++;
-		
+		if(players > 8) {
+			return;
+			players = 8;
+			nextPlayerTurnList.Clear();
+		}
 		switch(players) {
 			case 1:
+				totalLifes = 2;
 				AddPlayerPannel(new Vector3(-430, 450, 0));
 				GetPlayerInfo();
 				PlayerNrPanel.transform.localPosition = new Vector3(45, 760, 0);
@@ -672,11 +738,8 @@ public class serial : MonoBehaviour
 			default:
 				break;
 		}
-		if(players > 8) {
-			players = 8;
-			nextPlayerTurnList.Clear();
-		}
-		playerLivesList.Add(2);
+		
+		playerLivesList.Add(totalLifes);
 		nextPlayerTurnList.Add(players);
 		CancelInvoke("FlashActivePlayer");
 		Invoke("FlashActivePlayer", 2f);
@@ -709,6 +772,8 @@ public class serial : MonoBehaviour
 				}
 
 				gameStarted = false;
+				modifiedLives = false;
+				totalLifes = 0;
 				NewGame();
 			}
 		}
@@ -782,6 +847,29 @@ public class serial : MonoBehaviour
 		get {
 			return gameOver;
 		}
+	}
+	public bool IsGameStarted {
+		get {
+			return gameStarted;
+		}
+
+	}
+	private void ChangeTotalLives(bool addLife) {
+		if(addLife) {
+			totalLifes++;
+			modifiedLives = true;
+		} else {
+			totalLifes--;
+		}
+		if(gameMode < 5) {
+			totalLives[0].text = (totalLifes).ToString();
+		} else {
+			for(int i = 0; i < playerLivesList.Count; i++) {
+				playerLivesList[i] = totalLifes;
+				playersList[i][19].text = totalLifes.ToString();
+			}
+		}
+
 	}
 	// Update is called once per frame
 	bool NotShowingHighScore() {
@@ -884,7 +972,7 @@ public class serial : MonoBehaviour
 			score5[4].text = "";
 
 			totalLives[0].text = "";
-			totalLifes = 0;
+			totalLifes = 1;
 
 			if(gameMode == 0) {                 // no decimal
 				totalScores[5].text = "";
@@ -905,7 +993,7 @@ public class serial : MonoBehaviour
 					score5[4].text = ".";
 					if(gameMode == 3 || gameMode == 4 ) {//Set Lives
 						totalLives[0].text = "2";
-						totalLifes = 1;
+						totalLifes = 2;
 					}
 				}
 
@@ -930,9 +1018,9 @@ public class serial : MonoBehaviour
 		if(gameMode != 1) {
 			changeColor2(new Color32(255, 0, 0, 220), score1);
 		}
-		if(totalLifes > 0) {
+		if(totalLifes > 1) {
 			totalLifes -= 1;
-			totalLives[0].text = (totalLifes +1).ToString();
+			totalLives[0].text = (totalLifes).ToString();//+1
 			lostLife = true;
 		} else {
 			gameOver = true;
@@ -943,8 +1031,10 @@ public class serial : MonoBehaviour
 	}
 	private void GameIsOverAfterDelay() {
 		busyThinking = false;
-		if(GameIsOver != null) {
-			GameIsOver();
+		if(!modifiedLives) {
+			if(GameIsOver != null) {
+				GameIsOver();
+			}
 		}
 	}
 	private bool IsWithin(int a, int b, int c) {

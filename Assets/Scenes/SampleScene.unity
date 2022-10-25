@@ -1902,6 +1902,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29ff99dfd36e25140bfb6c8f2d93671f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serial: {fileID: 869825192}
 --- !u!82 &869825194
 AudioSource:
   m_ObjectHideFlags: 0

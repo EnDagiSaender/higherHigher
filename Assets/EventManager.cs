@@ -12,11 +12,17 @@ public class EventManager : MonoBehaviour
 	public delegate void ChangeDirection(bool right);
 	public static event ChangeDirection ChangedDir;
 
+	public delegate void ChangeTotalLives(bool addMoreLives);
+	public static event ChangeTotalLives ChangeLives;
+
 	public delegate void StartGame();
 	public static event StartGame NewGame;
 
 	public delegate void SerialScore(int score);
 	public static event SerialScore NewScore;
+
+
+	[SerializeField] serial serial;
 
 	SerialPort portNo = new SerialPort("\\\\.\\COM3", 115200);
 	// Start is called before the first frame update
@@ -46,14 +52,14 @@ public class EventManager : MonoBehaviour
 			portNo = new SerialPort("\\\\.\\" + ports[0], 115200);
 			try {
 				portNo.Open();
-				portNo.ReadTimeout = 500;
+				portNo.ReadTimeout = 100;
 				anyPortOpen = true;
 			} catch {
 				print("no port to open");
 			}
 		} else {
 			Invoke("Open",10f);
-			//print("try open a port in 10 sec again");
+			print("try open a port in 10 sec again");
 
 		}
 
@@ -62,7 +68,9 @@ public class EventManager : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
-
+		if(Input.GetKeyDown(KeyCode.Q)) {
+			Application.Quit();
+		}
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
 		{
 			if (ChangedDir != null)
@@ -77,7 +85,21 @@ public class EventManager : MonoBehaviour
 				ChangedDir(true);
 			}
 		}
-
+		if(Input.GetKeyDown(KeyCode.UpArrow) )
+		{
+			if(!(serial.IsGameStarted)) {
+				if(ChangeLives != null) {
+					ChangeLives(true);
+				}
+			}
+		}
+		if(Input.GetKeyDown(KeyCode.DownArrow)) {
+			if(!(serial.IsGameStarted)) {
+				if(ChangeLives != null) {
+					ChangeLives(false);
+				}
+			}
+		}
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			if (NewGame != null)
@@ -138,36 +160,39 @@ public class EventManager : MonoBehaviour
 		if(timer > 0.1) {
 			timer = 0;
 			if(anyPortOpen && portNo.IsOpen) {
-				try {
-					///readByte(portNo.ReadByte());
-					string msg = portNo.ReadLine();
-					string[] message = msg.Split(',');
-					if(Equals(message[0], "s")) {
-						//print(message[1]);
-						int speed = int.Parse(message[1]);
-						if(NewScore != null) {
-							NewScore(speed);
-						}
-					} else if(Equals(message[0], "n")) {
-						//print("New");
-						if(NewGame != null) {
-							NewGame();
-						}
-					} else if(Equals(message[0], "c")) {
-						bool rightChange = true;
-						//print("right");
-						if(ChangedDir != null) {
-							ChangedDir(rightChange);							
-						}
-					} else if(Equals(message[0], "d")) {
-						bool rightChange = false;
-						//print("left");
-						if(ChangedDir != null) {
-							ChangedDir(rightChange);
-						}
-					}
-				} catch {
+				if(portNo.BytesToRead != 0) {
+					try {
+						///readByte(portNo.ReadByte());
 
+						string msg = portNo.ReadLine();
+						string[] message = msg.Split(',');
+						if(Equals(message[0], "s")) {
+							//print(message[1]);
+							int speed = int.Parse(message[1]);
+							if(NewScore != null) {
+								NewScore(speed);
+							}
+						} else if(Equals(message[0], "n")) {
+							//print("New");
+							if(NewGame != null) {
+								NewGame();
+							}
+						} else if(Equals(message[0], "c")) {
+							bool rightChange = true;
+							//print("right");
+							if(ChangedDir != null) {
+								ChangedDir(rightChange);
+							}
+						} else if(Equals(message[0], "d")) {
+							bool rightChange = false;
+							//print("left");
+							if(ChangedDir != null) {
+								ChangedDir(rightChange);
+							}
+						}
+					} catch {
+
+					}
 				}
 			}
 		}
