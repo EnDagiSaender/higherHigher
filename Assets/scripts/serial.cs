@@ -766,6 +766,7 @@ public class serial : MonoBehaviour
 					if(gameStarted == true) {
 						RemoveAllListObjects();
 						RemoveAllListObjectsPleyers();
+						totalLifes = 0;
 					}
 					AddPlayer();
 					//PlayOk();
@@ -773,7 +774,7 @@ public class serial : MonoBehaviour
 
 				gameStarted = false;
 				modifiedLives = false;
-				totalLifes = 0;
+				totalScore = 0;
 				NewGame();
 			}
 		}

@@ -7,11 +7,14 @@ using UnityEngine.UI;
 public class HighscoreUI : MonoBehaviour {
     [SerializeField] GameObject panel;
     [SerializeField] GameObject highscoreUIElementPrefab;
-    [SerializeField] Transform elementWrapper;
+	[SerializeField] GameObject highscoreUIElementPrefabSmallDisplay;
+	[SerializeField] Transform elementWrapper;
+	[SerializeField] Transform elementWrapperSmallDisplay;
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] HighscoreHandler highscoreHandler;
 	[SerializeField] serial serial;
 	[SerializeField] private TextMeshProUGUI gameName;
+	[SerializeField] private TextMeshProUGUI gameNameSmallDisplay;
 	[SerializeField] keypress keypress;
 
 	public delegate void PlayWinner();
@@ -23,12 +26,14 @@ public class HighscoreUI : MonoBehaviour {
 	//[SerializeField] keypress enterHighscore;
 
 	List<GameObject> uiElements = new List<GameObject> ();
+	List<GameObject> uiElementsSmall = new List<GameObject>();
 
-    private void OnEnable () {
+	private void OnEnable () {
         HighscoreHandler.onHighscoreListChanged += UpdateUI;
 		serial.GameIsOver += GameOver;
 		serial.GameChanged += GameChanged;
 		gameName.text = serial.CurrentGame;
+		gameNameSmallDisplay.text = serial.CurrentGame;
 		//print(elementWrapper.GetChild(0).GetType());
 		//Destroy(elementWrapper.GetChild(0));
 		//foreach(Transform t in elementWrapper.transform) {
@@ -43,6 +48,7 @@ public class HighscoreUI : MonoBehaviour {
 	}
 	public void GameChanged() {
 		gameName.text = serial.CurrentGame;
+		gameNameSmallDisplay.text = serial.CurrentGame;
 		//for(int i = 0; i < uiElements.Count; i++) {
 		//print(elementWrapper.childCount);
 
@@ -51,7 +57,11 @@ public class HighscoreUI : MonoBehaviour {
 		foreach(Transform t in elementWrapper.transform) {
 			Destroy(t.gameObject);
 		}
+		foreach(Transform t in elementWrapperSmallDisplay.transform) {
+			Destroy(t.gameObject);
+		}
 		uiElements.RemoveRange(0, uiElements.Count);
+		uiElementsSmall.Clear();
 	}
 	public void GameOver() {
 		//if(setHighScorePanel.activeSelf == false) {
@@ -95,8 +105,14 @@ public class HighscoreUI : MonoBehaviour {
                     // instantiate new entry
                     var inst = Instantiate (highscoreUIElementPrefab, Vector3.zero, Quaternion.identity);
                     inst.transform.SetParent (elementWrapper, false);
+					uiElements.Add(inst);
+					//inst.transform.SetParent(elementWrapperSmallDisplay, false);
+					//uiElementsSmall.Add(inst);
 
-                    uiElements.Add (inst);
+
+					inst = Instantiate(highscoreUIElementPrefabSmallDisplay, Vector3.zero, Quaternion.identity);
+					inst.transform.SetParent(elementWrapperSmallDisplay, false);
+					uiElementsSmall.Add(inst);
 					//uiElements.Remove(inst);
 				}
 
@@ -106,6 +122,11 @@ public class HighscoreUI : MonoBehaviour {
 				texts[0].text = el.playerName;
                 texts[1].text = el.points.ToString ();
 				texts[2].text = el.throws.ToString();
+				texts = uiElementsSmall[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+				texts[0].text = el.playerName;
+				texts[1].text = el.points.ToString();
+				texts[2].text = el.throws.ToString();
+
 			}
         }
     }
