@@ -119,13 +119,15 @@ public class HighscoreUI : MonoBehaviour {
 				// write or overwrite name & points
 				//var texts = uiElements[i].GetComponentsInChildren<Text> ();
 				var texts = uiElements[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-				texts[0].text = el.playerName;
-                texts[1].text = el.points.ToString ();
-				texts[2].text = el.throws.ToString();
+				texts[0].text = (i + 1).ToString();
+				texts[1].text = el.playerName;
+				texts[2].text = el.points.ToString();
+				texts[3].text = el.throws.ToString();
 				texts = uiElementsSmall[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-				texts[0].text = el.playerName;
-				texts[1].text = el.points.ToString();
-				texts[2].text = el.throws.ToString();
+				texts[0].text = (i+1).ToString();
+				texts[1].text = el.playerName;
+				texts[2].text = el.points.ToString();
+				texts[3].text = el.throws.ToString();
 
 			}
         }
