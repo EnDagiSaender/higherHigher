@@ -32,7 +32,7 @@ public class keypress : MonoBehaviour
 
 	
 
-
+	public int highScoreNr = 1;
 	private int letterCounter = 0;
 	//char[] highScoreChar = new char[] { ' ', ' ', ' ' };
 	string highScoreString = "";
@@ -79,7 +79,7 @@ public class keypress : MonoBehaviour
 		//	}
 		//}
 		highScoreString = highScoreLetters[0].text + highScoreLetters[1].text + highScoreLetters[2].text;
-		highscoreHandler.AddHighscoreIfPossible(new HighscoreElement(highScoreString, serial.Points, serial.Throws));
+		highScoreNr = highscoreHandler.AddHighscoreIfPossible(new HighscoreElement(highScoreString, serial.Points, serial.Throws));
 		highScoreLetters[0].text = "_";
 		highScoreLetters[1].text = "_";
 		highScoreLetters[2].text = "_";

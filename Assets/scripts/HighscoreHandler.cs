@@ -8,6 +8,7 @@ public class HighscoreHandler : MonoBehaviour {
 	[SerializeField] int maxCount = 5;
     [SerializeField] string filename;
 	string filename2 = "test";
+	public int highScoreNr = -1;
 
 	public delegate void OnHighscoreListChanged (List<HighscoreElement> list);
     public static event OnHighscoreListChanged onHighscoreListChanged;
@@ -66,11 +67,13 @@ public class HighscoreHandler : MonoBehaviour {
 		}
 		return hs;
 	}
-	public void AddHighscoreIfPossible(HighscoreElement element) {
+	public int AddHighscoreIfPossible(HighscoreElement element) {
+		highScoreNr = -1;
 		for(int i = 0; i < maxCount; i++) {
 			if(i >= highscoreList.Count || element.throws  > highscoreList[i].throws) {
 										  // add new high score
 				highscoreList.Insert(i, element);
+				highScoreNr = i;
 				//print(i);
 
 				while(highscoreList.Count > maxCount) {
@@ -82,11 +85,12 @@ public class HighscoreHandler : MonoBehaviour {
 				if(onHighscoreListChanged != null) {
 					onHighscoreListChanged.Invoke(highscoreList);
 				}
-
+				return i;
 				break;
 			} else if(element.throws == highscoreList[i].throws) {
 				if(element.points > highscoreList[i].points) {
 					highscoreList.Insert(i, element);
+					highScoreNr = i;
 					//print(i);
 					while(highscoreList.Count > maxCount) {
 						highscoreList.RemoveAt(maxCount);
@@ -97,12 +101,14 @@ public class HighscoreHandler : MonoBehaviour {
 					if(onHighscoreListChanged != null) {
 						onHighscoreListChanged.Invoke(highscoreList);
 					}
-
+					return i;
 					break;
 				}
 
 			}
 		}
+		return -1;
+		//return highScoreNr;
 	}
 	//public void AddHighscoreIfPossible (HighscoreElement element) {
 	//       for (int i = 0; i < maxCount; i++) {

@@ -26,6 +26,7 @@ public class serial : MonoBehaviour
 	[SerializeField] EventManager EventManager;
 	[SerializeField] Transform MainCanvas;
 	[SerializeField] GameObject WinnerCanvas;
+	[SerializeField] GameObject CreditsCanvas;
 	[SerializeField] HighscoreUI HighscoreUI;
 
 	[SerializeField] GameObject lagomUIElementPrefab;
@@ -60,6 +61,8 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject scorePanel5;
 
 	[SerializeField] TextMeshProUGUI GameName;
+	[SerializeField] TextMeshProUGUI[] creditText;
+	[SerializeField] TextMeshProUGUI insertCoinText;
 
 	private TextMeshProUGUI[] totalLives;
 	private TextMeshProUGUI[] totalthrows;
@@ -127,8 +130,9 @@ public class serial : MonoBehaviour
 	private bool onePlayerGame = false;
 
 	[SerializeField] AudioSource audioSource;
-	private bool modifiedLives = false; 
-
+	private bool modifiedLives = false;
+	private int credits = 3;
+	private bool freePlay = true;
 
 	private void AddPlayerPannel(Vector3 position) {
 		var inst = Instantiate(lagomUIElementPrefab, position, Quaternion.identity);
@@ -179,6 +183,10 @@ public class serial : MonoBehaviour
 				from[i].text = "";
 			}
 		}
+	}
+	private void DisplayCredits() {
+		highScorePanel.SetActive(false);
+		CreditsCanvas.SetActive(true);
 	}
 	private void RemoveAllListObjects() {
 		foreach(GameObject t in uiElements) {
@@ -234,7 +242,21 @@ public class serial : MonoBehaviour
 			text[i].text = "";
 		}
 	}
+	private void UpdateCreditText() {
+		foreach(TextMeshProUGUI text in creditText) {
+			if(freePlay) {
+				text.text = "FREEPLAY";
+			} else {
+				text.text = "CREDITS " + credits.ToString();
+			}
+		}
+		if(credits > 0 || freePlay ) {
+			insertCoinText.text = "PUSH START";
+		} else {
+			insertCoinText.text = "INSERT COIN";
+		}
 
+	}
 	private void GetPlayerInfo() {
 		TextMeshProUGUI[] temparray = uiElementsPlayers[players-1].GetComponentsInChildren<TextMeshProUGUI>();
 		TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
@@ -286,8 +308,10 @@ public class serial : MonoBehaviour
 			}
 			highScorePanel.SetActive(false);
 			GameName.text = DisplayCurrentGameName;
-			gameStarted = true; // to not create more players while changing gamemode
-			newGame(); ////change to NewGame if not working
+			//gameStarted = true; // to not create more players while changing gamemode
+			//newGame(); ////change to NewGame if not working
+			gameOver = true;
+			ResetScores();
 			if(GameChanged != null) {
 				GameChanged();
 				}
@@ -753,7 +777,9 @@ public class serial : MonoBehaviour
 		}
 	}
 	private void newGame() {
+		print("trying to start new game");
 		if(!busyThinking) {
+			print("start new game");
 			if(setHighScorePanel.activeSelf == false) {// && blinkOn == false) {
 				highScorePanel.SetActive(false);
 				gameOver = false;
@@ -775,7 +801,8 @@ public class serial : MonoBehaviour
 				gameStarted = false;
 				modifiedLives = false;
 				totalScore = 0;
-				NewGame();
+				CreditsCanvas.SetActive(false);
+				//ResetScores();
 			}
 		}
 	}
@@ -783,7 +810,9 @@ public class serial : MonoBehaviour
 
 	void Start()
     {
-		NewGame();
+		ResetScores();
+		UpdateCreditText();
+		//StartCoroutine(BlinkSegments(insertCoinText, 0.5f));
 	}
 
 	public int Points {
@@ -932,7 +961,18 @@ public class serial : MonoBehaviour
 		}
 
 	}
+	private IEnumerator BlinkSegments(TextMeshProUGUI segment, float blinkInterval) {
+		while(true) {
+			//if(segment.enabled) {
+			//	segment.enabled = false;
+			//} else {
+			//	segment.enabled = true;
+			//}
+			segment.enabled = !segment.enabled;
+			yield return new WaitForSeconds(blinkInterval);
+		}
 
+	}
 	private void blinkDisplay(bool enabled) {
 		score1[0].enabled = enabled;
 		score1[1].enabled = enabled;
@@ -941,13 +981,13 @@ public class serial : MonoBehaviour
 			score1[3].enabled = enabled;
 		}
 	}
-	private void NewGame() {
+	private void ResetScores() {
 		WinnerCanvas.SetActive(false);
 		totalThrows = 0;
+		RemoveAllListObjects();
+		RemoveAllListObjectsPleyers();
 		if(gameMode < 5) {
-			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;
-			RemoveAllListObjects();
-			RemoveAllListObjectsPleyers();
+			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;			
 			score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
 			score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
 			score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
@@ -1006,10 +1046,9 @@ public class serial : MonoBehaviour
 			oldScore = 0;
 			oldScore2 = 0;
 			totalThrows = 0;
-			gameOver = false;
+			//gameOver = false;
 		} else if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
 			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite2;
-			RemoveAllListObjects();
 			GameName.GetComponentInParent<Transform>().localPosition = new Vector3(0, 888, 0);
 		}
 	}

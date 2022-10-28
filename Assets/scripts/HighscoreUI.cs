@@ -128,6 +128,10 @@ public class HighscoreUI : MonoBehaviour {
 				texts[1].text = el.playerName;
 				texts[2].text = el.points.ToString();
 				texts[3].text = el.throws.ToString();
+				if(highscoreHandler.highScoreNr == i) {
+					texts[2].text = "99993";
+				}
+				highscoreHandler.highScoreNr = -1;
 
 			}
         }
