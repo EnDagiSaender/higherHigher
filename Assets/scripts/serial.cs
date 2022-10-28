@@ -312,6 +312,7 @@ public class serial : MonoBehaviour
 			//newGame(); ////change to NewGame if not working
 			gameOver = true;
 			ResetScores();
+			CreditsCanvas.SetActive(true);
 			if(GameChanged != null) {
 				GameChanged();
 				}
@@ -793,14 +794,18 @@ public class serial : MonoBehaviour
 						RemoveAllListObjects();
 						RemoveAllListObjectsPleyers();
 						totalLifes = 0;
+						WinnerCanvas.SetActive(false);
 					}
 					AddPlayer();
 					//PlayOk();
+				} else {
+					ResetScores();
 				}
 
 				gameStarted = false;
 				modifiedLives = false;
 				totalScore = 0;
+				totalThrows = 0;
 				CreditsCanvas.SetActive(false);
 				//ResetScores();
 			}
@@ -812,6 +817,7 @@ public class serial : MonoBehaviour
     {
 		ResetScores();
 		UpdateCreditText();
+		CreditsCanvas.SetActive(true);
 		//StartCoroutine(BlinkSegments(insertCoinText, 0.5f));
 	}
 

@@ -16,6 +16,9 @@ public class HighscoreUI : MonoBehaviour {
 	[SerializeField] private TextMeshProUGUI gameName;
 	[SerializeField] private TextMeshProUGUI gameNameSmallDisplay;
 	[SerializeField] keypress keypress;
+	Coroutine blinkHs = null;
+	TextMeshProUGUI[] texts;
+	TextMeshProUGUI[] texts2;
 
 	public delegate void PlayWinner();
 	public static event PlayWinner PlayWinnerSound;
@@ -39,12 +42,14 @@ public class HighscoreUI : MonoBehaviour {
 		//foreach(Transform t in elementWrapper.transform) {
 		//	Destroy(t.gameObject);
 		//}
+
 	}
 
     private void OnDisable () {
         HighscoreHandler.onHighscoreListChanged -= UpdateUI;
 		serial.GameIsOver -= GameOver;
-		serial.GameChanged -= GameChanged;	
+		serial.GameChanged -= GameChanged;
+		
 	}
 	public void GameChanged() {
 		gameName.text = serial.CurrentGame;
@@ -54,6 +59,11 @@ public class HighscoreUI : MonoBehaviour {
 
 		//uiElements.RemoveRange(0, uiElements.Count);
 		//}
+		if(blinkHs != null) {
+			StopCoroutine(blinkHs);
+			HsEnableAfterStop();
+			blinkHs = null;
+		}
 		foreach(Transform t in elementWrapper.transform) {
 			Destroy(t.gameObject);
 		}
@@ -91,12 +101,40 @@ public class HighscoreUI : MonoBehaviour {
     public void ClosePanel () {
         panel.SetActive (false);
     }
+	private IEnumerator BlinkNewHighScore(float blinkInterval) {
+		texts = uiElements[highscoreHandler.highScoreNr].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+		texts2 = uiElementsSmall[highscoreHandler.highScoreNr].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+		while(true) {
+			for(int i = 1; i < texts.Length; i++) {
+				texts[i].enabled = !texts[i].enabled;
+			}
+			for(int i = 1; i < texts2.Length; i++) {
+				texts2[i].enabled = !texts2[i].enabled;
+			}
+			yield return new WaitForSeconds(blinkInterval);
+		}
 
-    private void UpdateUI (List<HighscoreElement> list) {
+	}
+	private void HsEnableAfterStop() {
+		//texts = uiElements[highscoreHandler.highScoreNr].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+		//texts2 = uiElementsSmall[highscoreHandler.highScoreNr].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+		for(int i = 1; i < texts.Length; i++) {
+			texts[i].enabled = true;
+		}
+		for(int i = 1; i < texts2.Length; i++) {
+			texts2[i].enabled = true;
+		}
+	}
+	private void UpdateUI (List<HighscoreElement> list) {
 		//foreach(Transform t in elementWrapper.transform) {
 		//	Destroy(t.gameObject);
 		//}
 		//uiElements.RemoveRange(0, uiElements.Count);
+		if(blinkHs != null) {
+			StopCoroutine(blinkHs);
+			HsEnableAfterStop();
+			blinkHs = null;
+		}
 		for (int i = 0; i < list.Count; i++) {
 			//print(list[i].playerName);
             HighscoreElement el = list[i];
@@ -118,7 +156,7 @@ public class HighscoreUI : MonoBehaviour {
 
 				// write or overwrite name & points
 				//var texts = uiElements[i].GetComponentsInChildren<Text> ();
-				var texts = uiElements[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+				texts = uiElements[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
 				texts[0].text = (i + 1).ToString();
 				texts[1].text = el.playerName;
 				texts[2].text = el.points.ToString();
@@ -128,13 +166,17 @@ public class HighscoreUI : MonoBehaviour {
 				texts[1].text = el.playerName;
 				texts[2].text = el.points.ToString();
 				texts[3].text = el.throws.ToString();
-				if(highscoreHandler.highScoreNr == i) {
-					texts[2].text = "99993";
-				}
-				highscoreHandler.highScoreNr = -1;
+				//if(highscoreHandler.highScoreNr == i) {
+				//	texts[2].text = "99993";
+				//}
+				
 
 			}
         }
-    }
+		if(highscoreHandler.highScoreNr != -1) {
+			blinkHs = StartCoroutine(BlinkNewHighScore(0.5f));
+			highscoreHandler.highScoreNr = -1;
+		}
+	}
 
 }

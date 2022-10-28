@@ -5534,6 +5534,7 @@ GameObject:
   - component: {fileID: 1783099277}
   - component: {fileID: 1783099276}
   - component: {fileID: 1783099275}
+  - component: {fileID: 1783099279}
   m_Layer: 5
   m_Name: HighScoreCanvas
   m_TagString: Untagged
@@ -5631,6 +5632,20 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1783099279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783099273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 365d2696bc8e78a479b24d77a201f9bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CreditsCanvas: {fileID: 1450319076}
+  HighScoreCanvas: {fileID: 1783099273}
 --- !u!1 &1802009910
 GameObject:
   m_ObjectHideFlags: 0
