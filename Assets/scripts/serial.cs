@@ -134,6 +134,8 @@ public class serial : MonoBehaviour
 	private int credits = 3;
 	private bool freePlay = true;
 
+	Coroutine flashPlayer = null;
+
 	private void AddPlayerPannel(Vector3 position) {
 		var inst = Instantiate(lagomUIElementPrefab, position, Quaternion.identity);
 		inst.transform.SetParent(MainCanvas, false);
@@ -306,6 +308,11 @@ public class serial : MonoBehaviour
 					gameMode = gameModeMax;
 				}
 			}
+			StopAllCoroutines();
+			CancelInvoke("FlashActivePlayer");
+			//if(flashPlayer != null) {
+			//	StopCoroutine(flashPlayer);
+			//}
 			highScorePanel.SetActive(false);
 			GameName.text = DisplayCurrentGameName;
 			//gameStarted = true; // to not create more players while changing gamemode
@@ -407,7 +414,7 @@ public class serial : MonoBehaviour
 		playerFocusImage = uiElementsPlayers[nextPlayerTurnList[playerTurn] - 1].GetComponentInChildren<Image>();
 		playerFocusImage.enabled = true;
 
-		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerTurn] - 1][0], 2, 0.5f));
+		flashPlayer = StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerTurn] - 1][0], 2, 0.5f));
 		busyThinking = false;
 	}
 	private void UpdateDisplayGameMode5(int point) {
@@ -695,7 +702,7 @@ public class serial : MonoBehaviour
 	private void RemovePlayerIfDead2(int playerNr) {
 		playerLivesList[nextPlayerTurnList[playerNr] - 1]--; //playerLivesList[playerNr]--;
 		playersList[nextPlayerTurnList[playerNr] - 1][19].text = playerLivesList[nextPlayerTurnList[playerNr] - 1].ToString();
-		StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
+		flashPlayer = StartCoroutine(BlinkSegments(playersList[nextPlayerTurnList[playerNr] - 1][19], 4, 0.2f));
 
 		if(playerLivesList[nextPlayerTurnList[playerNr] - 1] <= 0) {
 			//print("player " + nextPlayerTurnList[playerNr] + " is dead!");
@@ -965,6 +972,7 @@ public class serial : MonoBehaviour
 			yield return new WaitForSeconds(blinkInterval);
 
 		}
+		flashPlayer = null;
 
 	}
 	private IEnumerator BlinkSegments(TextMeshProUGUI segment, float blinkInterval) {
