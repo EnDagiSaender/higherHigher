@@ -21,6 +21,8 @@ public class EventManager : MonoBehaviour
 	public delegate void SerialScore(int score);
 	public static event SerialScore NewScore;
 
+	public delegate void ChangeLanguage();
+	public static event ChangeLanguage NewLanguage;
 
 	[SerializeField] serial serial;
 
@@ -114,6 +116,11 @@ public class EventManager : MonoBehaviour
 				NewGame();
 			}
 		}
+		if(Input.GetKeyDown(KeyCode.A)) {
+			if(NewLanguage != null) {
+				NewLanguage();
+			}
+		}
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			if(NewScore != null) {
@@ -188,6 +195,10 @@ public class EventManager : MonoBehaviour
 							//print("left");
 							if(ChangedDir != null) {
 								ChangedDir(rightChange);
+							}
+						} else if(Equals(message[0], "l")) {
+							if(NewLanguage != null) {
+								NewLanguage();
 							}
 						}
 					} catch {

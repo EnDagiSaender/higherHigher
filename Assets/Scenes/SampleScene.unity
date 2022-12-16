@@ -533,8 +533,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 888}
-  m_SizeDelta: {x: 1514.461, y: 120.832}
+  m_AnchoredPosition: {x: -13.931, y: 888}
+  m_SizeDelta: {x: 551.704, y: 120.832}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &206611971
 MonoBehaviour:
@@ -583,12 +583,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 92
+  m_fontSize: 95.4
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 50
+  m_fontSizeMax: 100
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -1371,8 +1371,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.98, y: -184.07}
-  m_SizeDelta: {x: 1079.9, y: 368.15}
+  m_AnchoredPosition: {x: 539.98, y: -88.4}
+  m_SizeDelta: {x: 1079.9, y: 176.811}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &519420028
 GameObject:
@@ -2222,6 +2222,7 @@ GameObject:
   m_Component:
   - component: {fileID: 790391274}
   - component: {fileID: 790391273}
+  - component: {fileID: 790391275}
   m_Layer: 0
   m_Name: Video Player
   m_TagString: Untagged
@@ -2237,7 +2238,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 790391272}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: dbde8073721bfe946ae2ba1ea03a9829, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: 11a71504c61088345900da2e6f41149f, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 823287298}
@@ -2249,7 +2250,7 @@ VideoPlayer:
   m_AspectRatio: 1
   m_DataSource: 0
   m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
+  m_AudioOutputMode: 0
   m_TargetAudioSources:
   - {fileID: 0}
   m_DirectAudioVolumes:
@@ -2279,6 +2280,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &790391275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790391272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ed17b25631f2434ab5d2346d9255e82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serial: {fileID: 869825192}
 --- !u!1 &823287297
 GameObject:
   m_ObjectHideFlags: 0
@@ -2595,20 +2609,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 570eec79f60bbeb498dc879e859fb672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwSounds:
-  - {fileID: 8300000, guid: 2dc23c57032b993479a8c35eec8b528b, type: 3}
-  - {fileID: 8300000, guid: d691d04c9a1a9c641beaaa5d221bee4a, type: 3}
-  - {fileID: 8300000, guid: b1a87e6b611b4304694d2bc890a5db3d, type: 3}
-  - {fileID: 8300000, guid: 74610776fc88bbb4495080ce9b1287f3, type: 3}
-  winnerSounds:
-  - {fileID: 8300000, guid: f1dd5fae8d342d042bdceba45c0796ff, type: 3}
-  - {fileID: 8300000, guid: f4fa2d09ac0eba54fbcb9739f50b418e, type: 3}
-  drawSounds:
-  - {fileID: 8300000, guid: d3d0d89887cbb2f43a3ac502a9da180e, type: 3}
-  changeGameSounds:
-  - {fileID: 8300000, guid: 8ae2361d108a47941b497f42e9617be5, type: 3}
-  okSounds:
-  - {fileID: 8300000, guid: 3df29dfab07600a4d8370f9af372bda0, type: 3}
+  currentLanguage: 0
   highScorePanel: {fileID: 1783099273}
   setHighScorePanel: {fileID: 59575908}
   EventManager: {fileID: 869825193}
@@ -2616,6 +2617,7 @@ MonoBehaviour:
   WinnerCanvas: {fileID: 1275998076}
   CreditsCanvas: {fileID: 1450319076}
   HighscoreUI: {fileID: 1610253122}
+  BgImage: {fileID: 1554936674}
   lagomUIElementPrefab: {fileID: 8811061278771108125, guid: 31af2d18c97bf4d408d3b830e6c0e654, type: 3}
   scoreUIElementPrefab: {fileID: 2045298420035168899, guid: 0f2c4d3241db20d40a51184402f8d9f2, type: 3}
   BigScoreUIElementPrefab: {fileID: 3165314530952002410, guid: 3b95abd78967b144896b49d7058bdf99, type: 3}
@@ -2625,8 +2627,6 @@ MonoBehaviour:
   TotalThrowsUIElementPrefab: {fileID: 4506315598115863940, guid: ae72812a0c4b64e48bcb9bceb34bca1e, type: 3}
   playerLagom: {fileID: 0}
   elementWrapper: {fileID: 0}
-  Sprite1: {fileID: 21300000, guid: cf42e390cef02a348a32998c88f0fa16, type: 3}
-  Sprite2: {fileID: 21300000, guid: 3b4af38354466e74fb47a22512a1bdf2, type: 3}
   PlayerNrPanel: {fileID: 2049424355}
   lifePanel: {fileID: 0}
   throwPanel: {fileID: 0}
@@ -2641,6 +2641,14 @@ MonoBehaviour:
   - {fileID: 492700670}
   - {fileID: 671822821}
   insertCoinText: {fileID: 2038321852}
+  highscoreHighscore: {fileID: 1733217069}
+  highscoreName: {fileID: 2004677997}
+  highscoreScore: {fileID: 1448118239}
+  highscoreThrows: {fileID: 462128762}
+  highscoreHighscoreSmallDisplay: {fileID: 1606901313}
+  highscoreNameSmallDisplay: {fileID: 1381966894}
+  highscoreScoreSmallDisplay: {fileID: 1030827331}
+  highscoreThrowsSmallDisplay: {fileID: 1228361998}
   audioSource: {fileID: 869825194}
 --- !u!114 &869825193
 MonoBehaviour:
@@ -4779,7 +4787,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3b4af38354466e74fb47a22512a1bdf2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5e3a9284f7875ce48839285a31896e6c, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -5959,8 +5967,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 539.98, y: -184.07}
-  m_SizeDelta: {x: 1079.9, y: 368.15}
+  m_AnchoredPosition: {x: 546.938, y: -272.48}
+  m_SizeDelta: {x: 996.406, y: 191.34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2038321852
 MonoBehaviour:
@@ -6012,12 +6020,12 @@ MonoBehaviour:
   m_fontSize: 150
   m_fontSizeBase: 34.2
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 30
-  m_fontSizeMax: 220
+  m_fontSizeMax: 150
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 1024
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -6257,7 +6265,7 @@ GameObject:
   - component: {fileID: 2082076306}
   - component: {fileID: 2082076305}
   m_Layer: 5
-  m_Name: EnterHighScorePanel
+  m_Name: CreditsPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

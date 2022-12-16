@@ -35,8 +35,8 @@ public class HighscoreUI : MonoBehaviour {
         HighscoreHandler.onHighscoreListChanged += UpdateUI;
 		serial.GameIsOver += GameOver;
 		serial.GameChanged += GameChanged;
-		gameName.text = serial.CurrentGame;
-		gameNameSmallDisplay.text = serial.CurrentGame;
+		gameName.text = serial.DisplayCurrentGameName;//serial.CurrentGame;
+		gameNameSmallDisplay.text = serial.DisplayCurrentGameName;//serial.CurrentGame;
 		//print(elementWrapper.GetChild(0).GetType());
 		//Destroy(elementWrapper.GetChild(0));
 		//foreach(Transform t in elementWrapper.transform) {
@@ -52,8 +52,8 @@ public class HighscoreUI : MonoBehaviour {
 		
 	}
 	public void GameChanged() {
-		gameName.text = serial.CurrentGame;
-		gameNameSmallDisplay.text = serial.CurrentGame;
+		gameName.text = serial.DisplayCurrentGameName;
+		gameNameSmallDisplay.text = serial.DisplayCurrentGameName;
 		//for(int i = 0; i < uiElements.Count; i++) {
 		//print(elementWrapper.childCount);
 

@@ -4,23 +4,41 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
 using System.IO.Ports;
+using UnityEditor;
+using System.IO;
+using UnityEngine.Networking;
+using System.Linq;
+//using System;
 
 
 
 public class serial : MonoBehaviour
 {
+	public enum lang {
+		Svenska,
+		Engelska
+	}
+	public lang currentLanguage;
+	public object[][] language = {
+		new string[] {"Spelare", "FRISPEL", "LÄGG PÅ MYNT", "TRYCK PÅ START", "KREDITER", "Kast nr: ", "Oavgjort!", "Vinnare Spelare ", "Kast"},
+		new string[] { "Player", "FREEPLAY" , "INSERT COIN" , "PUSH START", "CREDITS", "Throw nr: ", "DRAW!", "Winner Player ", "Throws" }
 
+	};
+	
+	//private string[][] svenska = {"0"}{"Spelare"};
+	//private string[] engelska = { "Spelare" };
 	public delegate void GameRunning();
 	public static event GameRunning GameIsOver;
 
 	public delegate void GameIsChanged();
 	public static event GameIsChanged GameChanged;
 
-	[SerializeField] AudioClip[] throwSounds;
-	[SerializeField] AudioClip[] winnerSounds;
-	[SerializeField] AudioClip[] drawSounds;
-	[SerializeField] AudioClip[] changeGameSounds;
-	[SerializeField] AudioClip[] okSounds;
+	private AudioClip[] throwSounds;
+	private AudioClip[] winnerSounds;
+	private AudioClip[] drawSounds;
+	private AudioClip[] changeGameSounds;
+	private AudioClip[] okSounds;
+	private string[] soundFolders = { "throw", "winner", "ok", "draw", "changeGame" };
 	[SerializeField] GameObject highScorePanel;
 	[SerializeField] GameObject setHighScorePanel;
 	[SerializeField] EventManager EventManager;
@@ -28,6 +46,7 @@ public class serial : MonoBehaviour
 	[SerializeField] GameObject WinnerCanvas;
 	[SerializeField] GameObject CreditsCanvas;
 	[SerializeField] HighscoreUI HighscoreUI;
+	[SerializeField] Image BgImage;
 
 	[SerializeField] GameObject lagomUIElementPrefab;
 	[SerializeField] GameObject scoreUIElementPrefab;
@@ -45,9 +64,10 @@ public class serial : MonoBehaviour
 	List<GameObject> uiElements = new List<GameObject>();
 	List<GameObject> uiElementsPlayers = new List<GameObject>();
 	List<GameObject> uiElementsPlayersSingleGame = new List<GameObject>();
+	List<Sprite> spriteBuffert = new List<Sprite>();
+	//[SerializeField] Sprite Sprite1;
+	//[SerializeField] Sprite Sprite2;
 
-	[SerializeField] Sprite Sprite1;
-	[SerializeField] Sprite Sprite2;
 
 	[SerializeField] GameObject PlayerNrPanel;
 
@@ -63,6 +83,15 @@ public class serial : MonoBehaviour
 	[SerializeField] TextMeshProUGUI GameName;
 	[SerializeField] TextMeshProUGUI[] creditText;
 	[SerializeField] TextMeshProUGUI insertCoinText;
+	[SerializeField] TextMeshProUGUI highscoreHighscore;
+	[SerializeField] TextMeshProUGUI highscoreName;
+	[SerializeField] TextMeshProUGUI highscoreScore;
+	[SerializeField] TextMeshProUGUI highscoreThrows;
+	[SerializeField] TextMeshProUGUI highscoreHighscoreSmallDisplay;
+	[SerializeField] TextMeshProUGUI highscoreNameSmallDisplay;
+	[SerializeField] TextMeshProUGUI highscoreScoreSmallDisplay;
+	[SerializeField] TextMeshProUGUI highscoreThrowsSmallDisplay;
+
 
 	private TextMeshProUGUI[] totalLives;
 	private TextMeshProUGUI[] totalthrows;
@@ -89,9 +118,9 @@ public class serial : MonoBehaviour
 	private bool inBetween = false;
 
 
-	private int winnerFontSizeMin = 180;
-	private int winnerFontSizeMax = 250;
-	private int winnerFontSize = 180;
+	[SerializeField] int winnerFontSizeMin = 180;
+	[SerializeField] int winnerFontSizeMax = 250;
+	[SerializeField] int winnerFontSize = 180;
 	private int winnerFontSizeIncrease = 5;
 
 	private Image playerFocusImage = null;
@@ -118,7 +147,8 @@ public class serial : MonoBehaviour
 	private int totalScore = 0;
 	private int totalThrows = 0;
 	private bool gameOver = false;
-	private int gameMode = 4;
+	private int[] gameModeChoices = {1,3,7};
+	private int gameMode = 3;
 	private int gameModeMultiplyer = 1;
 	private string score = "   ";
 	private string totScore = "    ";
@@ -128,6 +158,8 @@ public class serial : MonoBehaviour
 	private bool gameStarted = true;
 	private bool randomizeNewNr = true;
 	private bool onePlayerGame = false;
+	private bool wrapAroundPlayers = false;
+	private bool firstTimeEasyMode = true;
 
 	[SerializeField] AudioSource audioSource;
 	private bool modifiedLives = false;
@@ -135,14 +167,72 @@ public class serial : MonoBehaviour
 	private bool freePlay = true;
 
 	Coroutine flashPlayer = null;
-
 	private void AddPlayerPannel(Vector3 position) {
 		var inst = Instantiate(lagomUIElementPrefab, position, Quaternion.identity);
 		inst.transform.SetParent(MainCanvas, false);
 		uiElementsPlayers.Add(inst);
 		//print(uiElements.Count);
 	}
-
+	private void ChangeLanguage() {
+		if(currentLanguage == lang.Svenska) {
+			currentLanguage = lang.Engelska;
+			highscoreHighscore.text = "HighScores";
+			highscoreName.text = "Name";
+			highscoreScore.text = "Score";
+			if(gameMode == 3) {
+				highscoreThrows.text = "Km/h";
+			} else {
+				highscoreThrows.text = "Throws";
+			}
+		} else {
+			currentLanguage = lang.Svenska;
+			highscoreHighscore.text = "Topplista";
+			highscoreName.text = "Namn";
+			highscoreScore.text = "Poäng";
+			if(gameMode == 3) {
+				highscoreThrows.text = "Km/h";
+			} else {
+				highscoreThrows.text = "Kast";
+			}
+		}
+		highscoreHighscoreSmallDisplay.text = highscoreHighscore.text;
+		highscoreNameSmallDisplay.text = highscoreName.text;
+		highscoreScoreSmallDisplay.text = highscoreScore.text;
+		highscoreThrowsSmallDisplay.text = highscoreThrows.text;
+		print(currentLanguage);
+		UpdateCreditText();
+		if(onePlayerGame) {
+			for(int i = 0; i < uiElementsPlayersSingleGame.Count; i++){
+			//foreach(GameObject t in uiElementsPlayersSingleGame) {
+				TextMeshProUGUI[] array = uiElementsPlayersSingleGame[i].GetComponentsInChildren<TextMeshProUGUI>();
+				print(array[0].text);
+				array[0].text = language[(int)currentLanguage][5].ToString() + (totalThrows-i).ToString();				
+			}
+			playersList[0][0].text = language[(int)currentLanguage][5].ToString() + (totalThrows+1).ToString();
+		} else {
+			for(int i = 0; i < playersList.Count;i++){
+				//foreach(TextMeshProUGUI[] t in playersList) {
+				playersList[i][0].text = language[(int)currentLanguage][0].ToString() + (i+1).ToString();
+			}
+		}
+		//string texturePath = Application.streamingAssetsPath + "/picture/" + DisplayCurrentGameName + ".png";
+		StartCoroutine(LoadBgImage());
+		GameName.text = DisplayCurrentGameName;
+		//	//playersList[0][0].text = "Throw nr: " + totalThrows.ToString();
+		//foreach(TextMeshProUGUI[] t in playersList) {
+		//	if(onePlayerGame) {
+		//		t[0].text = language[(int)currentLanguage][5].ToString();
+		//		//uiElementsPlayersSingleGame[0];
+		//		print(t[0].text.IndexOf(":"));
+		//	} else {
+		//		t[0].text = language[(int)currentLanguage][0].ToString();
+		//	}
+		//}
+		//foreach(GameObject t in uiElementsPlayersSingleGame) {
+		//	TextMeshProUGUI[] array = t.GetComponentsInChildren<TextMeshProUGUI>();
+		//	print(array[0].text);
+		//}
+	}
 
 	private void AddScorePannel() {
 		var inst = Instantiate(scoreUIElementPrefab, Vector3.zero, Quaternion.identity);
@@ -245,37 +335,28 @@ public class serial : MonoBehaviour
 		}
 	}
 	private void UpdateCreditText() {
+		//{ "Player", "FREEPLAY" , "INSERT COIN" , "PUSH START", "CREDITS"}
 		foreach(TextMeshProUGUI text in creditText) {
 			if(freePlay) {
-				text.text = "FREEPLAY";
+				text.text = language[(int)currentLanguage][1].ToString();// FREEPLAY
 			} else {
-				text.text = "CREDITS " + credits.ToString();
+				text.text = language[(int)currentLanguage][4].ToString() + " " + credits.ToString(); //CREDITS
 			}
 		}
 		if(credits > 0 || freePlay ) {
-			insertCoinText.text = "PUSH START";
+			insertCoinText.text = language[(int)currentLanguage][3].ToString(); // PUSH START
 		} else {
-			insertCoinText.text = "INSERT COIN";
+			insertCoinText.text = language[(int)currentLanguage][2].ToString(); //INSERT COIN
 		}
 
 	}
-	private void GetPlayerInfo() {
-		TextMeshProUGUI[] temparray = uiElementsPlayers[players-1].GetComponentsInChildren<TextMeshProUGUI>();
-		TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
-		int w = 0;
-		foreach(TextMeshProUGUI t in temparray) {
-			if(t.text != "8") {
-				playerInfo[w] = t;
-				w++;
-			}
-		}
-		playerInfo[0].text = "Player" + players.ToString();
-		playersList.Add(playerInfo);
-		//score1 = new TextMeshProUGUI[] { playerInfo[1], playerInfo[2], playerInfo[3], playerInfo[4], playerInfo[5] };
 
-	}
 	private void OnEnable() {
+		currentLanguage = lang.Svenska; // Sätt språket HÄR
+		//print(currentLanguage);
+		//print((int)lang.Engelska);
 		EventManager.NewGame += newGame;
+		EventManager.NewLanguage += ChangeLanguage;
 		EventManager.ChangedDir += changeGame;
 		EventManager.ChangeLives += ChangeTotalLives;
 		EventManager.NewScore += updateScore;
@@ -285,9 +366,108 @@ public class serial : MonoBehaviour
 		totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
 		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
 		GameName.text = DisplayCurrentGameName;
+		StartCoroutine(LoadAudioFiles()); //Load all audiofiles from StreamingAssets/audio folder
+
+	}
+
+	private void GetPlayerInfo() {
+		TextMeshProUGUI[] temparray = uiElementsPlayers[players - 1].GetComponentsInChildren<TextMeshProUGUI>();
+		TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
+		int w = 0;
+		foreach(TextMeshProUGUI t in temparray) {
+			if(t.text != "8") {
+				playerInfo[w] = t;
+				w++;
+			}
+		}
+		playerInfo[0].text = language[(int)currentLanguage][0] + players.ToString();
+		//playerInfo[0].text = "Player" + players.ToString();
+		playersList.Add(playerInfo);
+		//score1 = new TextMeshProUGUI[] { playerInfo[1], playerInfo[2], playerInfo[3], playerInfo[4], playerInfo[5] };
+
+	}
+
+		
+
+
+	private IEnumerator LoadBgImage() {
+		UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + DisplayCurrentGameName + ".png");
+		yield return req.SendWebRequest();
+		var texture = DownloadHandlerTexture.GetContent(req);
+		Sprite tempSprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+		MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = tempSprite;
+
+	}
+	private IEnumerator LoadAudioFiles() {
+		for(int j = 0; j < soundFolders.Length; j++) {
+			string referenceFolder = Application.streamingAssetsPath + "/audio/" + soundFolders[j] + "/";
+			string[] soundsNames = Directory.GetFiles(referenceFolder, "*.wav");
+			AudioClip[] soundClip = new AudioClip[soundsNames.Length];
+			for(int i = 0; i < soundsNames.Length; i++) {
+				UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(soundsNames[i], AudioType.WAV);
+				yield return req.SendWebRequest();
+				soundClip[i] = DownloadHandlerAudioClip.GetContent(req);
+				if(soundsNames[i].Length > 9) {
+					soundClip[i].name = soundsNames[i].Remove(0, referenceFolder.Length);
+					soundClip[i].name = soundClip[i].name.Remove(soundClip[i].name.Length-4);
+				}
+			}
+			List<AudioClip> stringList = soundClip.ToList();
+			soundsNames = Directory.GetFiles(Application.streamingAssetsPath + "/audio/" + soundFolders[j] + "/", "*.ogg");
+			soundClip = new AudioClip[soundsNames.Length];
+			for(int i = 0; i < soundsNames.Length; i++) {
+				UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(soundsNames[i], AudioType.OGGVORBIS);
+				yield return req.SendWebRequest();
+				soundClip[i] = DownloadHandlerAudioClip.GetContent(req);
+				if(soundsNames[i].Length > 9) {
+					soundClip[i].name = soundsNames[i].Remove(0, referenceFolder.Length);
+					soundClip[i].name = soundClip[i].name.Remove(soundClip[i].name.Length - 4);
+				}
+			}
+			stringList.AddRange(soundClip.ToList());
+			soundsNames = Directory.GetFiles(Application.streamingAssetsPath + "/audio/" + soundFolders[j] + "/", "*.mp3");
+			soundClip = new AudioClip[soundsNames.Length];
+			for(int i = 0; i < soundsNames.Length; i++) {
+				UnityWebRequest req = UnityWebRequestMultimedia.GetAudioClip(soundsNames[i], AudioType.MPEG);
+				yield return req.SendWebRequest();
+				soundClip[i] = DownloadHandlerAudioClip.GetContent(req);
+				if(soundsNames[i].Length > 9) {
+					soundClip[i].name = soundsNames[i].Remove(0, referenceFolder.Length);
+					soundClip[i].name = soundClip[i].name.Remove(soundClip[i].name.Length - 4);
+				}
+			}
+			stringList.AddRange(soundClip.ToList());
+			soundClip = stringList.ToArray();
+
+			switch(soundFolders[j]) {
+				case "throw":
+					throwSounds = soundClip;
+					break;
+				case "winner":
+					winnerSounds = soundClip;
+					break;
+				case "ok":
+					okSounds = soundClip;
+					break;
+				case "draw":
+					drawSounds = soundClip;
+					break;
+				case "changeGame":
+					changeGameSounds = soundClip;
+					break;
+
+				default:
+					print("no sound variable" + soundFolders[j]);
+					break;
+			}
+
+		}
+		print("Done loading audio files");
+
 	}
 	private void OnDisable() {
 		EventManager.NewGame -= newGame;
+		EventManager.NewLanguage -= ChangeLanguage;
 		EventManager.ChangedDir -= changeGame;
 		EventManager.NewScore -= updateScore;
 		EventManager.ChangeLives -= ChangeTotalLives;
@@ -297,17 +477,48 @@ public class serial : MonoBehaviour
 	private void changeGame(bool increse) {
 		if(setHighScorePanel.activeSelf == false && busyThinking == false) {
 			PlayChangeGame();
-			if(increse) {
-				gameMode += 1;
-				if(gameMode > gameModeMax) {
-					gameMode = 0;////change to 0!!!!
-				}
-			} else {
-				gameMode -= 1;
-				if(gameMode < 0) {
-					gameMode = gameModeMax;
+			for(int i = 0; i< gameModeChoices.Length; i++){
+				if(gameModeChoices[i] == gameMode) {
+					if(increse) {
+						if(i + 1 < gameModeChoices.Length) {
+							gameMode = gameModeChoices[i + 1];
+							//spriteBuffert.RemoveAt(0);
+							//spriteBuffert.Add();
+						} else {
+							gameMode = gameModeChoices[0];
+						}
+					} else {
+						if(i == 0) {
+							gameMode = gameModeChoices[gameModeChoices.Length - 1];
+						} else {
+							gameMode = gameModeChoices[i - 1];
+						}
+					}
+					if(gameMode == 3) {
+							highscoreThrows.text = "Km/h";
+					} else {
+						highscoreThrows.text = language[(int)currentLanguage][8].ToString();
+						//if(currentLanguage == lang.Engelska) {
+						//	highscoreThrows.text = "Throws";
+						//} else {
+						//	highscoreThrows.text = "Kast";
+						//}
+					}
+					highscoreThrowsSmallDisplay.text = highscoreThrows.text;
+					break;
 				}
 			}
+			//if(increse) {
+			//	gameMode += 1;
+			//	if(gameMode > gameModeMax) {
+			//		gameMode = 0;////change to 0!!!!
+			//	}
+			//} else {
+			//	gameMode -= 1;
+			//	if(gameMode < 0) {
+			//		gameMode = gameModeMax;
+			//	}
+			//}
 			StopAllCoroutines();
 			CancelInvoke("FlashActivePlayer");
 			//if(flashPlayer != null) {
@@ -325,20 +536,51 @@ public class serial : MonoBehaviour
 				}
 		}
 	}
-
+	private void PlayThrow() {
+		AudioClip randomClip = throwSounds[Random.Range(0, throwSounds.Length)];
+		if(randomClip.name.Length > 5 && (randomClip.name.Substring(randomClip.name.Length - 6, 3) == "vol")) {
+			float volume = (float)(int.Parse(randomClip.name.Substring(randomClip.name.Length - 3, 3))) / 100;
+			audioSource.PlayOneShot(throwSounds[Random.Range(0, throwSounds.Length)], volume);
+		} else {
+			audioSource.PlayOneShot(throwSounds[Random.Range(0, throwSounds.Length)], Random.Range(0.75f, 1f));
+		}
+	}
 	private void PlayWinner() {
-		audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.4f, 0.5f));
+		AudioClip randomClip = winnerSounds[Random.Range(0, winnerSounds.Length)];
+		if(randomClip.name.Length > 5 && (randomClip.name.Substring(randomClip.name.Length - 6, 3) == "vol")) {
+			float volume = (float)(int.Parse(randomClip.name.Substring(randomClip.name.Length - 3, 3))) / 100;
+			audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], volume);
+		} else {
+			audioSource.PlayOneShot(winnerSounds[Random.Range(0, winnerSounds.Length)], Random.Range(0.4f, 0.5f));
+		}
 	}
 	private void PlayDraw() {
-		audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.4f, 0.5f));
+		AudioClip randomClip = drawSounds[Random.Range(0, drawSounds.Length)];
+		if(randomClip.name.Length > 5 && (randomClip.name.Substring(randomClip.name.Length - 6, 3) == "vol")) {
+			float volume = (float)(int.Parse(randomClip.name.Substring(randomClip.name.Length - 3, 3))) / 100;
+			audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], volume);
+		} else {
+			audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.4f, 0.5f));
+		}
 	}
 	public void PlayChangeGame() {
-		audioSource.PlayOneShot(changeGameSounds[Random.Range(0, changeGameSounds.Length)], Random.Range(0.7f, 1f));
+		AudioClip randomClip = changeGameSounds[Random.Range(0, changeGameSounds.Length)];
+		if(randomClip.name.Length > 5 && (randomClip.name.Substring(randomClip.name.Length - 6, 3) == "vol")) {
+			float volume = (float)(int.Parse(randomClip.name.Substring(randomClip.name.Length - 3, 3))) / 100;
+			audioSource.PlayOneShot(changeGameSounds[Random.Range(0, changeGameSounds.Length)], volume);
+		} else {
+			audioSource.PlayOneShot(changeGameSounds[Random.Range(0, changeGameSounds.Length)], Random.Range(0.7f, 1f));
+		}
 	}
 	public void PlayOk() {
-		audioSource.PlayOneShot(okSounds[Random.Range(0, okSounds.Length)], Random.Range(0.4f, 0.5f));
+		AudioClip randomClip = okSounds[Random.Range(0, okSounds.Length)];
+		if(randomClip.name.Length > 5 && (randomClip.name.Substring(randomClip.name.Length - 6, 3) == "vol")) {
+			float volume = (float)(int.Parse(randomClip.name.Substring(randomClip.name.Length - 3, 3))) / 100;
+			audioSource.PlayOneShot(okSounds[Random.Range(0, okSounds.Length)], volume);
+		} else {
+			audioSource.PlayOneShot(okSounds[Random.Range(0, okSounds.Length)], Random.Range(0.4f, 0.5f));
+		}
 	}
-
 
 	private bool ToFewPlayers() {
 		//bool returnBool = false;
@@ -357,7 +599,7 @@ public class serial : MonoBehaviour
 
 	private void updateScore(int newScore) {
 		if(gameOver == false && busyThinking == false && !ToFewPlayers()) {// && blinkOn == false) {
-			audioSource.PlayOneShot(throwSounds[Random.Range(0, throwSounds.Length)], Random.Range(0.75f, 1f));
+			PlayThrow();
 			//AudioSource.PlayOneShot(throwSounds[0]);
 			gameStarted = true;
 			busyThinking = true;
@@ -529,10 +771,10 @@ public class serial : MonoBehaviour
 		if(nextPlayerTurnList.Count == 0) {
 			PlayDraw();
 			//audioSource.PlayOneShot(drawSounds[Random.Range(0, drawSounds.Length)], Random.Range(0.75f, 1f));
-			winnerText = "DRAW!";
+			winnerText = language[(int)currentLanguage][6].ToString(); //"DRAW!";
 		} else {
 			PlayWinner();
-			winnerText = "Winner Player " + nextPlayerTurnList[0].ToString();
+			winnerText = language[(int)currentLanguage][7].ToString() + nextPlayerTurnList[0].ToString();//"Winner Player " + nextPlayerTurnList[0].ToString();
 		}
 		//print(winnerText);
 		busyThinking = false;
@@ -545,13 +787,28 @@ public class serial : MonoBehaviour
 
 	private void DisplayBetweenNumbers() {
 		if(randomizeNewNr) {
-			lowNr = UnityEngine.Random.Range(10, 35) * 10;
-			if(totalThrows < 11) {
-				highNr = lowNr + 120 - (totalThrows * 10);
+			if(firstTimeEasyMode && totalThrows < 2) {
+				switch(totalThrows) {
+					case 0:
+						lowNr = 100;
+						highNr = 500;
+						break;
+					case 1:
+						lowNr = 150;
+						highNr = 400;
+						break;
+					default:
+						print("totalThrows out of range");
+						break;
+				}
 			} else {
-				highNr = lowNr + 120 - (10 * 10);
+				lowNr = UnityEngine.Random.Range(10, 35) * 10;
+				if(totalThrows < 11) {
+					highNr = lowNr + 120 - (totalThrows * 10);
+				} else {
+					highNr = lowNr + 120 - (10 * 10);
+				}
 			}
-			
 			randomizeNewNr = false;
 		}
 		TextMeshProUGUI[] tempScore;// = new TextMeshProUGUI[5];
@@ -650,7 +907,7 @@ public class serial : MonoBehaviour
 
 	private void OnePlayerGame() {
 
-		playersList[0][0].text = "Throw nr: " + totalThrows.ToString();
+		playersList[0][0].text = language[(int)currentLanguage][5].ToString() + totalThrows.ToString();
 		//uiElementsPlayers[0].transform.localPosition = new Vector3(-430, 279, 0);
 		uiElementsPlayersSingleGame.Insert(0, uiElementsPlayers[0]);
 		uiElementsPlayers.Clear();
@@ -687,7 +944,7 @@ public class serial : MonoBehaviour
 
 		AddPlayerPannel(new Vector3(-430, 450, 0));
 		GetPlayerInfo();
-		playersList[0][0].text = "Throw nr: " + (totalThrows+1).ToString();
+		playersList[0][0].text = language[(int)currentLanguage][5].ToString() + (totalThrows+1).ToString();
 		playersList[0][19].text = playerLivesList[0].ToString();
 		playersListActiveDisplay.Clear();
 		FlashActivePlayer();
@@ -715,14 +972,15 @@ public class serial : MonoBehaviour
 	}
 
 	private void AddPlayer() {
-		if(PlayerNrPanel.activeSelf == false) {
-			PlayerNrPanel.SetActive(true);
-		}
 		players++;
 		if(players > 8) {
-			return;
-			players = 8;
-			nextPlayerTurnList.Clear();
+			RemoveAllListObjects();
+			RemoveAllListObjectsPleyers();
+			players = 1;
+			wrapAroundPlayers = true;
+		}
+		if(PlayerNrPanel.activeSelf == false) {
+			PlayerNrPanel.SetActive(true);
 		}
 		switch(players) {
 			case 1:
@@ -730,24 +988,33 @@ public class serial : MonoBehaviour
 				AddPlayerPannel(new Vector3(-430, 450, 0));
 				GetPlayerInfo();
 				PlayerNrPanel.transform.localPosition = new Vector3(45, 760, 0);
+				//wrapAroundPlayers = false;
+				if(!wrapAroundPlayers) {
+					randomizeNewNr = true;
+				}
+				wrapAroundPlayers = false;
 				break;
 			case 2:
+				totalLifes = 4;
 				AddPlayerPannel(new Vector3(-430, 279, 0));
 				//PlayerXPrefab.transform.localPosition = new Vector3(-506, 279, 0);
 				PlayerNrPanel.transform.localPosition = new Vector3(95, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 3:
+				totalLifes = 3;
 				AddPlayerPannel(new Vector3(-430, 90, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(160, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 4:
+				totalLifes = 2;
 				AddPlayerPannel(new Vector3(-430, -90, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(225, 760, 0);
 				GetPlayerInfo();
 				break;
 			case 5:
+				
 				AddPlayerPannel(new Vector3(-430, -258, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(287, 760, 0);
 				GetPlayerInfo();
@@ -758,6 +1025,7 @@ public class serial : MonoBehaviour
 				GetPlayerInfo();
 				break;
 			case 7:
+				totalLifes = 1;
 				AddPlayerPannel(new Vector3(-430, -613, 0));
 				PlayerNrPanel.transform.localPosition = new Vector3(415, 760, 0);
 				GetPlayerInfo();
@@ -777,12 +1045,12 @@ public class serial : MonoBehaviour
 		Invoke("FlashActivePlayer", 2f);
 		if(inBetween && nextPlayerTurnList.Count == 1) {
 			busyThinking = true;
-			randomizeNewNr = true;
 			Invoke("DisplayBetweenNumbers", 0.5f);
 			onePlayerGame = true;
 		} else {
 			onePlayerGame = false;
 		}
+		UpdateTotalLives();
 	}
 	private void newGame() {
 		print("trying to start new game");
@@ -837,13 +1105,27 @@ public class serial : MonoBehaviour
 		get {
 			switch(gameMode) {
 				case 0:
-					return "HigherHigher";
+					if(currentLanguage == lang.Svenska) {
+						return "SnabbareSnabbare";
+					} else {
+						return "HigherHigher";
+					}
+					
 				case 1:
-					return "FastBall";
+					if(currentLanguage == lang.Svenska) {
+						return "SnabbBoll";
+					} else {
+						return "FastBall";
+					}
+					
 				case 2:
 					return "InBetween";
 				case 3:
-					return "HigherHigher";
+					if(currentLanguage == lang.Svenska) {
+						return "SnabbareSnabbare";
+					} else {
+						return "HigherHigher";
+					}
 				case 4:
 					return "LowerLower";
 				case 5:
@@ -851,7 +1133,11 @@ public class serial : MonoBehaviour
 				case 6:
 					return "KastaLagom";
 				case 7:
-					return "InBetween";
+					if(currentLanguage == lang.Svenska) {
+						return "KastaLagom";
+					} else {
+						return "InBetween";
+					}
 				default:
 					return "HighScore";
 			}
@@ -914,6 +1200,13 @@ public class serial : MonoBehaviour
 		}
 
 	}
+	private void UpdateTotalLives() {
+		for(int i = 0; i < playerLivesList.Count; i++) {
+			playerLivesList[i] = totalLifes;
+			playersList[i][19].text = totalLifes.ToString();
+		}
+	}
+
 	// Update is called once per frame
 	bool NotShowingHighScore() {
 		if(setHighScorePanel.activeSelf == true || highScorePanel.activeSelf == true) {
@@ -1000,8 +1293,9 @@ public class serial : MonoBehaviour
 		totalThrows = 0;
 		RemoveAllListObjects();
 		RemoveAllListObjectsPleyers();
+		StartCoroutine(LoadBgImage());
 		if(gameMode < 5) {
-			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;			
+			//MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;			
 			score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
 			score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
 			score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
@@ -1062,7 +1356,7 @@ public class serial : MonoBehaviour
 			totalThrows = 0;
 			//gameOver = false;
 		} else if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
-			MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite2;
+			//MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite2;
 			GameName.GetComponentInParent<Transform>().localPosition = new Vector3(0, 888, 0);
 		}
 	}
