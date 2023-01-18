@@ -159,17 +159,32 @@ public class HighscoreUI : MonoBehaviour {
 				texts = uiElements[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
 				texts[0].text = (i + 1).ToString();
 				texts[1].text = el.playerName;
-				texts[2].text = el.points.ToString();
-				texts[3].text = el.throws.ToString();
+				if(serial.CurrentGame == "FastBall") {
+					texts[2].text = el.points.ToString().Insert(el.points.ToString().Length - 1, ".");
+					texts[3].text = el.throws.ToString().Insert(el.throws.ToString().Length - 1, ".");
+					//texts[3].text = el.throws.ToString();
+					//texts[3].text.Insert(texts[3].text.Length - 2, ".");
+				} else {
+					texts[2].text = el.points.ToString();
+					texts[3].text = el.throws.ToString();
+				}
+				
 				texts = uiElementsSmall[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
 				texts[0].text = (i+1).ToString();
 				texts[1].text = el.playerName;
-				texts[2].text = el.points.ToString();
-				texts[3].text = el.throws.ToString();
+				if(serial.CurrentGame == "FastBall") {
+					texts[2].text = el.points.ToString().Insert(el.points.ToString().Length - 1, ".");
+					texts[3].text = el.throws.ToString().Insert(el.throws.ToString().Length - 1, ".");
+					//texts[3].text = el.throws.ToString();
+					//texts[3].text.Insert(texts[3].text.Length - 2, ".");
+				} else {
+					texts[2].text = el.points.ToString();
+					texts[3].text = el.throws.ToString();
+				}
 				//if(highscoreHandler.highScoreNr == i) {
 				//	texts[2].text = "99993";
 				//}
-				
+
 
 			}
         }

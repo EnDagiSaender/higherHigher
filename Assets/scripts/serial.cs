@@ -20,8 +20,8 @@ public class serial : MonoBehaviour
 	}
 	public lang currentLanguage;
 	public object[][] language = {
-		new string[] {"Spelare", "FRISPEL", "LÄGG PÅ MYNT", "TRYCK PÅ START", "KREDITER", "Kast nr: ", "Oavgjort!", "Vinnare Spelare ", "Kast"},
-		new string[] { "Player", "FREEPLAY" , "INSERT COIN" , "PUSH START", "CREDITS", "Throw nr: ", "DRAW!", "Winner Player ", "Throws" }
+		new string[] {"Spelare", "FRISPEL", "LÄGG PÅ MYNT", "TRYCK PÅ START", "KREDITER", "Kast nr: ", "Oavgjort!", "Vinnare Spelare", "Kast"},
+		new string[] { "Player", "FREEPLAY" , "INSERT COIN" , "PUSH START", "CREDITS", "Throw nr: ", "DRAW!", "Winner Player", "Throws" }
 
 	};
 	
@@ -64,7 +64,7 @@ public class serial : MonoBehaviour
 	List<GameObject> uiElements = new List<GameObject>();
 	List<GameObject> uiElementsPlayers = new List<GameObject>();
 	List<GameObject> uiElementsPlayersSingleGame = new List<GameObject>();
-	List<Sprite> spriteBuffert = new List<Sprite>();
+	//List<Sprite> spriteBuffert = new List<Sprite>();
 	//[SerializeField] Sprite Sprite1;
 	//[SerializeField] Sprite Sprite2;
 
@@ -83,10 +83,12 @@ public class serial : MonoBehaviour
 	[SerializeField] TextMeshProUGUI GameName;
 	[SerializeField] TextMeshProUGUI[] creditText;
 	[SerializeField] TextMeshProUGUI insertCoinText;
+	[SerializeField] TextMeshProUGUI highscoreGamename;
 	[SerializeField] TextMeshProUGUI highscoreHighscore;
 	[SerializeField] TextMeshProUGUI highscoreName;
 	[SerializeField] TextMeshProUGUI highscoreScore;
 	[SerializeField] TextMeshProUGUI highscoreThrows;
+	[SerializeField] TextMeshProUGUI highscoreGamenameSmallDisplay;
 	[SerializeField] TextMeshProUGUI highscoreHighscoreSmallDisplay;
 	[SerializeField] TextMeshProUGUI highscoreNameSmallDisplay;
 	[SerializeField] TextMeshProUGUI highscoreScoreSmallDisplay;
@@ -118,11 +120,12 @@ public class serial : MonoBehaviour
 	private bool inBetween = false;
 
 
-	[SerializeField] int winnerFontSizeMin = 180;
-	[SerializeField] int winnerFontSizeMax = 250;
-	[SerializeField] int winnerFontSize = 180;
-	private int winnerFontSizeIncrease = 5;
+	private int winnerFontSizeMin = 36;//180;
+	private int winnerFontSizeMax = 59;//250;
+	private int winnerFontSize = 38;
+	private int winnerFontSizeIncrease = 1;
 
+	private Sprite[] bufferSprite = new Sprite[3];
 	private Image playerFocusImage = null;
 	//private Image[] playerFocusImage2 = null;
 	private TextMeshProUGUI[] testText;
@@ -160,12 +163,11 @@ public class serial : MonoBehaviour
 	private bool onePlayerGame = false;
 	private bool wrapAroundPlayers = false;
 	private bool firstTimeEasyMode = true;
-
 	[SerializeField] AudioSource audioSource;
 	private bool modifiedLives = false;
 	private int credits = 3;
 	private bool freePlay = true;
-
+	Coroutine blinkSegmentsRutine = null;
 	Coroutine flashPlayer = null;
 	private void AddPlayerPannel(Vector3 position) {
 		var inst = Instantiate(lagomUIElementPrefab, position, Quaternion.identity);
@@ -179,7 +181,7 @@ public class serial : MonoBehaviour
 			highscoreHighscore.text = "HighScores";
 			highscoreName.text = "Name";
 			highscoreScore.text = "Score";
-			if(gameMode == 3) {
+			if(gameMode == 1) {
 				highscoreThrows.text = "Km/h";
 			} else {
 				highscoreThrows.text = "Throws";
@@ -189,7 +191,7 @@ public class serial : MonoBehaviour
 			highscoreHighscore.text = "Topplista";
 			highscoreName.text = "Namn";
 			highscoreScore.text = "Poäng";
-			if(gameMode == 3) {
+			if(gameMode == 1) {
 				highscoreThrows.text = "Km/h";
 			} else {
 				highscoreThrows.text = "Kast";
@@ -199,7 +201,9 @@ public class serial : MonoBehaviour
 		highscoreNameSmallDisplay.text = highscoreName.text;
 		highscoreScoreSmallDisplay.text = highscoreScore.text;
 		highscoreThrowsSmallDisplay.text = highscoreThrows.text;
-		print(currentLanguage);
+		highscoreGamename.text = DisplayCurrentGameName;
+		highscoreGamenameSmallDisplay.text = highscoreGamename.text;
+		//print(currentLanguage);
 		UpdateCreditText();
 		if(onePlayerGame) {
 			for(int i = 0; i < uiElementsPlayersSingleGame.Count; i++){
@@ -216,7 +220,8 @@ public class serial : MonoBehaviour
 			}
 		}
 		//string texturePath = Application.streamingAssetsPath + "/picture/" + DisplayCurrentGameName + ".png";
-		StartCoroutine(LoadBgImage());
+		StartCoroutine(LoadBgImageAll());
+		//StartCoroutine(LoadBgImage());
 		GameName.text = DisplayCurrentGameName;
 		//	//playersList[0][0].text = "Throw nr: " + totalThrows.ToString();
 		//foreach(TextMeshProUGUI[] t in playersList) {
@@ -367,6 +372,7 @@ public class serial : MonoBehaviour
 		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
 		GameName.text = DisplayCurrentGameName;
 		StartCoroutine(LoadAudioFiles()); //Load all audiofiles from StreamingAssets/audio folder
+		StartCoroutine(LoadBgImageAll());
 
 	}
 
@@ -386,17 +392,84 @@ public class serial : MonoBehaviour
 		//score1 = new TextMeshProUGUI[] { playerInfo[1], playerInfo[2], playerInfo[3], playerInfo[4], playerInfo[5] };
 
 	}
-
-		
-
+	private IEnumerator LoadBgImageAll() {
+		int nextGameMode;		
+		UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(gameMode) + ".png");
+		yield return req.SendWebRequest();
+		var texture = DownloadHandlerTexture.GetContent(req);
+		Sprite tempSprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+		MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = tempSprite;
+		bufferSprite[1] = tempSprite;
+		for(int i = 0; i < gameModeChoices.Length; i++) {
+			if(gameModeChoices[i] == gameMode) {
+				if(i + 1 < gameModeChoices.Length) {
+					nextGameMode = gameModeChoices[i + 1];
+				} else {
+					nextGameMode = gameModeChoices[0];
+				}
+				req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(nextGameMode) + ".png");
+				yield return req.SendWebRequest();
+				texture = DownloadHandlerTexture.GetContent(req);
+				bufferSprite[2] = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+				//MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = bufferSprite[0];
+				if(i == 0) {
+					nextGameMode = gameModeChoices[gameModeChoices.Length - 1];
+				} else {
+					nextGameMode = gameModeChoices[i - 1];
+				}
+				req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(nextGameMode) + ".png");
+				yield return req.SendWebRequest();
+				texture = DownloadHandlerTexture.GetContent(req);
+				bufferSprite[0] = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+				break;
+			}			
+		}
+	}
 
 	private IEnumerator LoadBgImage() {
-		UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + DisplayCurrentGameName + ".png");
+		UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(gameMode) + ".png");// + DisplayCurrentGameName + ".png");
 		yield return req.SendWebRequest();
 		var texture = DownloadHandlerTexture.GetContent(req);
 		Sprite tempSprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
 		MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = tempSprite;
 
+	}
+	private IEnumerator LoadBgImage(bool increse) {
+		int nextGameMode;
+		for(int i = 0; i < gameModeChoices.Length; i++) {
+			if(gameModeChoices[i] == gameMode) {
+				if(increse) {
+					MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = bufferSprite[2];
+					if(i + 1 < gameModeChoices.Length) {
+						nextGameMode = gameModeChoices[i + 1];
+					} else {
+						nextGameMode = gameModeChoices[0];
+					}
+					UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(nextGameMode) + ".png");
+					yield return req.SendWebRequest();
+					var texture = DownloadHandlerTexture.GetContent(req);
+					Sprite tempSprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+					bufferSprite[0] = bufferSprite[1];
+					bufferSprite[1] = bufferSprite[2];
+					bufferSprite[2] = tempSprite;
+				} else {
+					MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = bufferSprite[0];
+					if(i == 0) {
+						nextGameMode = gameModeChoices[gameModeChoices.Length - 1];
+					} else {
+						nextGameMode = gameModeChoices[i - 1];
+					}
+					UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(nextGameMode) + ".png");
+					yield return req.SendWebRequest();
+					var texture = DownloadHandlerTexture.GetContent(req);
+					Sprite tempSprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+					bufferSprite[2] = bufferSprite[1];
+					bufferSprite[1] = bufferSprite[0];
+					bufferSprite[0] = tempSprite;
+				}
+				break;
+			}
+		}
 	}
 	private IEnumerator LoadAudioFiles() {
 		for(int j = 0; j < soundFolders.Length; j++) {
@@ -494,7 +567,7 @@ public class serial : MonoBehaviour
 							gameMode = gameModeChoices[i - 1];
 						}
 					}
-					if(gameMode == 3) {
+					if(gameMode == 1) {
 							highscoreThrows.text = "Km/h";
 					} else {
 						highscoreThrows.text = language[(int)currentLanguage][8].ToString();
@@ -504,7 +577,9 @@ public class serial : MonoBehaviour
 						//	highscoreThrows.text = "Kast";
 						//}
 					}
-					highscoreThrowsSmallDisplay.text = highscoreThrows.text;
+					StopAllCoroutines();
+					StartCoroutine(LoadBgImage(increse));
+					highscoreThrowsSmallDisplay.text = highscoreThrows.text;					
 					break;
 				}
 			}
@@ -519,7 +594,9 @@ public class serial : MonoBehaviour
 			//		gameMode = gameModeMax;
 			//	}
 			//}
-			StopAllCoroutines();
+			//StopAllCoroutines();
+			//StopCoroutine(flashPlayer);
+			//StopCoroutine(blinkSegmentsRutine);
 			CancelInvoke("FlashActivePlayer");
 			//if(flashPlayer != null) {
 			//	StopCoroutine(flashPlayer);
@@ -617,7 +694,10 @@ public class serial : MonoBehaviour
 				UpdateDisplay(newScore);
 				//busyThinking = false;
 			}
+
+			//blinkSegmentsRutine = StartCoroutine(BlinkSegments(score1, 2, 0.3f));
 			StartCoroutine(BlinkSegments(score1, 2, 0.3f));
+
 			//			//blinkOn = true;
 
 		}
@@ -1101,31 +1181,29 @@ public class serial : MonoBehaviour
 			return totalScore;
 		}
 	}
-	public string DisplayCurrentGameName {
-		get {
-			switch(gameMode) {
-				case 0:
-					if(currentLanguage == lang.Svenska) {
-						return "SnabbareSnabbare";
-					} else {
-						return "HigherHigher";
-					}
+	private string CurrentGameName(int gameModeNr) {
+		switch(gameModeNr) {
+			case 0:
+		if(currentLanguage == lang.Svenska) {
+			return "SnabbareSnabbare";
+		} else {
+			return "HigherHigher";
+		}
 					
 				case 1:
 					if(currentLanguage == lang.Svenska) {
-						return "SnabbBoll";
-					} else {
-						return "FastBall";
-					}
-					
+			return "SnabbBoll";
+		} else {
+			return "FastBall";
+		}					
 				case 2:
 					return "InBetween";
 				case 3:
 					if(currentLanguage == lang.Svenska) {
-						return "SnabbareSnabbare";
-					} else {
-						return "HigherHigher";
-					}
+			return "SnabbSnabbare";
+		} else {
+			return "HigherHigher";
+		}
 				case 4:
 					return "LowerLower";
 				case 5:
@@ -1134,13 +1212,56 @@ public class serial : MonoBehaviour
 					return "KastaLagom";
 				case 7:
 					if(currentLanguage == lang.Svenska) {
-						return "KastaLagom";
-					} else {
-						return "InBetween";
-					}
-				default:
-					return "HighScore";
-			}
+			return "KastaLagom";
+		} else {
+			return "InBetween";
+		}
+		default:
+			return "HighScore";
+	}
+
+}
+	public string DisplayCurrentGameName {
+		get {
+			return CurrentGameName(gameMode);
+			//switch(gameMode) {
+			//	case 0:
+			//		if(currentLanguage == lang.Svenska) {
+			//			return "SnabbareSnabbare";
+			//		} else {
+			//			return "HigherHigher";
+			//		}
+
+			//	case 1:
+			//		if(currentLanguage == lang.Svenska) {
+			//			return "SnabbBoll";
+			//		} else {
+			//			return "FastBall";
+			//		}
+
+			//	case 2:
+			//		return "InBetween";
+			//	case 3:
+			//		if(currentLanguage == lang.Svenska) {
+			//			return "SnabbSnabbare";
+			//		} else {
+			//			return "HigherHigher";
+			//		}
+			//	case 4:
+			//		return "LowerLower";
+			//	case 5:
+			//		return "KastaLagom";
+			//	case 6:
+			//		return "KastaLagom";
+			//	case 7:
+			//		if(currentLanguage == lang.Svenska) {
+			//			return "KastaLagom";
+			//		} else {
+			//			return "InBetween";
+			//		}
+			//	default:
+			//		return "HighScore";
+			//}
 		}
 	}
 	public string CurrentGame {
@@ -1266,6 +1387,7 @@ public class serial : MonoBehaviour
 
 		}
 		flashPlayer = null;
+		//blinkSegmentsRutine = null;
 
 	}
 	private IEnumerator BlinkSegments(TextMeshProUGUI segment, float blinkInterval) {
@@ -1278,7 +1400,6 @@ public class serial : MonoBehaviour
 			segment.enabled = !segment.enabled;
 			yield return new WaitForSeconds(blinkInterval);
 		}
-
 	}
 	private void blinkDisplay(bool enabled) {
 		score1[0].enabled = enabled;
@@ -1293,14 +1414,16 @@ public class serial : MonoBehaviour
 		totalThrows = 0;
 		RemoveAllListObjects();
 		RemoveAllListObjectsPleyers();
-		StartCoroutine(LoadBgImage());
+		//StartCoroutine(LoadBgImage());
 		if(gameMode < 5) {
 			//MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = Sprite1;			
 			score1 = GetChildText(BigScoreUIElementPrefab, new Vector3(-154, 125, 0));
 			score2 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -122, 0));
 			score3 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -337, 0));
-			score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
-			score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
+			if(gameMode != 1) {
+				score4 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -554, 0));
+				score5 = GetChildText(SmallScoreUIElementPrefab, new Vector3(-66, -768, 0));
+			}
 			totalScores = GetChildText(TotalScoreUIElementPrefab, new Vector3(-196, 716, 0));
 			totalthrows = GetChildText(TotalThrowsUIElementPrefab, new Vector3(329, 708, 0));
 			totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
@@ -1420,8 +1543,7 @@ public class serial : MonoBehaviour
 				oldScore = point;
 			}			
 			totalThrows += 1;
-			if(totalThrows > 4) {
-				totalThrows = oldScore;
+			if(totalThrows > 2) {
 				GameOver();
 			}
 
@@ -1440,9 +1562,10 @@ public class serial : MonoBehaviour
 		if(skipMoveDown == false) {
 
 			if((gameMode != 2) || (gameOver == true)) {
-
-				MoveText(score4, score5);
-				MoveText(score3, score4);
+				if(gameMode != 1){
+					MoveText(score4, score5);
+					MoveText(score3, score4);
+				}
 				MoveText(score2, score3);
 
 			}
@@ -1501,7 +1624,9 @@ public class serial : MonoBehaviour
 		}
 		score1[2].text = score[2].ToString();
 
-
+		if(gameMode == 1 && gameOver) {
+			totalThrows = oldScore;
+		}
 
 
 

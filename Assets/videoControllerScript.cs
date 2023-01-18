@@ -42,6 +42,7 @@ public class videoControllerScript : MonoBehaviour {
 			}
 		}else {
 			print("VIDEO DO NOT Exists");
+			print(fileName);
 		}
 
 	}
