@@ -167,6 +167,8 @@ public class serial : MonoBehaviour
 	private bool modifiedLives = false;
 	private int credits = 3;
 	private bool freePlay = true;
+	Coroutine loadBgImageAllRutine = null;
+	Coroutine changeBgImageRutine = null;
 	Coroutine blinkSegmentsRutine = null;
 	Coroutine flashPlayer = null;
 	private void AddPlayerPannel(Vector3 position) {
@@ -220,7 +222,7 @@ public class serial : MonoBehaviour
 			}
 		}
 		//string texturePath = Application.streamingAssetsPath + "/picture/" + DisplayCurrentGameName + ".png";
-		StartCoroutine(LoadBgImageAll());
+		loadBgImageAllRutine = StartCoroutine(LoadBgImageAll());
 		//StartCoroutine(LoadBgImage());
 		GameName.text = DisplayCurrentGameName;
 		//	//playersList[0][0].text = "Throw nr: " + totalThrows.ToString();
@@ -372,7 +374,7 @@ public class serial : MonoBehaviour
 		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
 		GameName.text = DisplayCurrentGameName;
 		StartCoroutine(LoadAudioFiles()); //Load all audiofiles from StreamingAssets/audio folder
-		StartCoroutine(LoadBgImageAll());
+		loadBgImageAllRutine = StartCoroutine(LoadBgImageAll());
 
 	}
 
@@ -393,7 +395,8 @@ public class serial : MonoBehaviour
 
 	}
 	private IEnumerator LoadBgImageAll() {
-		int nextGameMode;		
+		int nextGameMode;
+		busyThinking = true;
 		UnityWebRequest req = UnityWebRequestTexture.GetTexture(Application.streamingAssetsPath + "/picture/" + CurrentGameName(gameMode) + ".png");
 		yield return req.SendWebRequest();
 		var texture = DownloadHandlerTexture.GetContent(req);
@@ -421,6 +424,8 @@ public class serial : MonoBehaviour
 				yield return req.SendWebRequest();
 				texture = DownloadHandlerTexture.GetContent(req);
 				bufferSprite[0] = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+				busyThinking = false;
+				loadBgImageAllRutine = null;
 				break;
 			}			
 		}
@@ -438,6 +443,7 @@ public class serial : MonoBehaviour
 		int nextGameMode;
 		for(int i = 0; i < gameModeChoices.Length; i++) {
 			if(gameModeChoices[i] == gameMode) {
+				busyThinking = true;
 				if(increse) {
 					MainCanvas.GetComponent<UnityEngine.UI.Image>().sprite = bufferSprite[2];
 					if(i + 1 < gameModeChoices.Length) {
@@ -467,6 +473,8 @@ public class serial : MonoBehaviour
 					bufferSprite[1] = bufferSprite[0];
 					bufferSprite[0] = tempSprite;
 				}
+				busyThinking = false;
+				changeBgImageRutine = null;
 				break;
 			}
 		}
@@ -578,7 +586,7 @@ public class serial : MonoBehaviour
 						//}
 					}
 					StopAllCoroutines();
-					StartCoroutine(LoadBgImage(increse));
+					changeBgImageRutine = StartCoroutine(LoadBgImage(increse));
 					highscoreThrowsSmallDisplay.text = highscoreThrows.text;					
 					break;
 				}
