@@ -24,6 +24,9 @@ public class EventManager : MonoBehaviour
 	public delegate void ChangeLanguage();
 	public static event ChangeLanguage NewLanguage;
 
+	public delegate void ChangeCoin();
+	public static event ChangeCoin AddCoin;
+
 	[SerializeField] serial serial;
 
 	SerialPort portNo = new SerialPort("\\\\.\\COM3", 115200);
@@ -121,6 +124,11 @@ public class EventManager : MonoBehaviour
 				NewLanguage();
 			}
 		}
+		if(Input.GetKeyDown(KeyCode.S)) {
+			if(AddCoin != null) {
+				AddCoin();
+			}
+		}
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			if(NewScore != null) {
@@ -199,6 +207,10 @@ public class EventManager : MonoBehaviour
 						} else if(Equals(message[0], "l")) {
 							if(NewLanguage != null) {
 								NewLanguage();
+							}
+						} else if(Equals(message[0], "p")) {
+							if(AddCoin != null) {
+								AddCoin();
 							}
 						}
 					} catch {

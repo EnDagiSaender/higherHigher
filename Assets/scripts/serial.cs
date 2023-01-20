@@ -166,7 +166,7 @@ public class serial : MonoBehaviour
 	[SerializeField] AudioSource audioSource;
 	private bool modifiedLives = false;
 	private int credits = 3;
-	private bool freePlay = true;
+	private bool freePlay = false;
 	Coroutine loadBgImageAllRutine = null;
 	Coroutine changeBgImageRutine = null;
 	Coroutine blinkSegmentsRutine = null;
@@ -357,11 +357,23 @@ public class serial : MonoBehaviour
 		}
 
 	}
+	private void addCoin() {
+		credits++;
+		UpdateCreditText();
+	}
+	private void removeCoin() {		
+		if(credits > 0) {
+			credits--;
+			UpdateCreditText();
+		}
+		
+	}
 
 	private void OnEnable() {
 		currentLanguage = lang.Svenska; // Sätt språket HÄR
-		//print(currentLanguage);
-		//print((int)lang.Engelska);
+										//print(currentLanguage);
+										//print((int)lang.Engelska);
+		EventManager.AddCoin += addCoin;
 		EventManager.NewGame += newGame;
 		EventManager.NewLanguage += ChangeLanguage;
 		EventManager.ChangedDir += changeGame;
@@ -547,6 +559,7 @@ public class serial : MonoBehaviour
 
 	}
 	private void OnDisable() {
+		EventManager.AddCoin -= addCoin;
 		EventManager.NewGame -= newGame;
 		EventManager.NewLanguage -= ChangeLanguage;
 		EventManager.ChangedDir -= changeGame;
@@ -1142,11 +1155,15 @@ public class serial : MonoBehaviour
 	}
 	private void newGame() {
 		print("trying to start new game");
-		if(!busyThinking) {
+		if(!busyThinking && (freePlay || credits > 0 || (!gameOver && (gameMode == 5 || gameMode == 6 || gameMode == 7)))) {
 			print("start new game");
 			if(setHighScorePanel.activeSelf == false) {// && blinkOn == false) {
 				highScorePanel.SetActive(false);
-				gameOver = false;
+				if(gameOver && !freePlay) {
+					removeCoin();
+					gameOver = false;
+				}
+				
 				if(gameMode == 7) {
 					inBetween = true;
 				} else {
@@ -1158,11 +1175,13 @@ public class serial : MonoBehaviour
 						RemoveAllListObjectsPleyers();
 						totalLifes = 0;
 						WinnerCanvas.SetActive(false);
+						//removeCoin();
 					}
 					AddPlayer();
 					//PlayOk();
 				} else {
 					ResetScores();
+					//removeCoin();
 				}
 
 				gameStarted = false;
