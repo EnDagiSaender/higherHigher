@@ -27,6 +27,9 @@ public class EventManager : MonoBehaviour
 	public delegate void ChangeCoin();
 	public static event ChangeCoin AddCoin;
 
+	public delegate void ChangeFreeplay();
+	public static event ChangeFreeplay ToggleFreeplay;
+
 	[SerializeField] serial serial;
 
 	SerialPort portNo = new SerialPort("\\\\.\\COM3", 115200);
@@ -127,6 +130,11 @@ public class EventManager : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.S)) {
 			if(AddCoin != null) {
 				AddCoin();
+			}
+		}
+		if(Input.GetKeyDown(KeyCode.F)) {
+			if(ToggleFreeplay != null) {
+				ToggleFreeplay();
 			}
 		}
 		if (Input.GetKeyDown(KeyCode.Alpha1))

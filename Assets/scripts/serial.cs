@@ -149,7 +149,7 @@ public class serial : MonoBehaviour
 	//private bool blinkOn = false;
 	private int totalScore = 0;
 	private int totalThrows = 0;
-	private bool gameOver = false;
+	private bool gameOver = true;
 	private int[] gameModeChoices = {1,3,7};
 	private int gameMode = 3;
 	private int gameModeMultiplyer = 1;
@@ -158,7 +158,7 @@ public class serial : MonoBehaviour
 	private int gameModeMax = 7;
 	private int players = 0;
 	private bool busyThinking = false;
-	private bool gameStarted = true;
+	private bool gameStarted = false;
 	private bool randomizeNewNr = true;
 	private bool onePlayerGame = false;
 	private bool wrapAroundPlayers = false;
@@ -368,11 +368,17 @@ public class serial : MonoBehaviour
 		}
 		
 	}
+	private void toggleFreeplay() {
+		freePlay = !freePlay;
+		UpdateCreditText();
+	}
 
 	private void OnEnable() {
 		currentLanguage = lang.Svenska; // Sätt språket HÄR
 										//print(currentLanguage);
 										//print((int)lang.Engelska);
+
+		EventManager.ToggleFreeplay += toggleFreeplay;
 		EventManager.AddCoin += addCoin;
 		EventManager.NewGame += newGame;
 		EventManager.NewLanguage += ChangeLanguage;
@@ -559,6 +565,7 @@ public class serial : MonoBehaviour
 
 	}
 	private void OnDisable() {
+		EventManager.ToggleFreeplay -= toggleFreeplay;
 		EventManager.AddCoin -= addCoin;
 		EventManager.NewGame -= newGame;
 		EventManager.NewLanguage -= ChangeLanguage;
@@ -569,8 +576,12 @@ public class serial : MonoBehaviour
 		HighscoreUI.PlayDrawSound -= PlayDraw;
 	}
 	private void changeGame(bool increse) {
-		if(setHighScorePanel.activeSelf == false && busyThinking == false) {
+		if(setHighScorePanel.activeSelf == false && busyThinking == false && (freePlay || !gameStarted)) {
 			PlayChangeGame();
+			if(!gameStarted && !freePlay && !gameOver) {
+				addCoin();
+			}
+			gameStarted = false;
 			for(int i = 0; i< gameModeChoices.Length; i++){
 				if(gameModeChoices[i] == gameMode) {
 					if(increse) {
@@ -1160,28 +1171,35 @@ public class serial : MonoBehaviour
 			if(setHighScorePanel.activeSelf == false) {// && blinkOn == false) {
 				highScorePanel.SetActive(false);
 				if(gameOver && !freePlay) {
-					removeCoin();
-					gameOver = false;
+					removeCoin();					
 				}
-				
+				gameOver = false;
 				if(gameMode == 7) {
 					inBetween = true;
 				} else {
 					inBetween = false;
 				}
 				if(gameMode == 5 || gameMode == 6 || gameMode == 7) {
-					if(gameStarted == true) {
+					if(gameStarted == true && freePlay) {
 						RemoveAllListObjects();
 						RemoveAllListObjectsPleyers();
 						totalLifes = 0;
 						WinnerCanvas.SetActive(false);
 						//removeCoin();
+					} else if(!gameStarted) {
+						AddPlayer();
+						//PlayOk();
+					} else {
+						print("xcvx");
+						return;
 					}
-					AddPlayer();
-					//PlayOk();
 				} else {
-					ResetScores();
-					//removeCoin();
+					if(!gameStarted || freePlay) {
+						ResetScores();
+						//removeCoin();
+					} else {
+						return;
+					}
 				}
 
 				gameStarted = false;
@@ -1190,6 +1208,10 @@ public class serial : MonoBehaviour
 				totalThrows = 0;
 				CreditsCanvas.SetActive(false);
 				//ResetScores();
+
+
+
+
 			}
 		}
 	}
@@ -1534,6 +1556,7 @@ public class serial : MonoBehaviour
 				GameIsOver();
 			}
 		}
+		gameStarted = false;
 	}
 	private bool IsWithin(int a, int b, int c) {
 		return (c >= Mathf.Min(a, b) && c <= Mathf.Max(a, b)); //returnIsWithin;
