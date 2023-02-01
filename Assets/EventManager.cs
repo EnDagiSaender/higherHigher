@@ -6,8 +6,10 @@ using System.IO.Ports;
 public class EventManager : MonoBehaviour
 {
 	private float timer = 0;
+	private float timer2 = 0;
 	private float deltaTime;
 	private bool anyPortOpen = false;
+	private bool ball = false;
 
 	public delegate void ChangeDirection(bool right);
 	public static event ChangeDirection ChangedDir;
@@ -27,14 +29,32 @@ public class EventManager : MonoBehaviour
 	public delegate void ChangeCoin();
 	public static event ChangeCoin AddCoin;
 
+	public delegate void Bollstatus();
+	public static event Bollstatus BallFound;
+
 	public delegate void ChangeFreeplay();
 	public static event ChangeFreeplay ToggleFreeplay;
+
+	public delegate void TestMenu();
+	public static event TestMenu ToggleTestMenu;
 
 	[SerializeField] serial serial;
 
 	SerialPort portNo = new SerialPort("\\\\.\\COM3", 115200);
-	// Start is called before the first frame update
-	void Start()
+
+	private void OnEnable() {
+		serial.CloseBallGate += closeGate;
+		serial.OpenBallGate += openGate;
+		serial.SetCoinLock += setCoinLock;
+	}
+
+	private void OnDisable() {
+		serial.SetCoinLock -= setCoinLock;
+		serial.CloseBallGate -= closeGate;
+		serial.OpenBallGate -= openGate;
+	}
+		// Start is called before the first frame update
+		void Start()
     {
 		Open();
 	}
@@ -72,7 +92,47 @@ public class EventManager : MonoBehaviour
 		}
 
 	}
+	void closeGate() {
+		if(anyPortOpen && portNo.IsOpen) {
+			try {
+				portNo.WriteLine("l");
+				print("Close");
+			}catch{
+				print("fail to send command to esp32");
+			}
+		}
+	}
+	void openGate() {
+		if(anyPortOpen && portNo.IsOpen) {
+			try {
+				portNo.WriteLine("o");
+				print("Open");
+			} catch {
+				print("fail to send command to esp32");
+			}
+		}
+	}
+	void setCoinLock(bool on) {
+		if(anyPortOpen && portNo.IsOpen) {
+			try {
+				if(on) {
+					portNo.WriteLine("c");
+					print("coin lock on");
+				} else {
+					portNo.WriteLine("r");
+					print("coin lock off");
+				}
+			} catch {
+				print("fail to send command to esp32");
+			}
+		}
+	}
 
+	public bool IsBall {
+		get {
+			return ball;
+		}
+	}
 	// Update is called once per frame
 	void Update()
     {
@@ -133,10 +193,35 @@ public class EventManager : MonoBehaviour
 			}
 		}
 		if(Input.GetKeyDown(KeyCode.F)) {
-			if(ToggleFreeplay != null) {
-				ToggleFreeplay();
+			//if(ToggleFreeplay != null) {
+			//	ToggleFreeplay();
+			//}
+			if(ToggleTestMenu != null) {
+				ToggleTestMenu();
 			}
 		}
+		if(Input.GetKeyDown(KeyCode.T)) {
+			if(ToggleTestMenu != null) {
+				ToggleTestMenu();
+			}
+		}
+		if(Input.GetKeyDown(KeyCode.O)) {
+			if(anyPortOpen && portNo.IsOpen) {
+				try {
+					portNo.Write("o");
+				} catch {
+				}
+			}
+		}
+		if(Input.GetKeyDown(KeyCode.L)) {
+			if(anyPortOpen && portNo.IsOpen) {
+				try {
+					portNo.Write("l");
+				} catch {
+				}
+			}
+		}
+
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			if(NewScore != null) {
@@ -180,6 +265,7 @@ public class EventManager : MonoBehaviour
 		}
 		deltaTime = Time.deltaTime;
 		timer += deltaTime;
+		timer2 += deltaTime;
 		if(timer > 0.1) {
 			timer = 0;
 			if(anyPortOpen && portNo.IsOpen) {
@@ -220,9 +306,48 @@ public class EventManager : MonoBehaviour
 							if(AddCoin != null) {
 								AddCoin();
 							}
+						} else if(Equals(message[0], "f")) {
+							//if(ToggleFreeplay != null) {
+							//	ToggleFreeplay();
+							//}
+							if(ToggleTestMenu != null) {
+								ToggleTestMenu();
+							}
+						} else if(Equals(message[0], "t")) {
+							if(ToggleTestMenu != null) {
+								ToggleTestMenu();
+							}
+						} else if(Equals(message[0], "b")) {
+							if(!ball) {
+								ball = true;
+							}
+							if(serial.IsBallMissing) {
+								if(BallFound != null) {
+									BallFound();
+								}
+							}
+							print("ball");
+						} else if(Equals(message[0], "v")) {
+							if(ball) {
+								ball = false;
+							}
+							print("not ball");
 						}
 					} catch {
 
+					}
+				}
+			}
+		}
+		if(timer2 > 5) {
+			timer2 = 0;
+			if(serial.IsGameOver) {
+				if(anyPortOpen && portNo.IsOpen) {
+					try {
+						portNo.WriteLine("g");
+						print("ask boll status");
+					} catch {
+						print("fail to send command to esp32");
 					}
 				}
 			}
