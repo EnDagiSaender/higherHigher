@@ -12,7 +12,7 @@ public class videoControllerScript : MonoBehaviour {
 	// Start is called before the first frame update
 	void Start() {
 		vp = gameObject.GetComponent<VideoPlayer>();
-
+		GameChanged();
 	}
 
 	// Update is called once per frame
@@ -22,7 +22,7 @@ public class videoControllerScript : MonoBehaviour {
 	private void OnEnable() {
 		serial.GameIsOver += GameOver;
 		serial.GameChanged += GameChanged;
-		GameChanged();
+//		 GameChanged();
 
 
 	}

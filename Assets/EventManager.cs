@@ -35,6 +35,9 @@ public class EventManager : MonoBehaviour
 	public delegate void ChangeFreeplay();
 	public static event ChangeFreeplay ToggleFreeplay;
 
+	//public delegate void SendCommand(string c);
+	//public static event SendCommand sendCommand;
+
 	public delegate void TestMenu();
 	public static event TestMenu ToggleTestMenu;
 
@@ -92,7 +95,7 @@ public class EventManager : MonoBehaviour
 		}
 
 	}
-	void closeGate() {
+	public void closeGate() {
 		if(anyPortOpen && portNo.IsOpen) {
 			try {
 				portNo.WriteLine("l");
@@ -102,11 +105,20 @@ public class EventManager : MonoBehaviour
 			}
 		}
 	}
-	void openGate() {
+	public void openGate() {
 		if(anyPortOpen && portNo.IsOpen) {
 			try {
 				portNo.WriteLine("o");
 				print("Open");
+			} catch {
+				print("fail to send command to esp32");
+			}
+		}
+	}
+	public void sendCommand(string c){
+		if(anyPortOpen && portNo.IsOpen) {
+			try {
+				portNo.WriteLine(c);
 			} catch {
 				print("fail to send command to esp32");
 			}
@@ -326,12 +338,12 @@ public class EventManager : MonoBehaviour
 									BallFound();
 								}
 							}
-							print("ball");
+							//print("ball");
 						} else if(Equals(message[0], "v")) {
 							if(ball) {
 								ball = false;
 							}
-							print("not ball");
+							//print("not ball");
 						}
 					} catch {
 
@@ -345,7 +357,7 @@ public class EventManager : MonoBehaviour
 				if(anyPortOpen && portNo.IsOpen) {
 					try {
 						portNo.WriteLine("g");
-						print("ask boll status");
+						//print("ask boll status");
 					} catch {
 						print("fail to send command to esp32");
 					}

@@ -9,7 +9,7 @@ public class display2 : MonoBehaviour
 	void Start()
     {
 		cameraDisplay2.targetDisplay = 1;
-		Display.displays[1].Activate();
+		Display.displays[1].Activate();//activate secondary display
     }
 
     // Update is called once per frame

@@ -13,21 +13,33 @@ public class settingsMenu : MonoBehaviour
 	[SerializeField] EventManager EventManager;
 	[SerializeField] GameObject SettingsPanel;
 
+	[SerializeField] GameObject openGate;
+	[SerializeField] GameObject openGateValue;
 	[SerializeField] GameObject freePlay;
 	[SerializeField] GameObject freePlayValue;
 	[SerializeField] GameObject prizeLagom;
 	[SerializeField] GameObject prizeLagomValue;
 	[SerializeField] GameObject prizeFaster;	
 	[SerializeField] GameObject prizeFasterValue;
+	[SerializeField] GameObject oneSensor;
+	[SerializeField] GameObject oneSensorValue;
+	[SerializeField] GameObject clown;
+	[SerializeField] GameObject clownValue;
+	[SerializeField] GameObject vinstFreeplay;
+	[SerializeField] GameObject vinstFreeplayValue;
+	[SerializeField] GameObject disableSensor;
+	[SerializeField] GameObject disableSensorValue;
 	[SerializeField] GameObject addCoin;
 	[SerializeField] GameObject clearCoin;
+
 
 	private int prizeLagomMin = 10;
 	private int prizeLagomMax = 40;
 	private int prizeFasterMin = 10;
 	private int prizeFasterMax = 40;
-	int menuIndex = 0;
-	int lastMenuIndex = 0;
+	private int clownStatus = 0;
+	int menuIndex = 1;
+	int lastMenuIndex = 1;
 	bool settingNotValue = true; 
 
 	List<Image> settingsList = new List<Image>();
@@ -35,16 +47,22 @@ public class settingsMenu : MonoBehaviour
 	List<TextMeshProUGUI> valueListText = new List<TextMeshProUGUI>();
 
 	private void OnEnable() {
-		print("On Enable Keypress");
+		//print("On Enable Keypress");
 		//serial.OkButton += Ok;
 		//serial.LeftButton += MoveLeft;
 		//serial.RightButton += MoveRight;
 		EventManager.NewGame += Ok;
-		EventManager.ChangedDir += Move;
+		EventManager.ChangedDir += Move;		
+		clownStatus = 0;
+		if(valueListText.Count > 3) {
+			valueListText[0].text = serial.ballOut ? "Open" : "Closed";
+			valueListText[5].text = "Closed";
+		}
+
 		//setHighScorePanel.SetActive(true);
 		//print("HighScore panel visible!");
-		
-		
+
+
 		//valueList[menuIndex]
 		//print(settingsList.Count);
 		//GameObject[] temparray = SettingsPanel.GetComponentsInChildren<GameObject>();
@@ -62,13 +80,20 @@ public class settingsMenu : MonoBehaviour
 		//print("HighScore panel not visible!");
 		serial.saveGameSettings();
 		serial.UpdateCreditText();
+		if(serial.ballOut) {
+			EventManager.openGate();
+		} else {
+			EventManager.closeGate();
+		}
+		serial.closeMouth();
+
 	}
 	private void Ok() {
-		if(menuIndex == 3) {
+		if(menuIndex == settingsList.Count -2) {//5
 			serial.addCoin();
 			return;
 		}
-		if(menuIndex == 4) {
+		if(menuIndex == settingsList.Count - 1) {//6
 			serial.clearCoin();
 			return;
 		}
@@ -98,7 +123,21 @@ public class settingsMenu : MonoBehaviour
 			settingsList[menuIndex].color = active;
 		} else {
 			switch(menuIndex) {
-				case 0: //FreePlay
+				case 0: //OpenGate
+					//serial.freePlay = !serial.freePlay;
+					valueListText[menuIndex].text = valueListText[menuIndex].text == "Open" ? "Closed" : "Open";
+					if(valueListText[menuIndex].text == "Open") {
+						EventManager.openGate();
+					} else {
+						EventManager.closeGate();
+					}
+					//if(serial.freePlay) {
+					//	valueListText[menuIndex].text = "ON";
+					//} else {
+					//	valueListText[menuIndex].text = "OFF";
+					//}
+					break;
+				case 1: //FreePlay
 					serial.freePlay = !serial.freePlay;
 					valueListText[menuIndex].text = serial.freePlay ? "ON" : "OFF";
 					//if(serial.freePlay) {
@@ -107,7 +146,7 @@ public class settingsMenu : MonoBehaviour
 					//	valueListText[menuIndex].text = "OFF";
 					//}
 					break;
-				case 1: // prizeLagom
+				case 2: // prizeLagom
 					serial.prizeLagom = down ? serial.prizeLagom + 1 : serial.prizeLagom - 1;
 					if(serial.prizeLagom > prizeLagomMax) {
 						serial.prizeLagom = prizeLagomMin;
@@ -116,7 +155,7 @@ public class settingsMenu : MonoBehaviour
 					}
 					valueListText[menuIndex].text = serial.prizeLagom.ToString();
 					break;
-				case 2: // prizeFaster
+				case 3: // prizeFaster
 					serial.prizeFaster = down ? serial.prizeFaster + 1 : serial.prizeFaster -1;
 					if(serial.prizeFaster > prizeFasterMax) {
 						serial.prizeFaster = prizeFasterMin;
@@ -124,6 +163,37 @@ public class settingsMenu : MonoBehaviour
 						serial.prizeFaster = prizeFasterMax;
 					}
 					valueListText[menuIndex].text = serial.prizeFaster.ToString();
+					break;
+				case 4: // prizeFaster
+					serial.oneSensor = !serial.oneSensor;
+					valueListText[menuIndex].text = serial.oneSensor ? "ON" : "OFF";
+					break;
+				case 5: // clown
+					clownStatus = down ? clownStatus + 1 : clownStatus - 1;
+					if(clownStatus > 2) {
+						clownStatus = 0;
+					} else if(clownStatus < 0) {
+						clownStatus = 3;
+					}
+					if(clownStatus == 0) {
+						valueListText[menuIndex].text = "Closed";
+						serial.closeMouth();
+					} else if(clownStatus == 1) {
+						valueListText[menuIndex].text = "Open";
+						serial.openMouth();
+					} else {
+						valueListText[menuIndex].text = "Cycle";
+						serial.repeatBubble = true;
+						serial.cycleBubbles1();
+					}
+					break;
+				case 6: // vinstFreeplay
+					serial.freePlayVinst = !serial.freePlayVinst;
+					valueListText[menuIndex].text = serial.freePlayVinst ? "ON" : "OFF";
+					break;
+				case 7: // disableSensor
+					serial.disableSensor = !serial.disableSensor;
+					valueListText[menuIndex].text = serial.disableSensor ? "OFF" : "ON";
 					break;
 				default:
 					break;
@@ -138,28 +208,56 @@ public class settingsMenu : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
+		settingsList.Add(openGate.GetComponent<Image>());
 		settingsList.Add(freePlay.GetComponent<Image>());
 		settingsList.Add(prizeLagom.GetComponent<Image>());
 		settingsList.Add(prizeFaster.GetComponent<Image>());
+		settingsList.Add(oneSensor.GetComponent<Image>());
+		settingsList.Add(clown.GetComponent<Image>());
+		settingsList.Add(vinstFreeplay.GetComponent<Image>());
+		settingsList.Add(disableSensor.GetComponent<Image>());
 		settingsList.Add(addCoin.GetComponent<Image>());
 		settingsList.Add(clearCoin.GetComponent<Image>());
-
+		
+		/*
+			[SerializeField] GameObject clown;
+	[SerializeField] GameObject clownValue;
+	[SerializeField] GameObject vinstFreeplay;
+	[SerializeField] GameObject vinstFreeplayValue;
+	[SerializeField] GameObject disableSensor;
+	[SerializeField] GameObject disableSensorValue;
+	*/
+	valueList.Add(openGateValue.GetComponent<Image>());
 		valueList.Add(freePlayValue.GetComponent<Image>());
 		valueList.Add(prizeLagomValue.GetComponent<Image>());
 		valueList.Add(prizeFasterValue.GetComponent<Image>());
+		valueList.Add(oneSensorValue.GetComponent<Image>());
+		valueList.Add(clownValue.GetComponent<Image>());
+		valueList.Add(vinstFreeplayValue.GetComponent<Image>());
+		valueList.Add(disableSensorValue.GetComponent<Image>());
 		//TextMeshProUGUI[] temparray = freePlayValue.GetComponentInChildren<TextMeshProUGUI>();
+		valueListText.Add(openGateValue.GetComponentInChildren<TextMeshProUGUI>());
 		valueListText.Add(freePlayValue.GetComponentInChildren<TextMeshProUGUI>());
 		valueListText.Add(prizeLagomValue.GetComponentInChildren<TextMeshProUGUI>());
 		valueListText.Add(prizeFasterValue.GetComponentInChildren<TextMeshProUGUI>());
+		valueListText.Add(oneSensorValue.GetComponentInChildren<TextMeshProUGUI>());
+		valueListText.Add(clownValue.GetComponentInChildren<TextMeshProUGUI>());
+		valueListText.Add(vinstFreeplayValue.GetComponentInChildren<TextMeshProUGUI>());
+		valueListText.Add(disableSensorValue.GetComponentInChildren<TextMeshProUGUI>());
+		//openGate.GetComponent<Image>().color = active;
 		freePlay.GetComponent<Image>().color = active;
-		valueListText[0].text = serial.freePlay ? "ON" : "OFF";
-		valueListText[1].text = serial.prizeLagom.ToString();
-		valueListText[2].text = serial.prizeFaster.ToString();
+		valueListText[0].text = serial.ballOut ? "Open" : "Closed";
+		valueListText[1].text = serial.freePlay ? "ON" : "OFF";
+		valueListText[2].text = serial.prizeLagom.ToString();
+		valueListText[3].text = serial.prizeFaster.ToString();
+		valueListText[4].text = serial.oneSensor ? "ON" : "OFF";
+		valueListText[5].text = "Closed";
+		valueListText[6].text = serial.freePlayVinst ? "ON" : "OFF";
+		valueListText[7].text = serial.disableSensor ? "OFF" : "ON";
+
+
 	}
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
 }

@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class HighscoreUI : MonoBehaviour {
     [SerializeField] GameObject panel;
-    [SerializeField] GameObject highscoreUIElementPrefab;
+	[SerializeField] GameObject panelSmallDisplay;
+	[SerializeField] GameObject highscoreUIElementPrefab;
 	[SerializeField] GameObject highscoreUIElementPrefabSmallDisplay;
 	[SerializeField] Transform elementWrapper;
 	[SerializeField] Transform elementWrapperSmallDisplay;
@@ -19,6 +20,7 @@ public class HighscoreUI : MonoBehaviour {
 	Coroutine blinkHs = null;
 	TextMeshProUGUI[] texts;
 	TextMeshProUGUI[] texts2;
+	private TextMeshProUGUI[] tempText1;
 
 	public delegate void PlayWinner();
 	public static event PlayWinner PlayWinnerSound;
@@ -52,6 +54,15 @@ public class HighscoreUI : MonoBehaviour {
 		
 	}
 	public void GameChanged() {
+		panel.GetComponentInChildren<Image>().color = serial.gameModeColor(3);
+		panelSmallDisplay.GetComponentInChildren<Image>().color = serial.gameModeColor(3);
+		setHighScorePanel.GetComponentInChildren<Image>().color = serial.gameModeColor(3);
+		tempText1 = setHighScorePanel.GetComponentsInChildren<TextMeshProUGUI>();
+		foreach(TextMeshProUGUI text in tempText1) {
+			text.color = serial.gameModeColor(4);
+		}
+		gameName.color = serial.gameModeColor(2);
+		gameNameSmallDisplay.color = serial.gameModeColor(2);
 		gameName.text = serial.DisplayCurrentGameName;
 		gameNameSmallDisplay.text = serial.DisplayCurrentGameName;
 		//for(int i = 0; i < uiElements.Count; i++) {
@@ -168,7 +179,11 @@ public class HighscoreUI : MonoBehaviour {
 					texts[2].text = el.points.ToString();
 					texts[3].text = el.throws.ToString();
 				}
-				
+				foreach(TextMeshProUGUI text in texts) {
+					text.color = serial.gameModeColor(4);
+				}
+
+
 				texts = uiElementsSmall[i].GetComponentsInChildren<TMPro.TextMeshProUGUI>();
 				texts[0].text = (i+1).ToString();
 				texts[1].text = el.playerName;
@@ -180,6 +195,9 @@ public class HighscoreUI : MonoBehaviour {
 				} else {
 					texts[2].text = el.points.ToString();
 					texts[3].text = el.throws.ToString();
+				}
+				foreach(TextMeshProUGUI text in texts) {
+					text.color = serial.gameModeColor(4);
 				}
 				//if(highscoreHandler.highScoreNr == i) {
 				//	texts[2].text = "99993";
