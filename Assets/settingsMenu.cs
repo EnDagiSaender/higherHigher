@@ -33,9 +33,9 @@ public class settingsMenu : MonoBehaviour
 	[SerializeField] GameObject clearCoin;
 
 
-	private int prizeLagomMin = 10;
+	private int prizeLagomMin = 5;
 	private int prizeLagomMax = 40;
-	private int prizeFasterMin = 10;
+	private int prizeFasterMin = 5;
 	private int prizeFasterMax = 40;
 	private int clownStatus = 0;
 	int menuIndex = 1;

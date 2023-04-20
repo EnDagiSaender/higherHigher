@@ -35,6 +35,9 @@ public class EventManager : MonoBehaviour
 	public delegate void ChangeFreeplay();
 	public static event ChangeFreeplay ToggleFreeplay;
 
+	public delegate void VinstResetButton();
+	public static event VinstResetButton VinstReset;
+
 	//public delegate void SendCommand(string c);
 	//public static event SendCommand sendCommand;
 
@@ -199,6 +202,11 @@ public class EventManager : MonoBehaviour
 				NewLanguage();
 			}
 		}
+		if(Input.GetKeyDown(KeyCode.V)) {
+			if(VinstReset != null) {
+				VinstReset();
+			}
+		}
 		if(Input.GetKeyDown(KeyCode.S)) {
 			if(AddCoin != null) {
 				AddCoin();
@@ -328,6 +336,10 @@ public class EventManager : MonoBehaviour
 						} else if(Equals(message[0], "t")) {
 							if(ToggleTestMenu != null) {
 								ToggleTestMenu();
+							}
+						} else if(Equals(message[0], "a")) {
+							if(VinstReset != null) {
+								VinstReset();
 							}
 						} else if(Equals(message[0], "b")) {
 							if(!ball) {

@@ -91,6 +91,10 @@ public class HighscoreUI : MonoBehaviour {
 		if(highscoreHandler.IfHighscore2(serial.Points, serial.Throws)) {
 			//keypress.enabled = true;
 			setHighScorePanel.SetActive(true);
+			if(!serial.vinst) {
+				serial.dubbleDipp = true;
+				serial.cycleBubbles1();
+			}
 			if(PlayWinnerSound != null) {
 				PlayWinnerSound();
 			}
