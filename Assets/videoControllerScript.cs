@@ -12,7 +12,8 @@ public class videoControllerScript : MonoBehaviour {
 	// Start is called before the first frame update
 	void Start() {
 		vp = gameObject.GetComponent<VideoPlayer>();
-		GameChanged();
+		//GameChanged();
+		PlayAttract();
 	}
 
 	// Update is called once per frame
@@ -30,6 +31,19 @@ public class videoControllerScript : MonoBehaviour {
 	private void OnDisable() {
 		serial.GameIsOver -= GameOver;
 		serial.GameChanged -= GameChanged;
+
+	}
+	public void PlayAttract() {
+		string fileName = Application.streamingAssetsPath + "/video/attract.mp4";
+		if(File.Exists(fileName)) {
+			if(vp.url != fileName) {
+				vp.url = fileName;
+				vp.Play();
+			}
+		} else {
+			print("VIDEO DO NOT Exists");
+			print(fileName);
+		}
 
 	}
 	public void GameChanged() {

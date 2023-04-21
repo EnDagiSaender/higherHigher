@@ -6,6 +6,7 @@ public class disableAfter : MonoBehaviour
 {
 	[SerializeField] GameObject CreditsCanvas;
 	[SerializeField] GameObject HighScoreCanvas;
+	[SerializeField] serial serial;
 	// Start is called before the first frame update
 	void OnEnable()
     {
@@ -14,8 +15,9 @@ public class disableAfter : MonoBehaviour
 
 	private void StopShowHs() {
 		if(HighScoreCanvas.activeSelf) {
-			CreditsCanvas.SetActive(true);
-			HighScoreCanvas.SetActive(false);
+			serial.DisplayCredits();
+			//CreditsCanvas.SetActive(true);
+			//HighScoreCanvas.SetActive(false);
 		}
 	}
 }

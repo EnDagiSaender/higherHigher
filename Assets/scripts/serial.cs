@@ -19,8 +19,8 @@ public class serial : MonoBehaviour {
 	}
 	public lang currentLanguage;
 	public object[][] language = {
-		new string[] {"Spelare", "FRISPEL", "LÄGG PÅ MYNT", "TRYCK PÅ START", "KREDITER", "Kast nr: ", "Oavgjort!", "Vinnare Spelare", "Kast", "Kasta tillbaka bollen i spelet", "Grattis! Invänta Personal", "Kasta bollen mot skärmen", ". Kasta snabbare än ", ", Kasta så snabbt som möjligt", " föregående kast"},
-		new string[] { "Player", "FREEPLAY" , "INSERT COIN" , "PUSH START", "CREDITS", "Throw nr: ", "DRAW!", "Winner Player", "Throws" , "Throw the ball back into the game" , "Congrats! Await The Staff" , "Throw the ball at the screen" , ". Throw faster than ", ", Throw as fast as possible", " previous throw"}
+		new string[] {"Spelare", "FRISPEL", "LÄGG PÅ MYNT", "TRYCK PÅ START", "KREDITER", "Kast nr: ", "Oavgjort!", "Vinnare Spelare", "Kast", "Kasta tillbaka bollen i spelet", "Grattis! Invänta Personal", "Kasta bollen mot skärmen", ". Kasta snabbare än ", ", Kasta så snabbt som möjligt", " föregående kast", "VINST VID ", " LYCKADE KAST", "INGEN VINST I DETTA SPEL"},
+		new string[] { "Player", "FREEPLAY" , "INSERT COIN" , "PUSH START", "CREDITS", "Throw nr: ", "DRAW!", "Winner Player", "Throws" , "Throw the ball back into the game" , "Congrats! Await The Staff" , "Throw the ball at the screen" , ". Throw faster than ", ", Throw as fast as possible", " previous throw", "PRIZE AT  ", " SUCCESSFUL THROWS", "NO PRIZE IN THIS GAME" }
 
 	};
 
@@ -58,6 +58,8 @@ public class serial : MonoBehaviour {
 	[SerializeField] GameObject SettingsCanvas;
 	[SerializeField] GameObject MissingBallCanvas;
 	[SerializeField] GameObject CreditsCanvas;
+	[SerializeField] GameObject VinstLevelCanvas;
+	[SerializeField] GameObject VinstLevelCanvasSmall;
 	[SerializeField] HighscoreUI HighscoreUI;
 	[SerializeField] videoControllerScript videoControllerScript;
 	[SerializeField] Image BgImage;
@@ -185,22 +187,28 @@ public class serial : MonoBehaviour {
 	[SerializeField] AudioSource audioSource;
 	private bool modifiedLives = false;
 	private int credits = 0;
-	public bool freePlay = true;
+	public bool freePlay = false;
 	public bool freePlayVinst = false;
 	public bool disableSensor = false;
 	public int prizeLagom = 16;
 	public int prizeFaster = 20;
+	public int vinsterUtFaster = 0;
+	public int vinsterUtLagom = 0;
+	public int myntIn = 0;
 	//public int clownStatus = 0;
 	public bool oneSensor = false;
 	public bool oneSensorOld = false;
 	public bool repeatBubble = false;
 	public bool coinLock = false;
 	public string[] gameColor1 = { "314d79", "6288c4", "3b70c4", "786030", "c49127" };
-	public string[] gameColor2 = { "178f3f", "5cff92", "39db6f", "8f0704", "db3532" };
-	public string[] gameColor3 = { "8f150a", "ffb2ab", "db5d51", "108f51", "54db99" };
-	public string[] gameColor4 = { "63278f", "dcabff", "a252db", "818f18", "cbdb51" };
+	//public string[] gameColor2 = { "178f3f", "5cff92", "39db6f", "8f0704", "db3532" };
+	//public string[] gameColor3 = { "8f150a", "ffb2ab", "db5d51", "108f51", "54db99" };
+	//public string[] gameColor4 = { "63278f", "dcabff", "a252db", "818f18", "cbdb51" };
 	public string[] gameColor5 = { "63278f", "dcabff", "a252db", "4f8f18", "a5db51" };
-	public string[] gameColor6 = { "845B00", "ffe09c", "e6b345", "0f4099", "6391e6" };//99711a
+	//public string[] gameColor6 = { "845B00", "ffe09c", "e6b345", "0f4099", "6391e6" };//99711a
+	//public string[] gameColor7 = { "199903", "74ff5c", "44e627", "99006d", "e627af" };
+	public string[] gameColor14 = { "666699", "a3ff5c", "7ae627", "760e99", "ca75e6" };
+	//public string[] gameColor9 = { "429900", "a3ff5c", "7ae627", "900e99", "d817e6" };
 	Coroutine loadBgImageAllRutine = null;
 	Coroutine changeBgImageRutine = null;
 	//Coroutine blinkSegmentsRutine = null;
@@ -244,7 +252,9 @@ public class serial : MonoBehaviour {
 			dubbleDipp = false;
 		} 
 	}
-
+	public void PlayAttract() {
+		videoControllerScript.PlayAttract();
+	}
 	private void StopBusyThinking() {
 		busyThinking = false;
 	}
@@ -281,6 +291,7 @@ public class serial : MonoBehaviour {
 			highscoreGamenameSmallDisplay.text = highscoreGamename.text;
 			//print(currentLanguage);
 			UpdateCreditText();
+			UpdateVinstLevelCanvas();
 			if(onePlayerGame) {
 				for(int i = 0; i < uiElementsPlayersSingleGame.Count; i++) {
 					//foreach(GameObject t in uiElementsPlayersSingleGame) {
@@ -319,8 +330,14 @@ public class serial : MonoBehaviour {
 				ChangeInfoCanvas();
 			}
 			if(gameOver == true) {
-				CancelInvoke("TimeOutEnglish");
-				Invoke("TimeOutEnglish", 120f);
+				if(currentLanguage == lang.Engelska) {
+					CancelInvoke("TimeOutEnglish");
+					Invoke("TimeOutEnglish", 120f);
+				} else {
+					CancelInvoke("TimeOutEnglish");
+				}
+				CancelInvoke("PlayAttract");
+				Invoke("PlayAttract", 120f);
 			}
 			videoControllerScript.GameChanged();
 			//	//playersList[0][0].text = "Throw nr: " + totalThrows.ToString();
@@ -346,7 +363,7 @@ public class serial : MonoBehaviour {
 		} else if(gameMode == 3) {
 			c = hexToColor(gameColor1[colorNr]);
 		} else {
-			c = hexToColor(gameColor6[colorNr]);
+			c = hexToColor(gameColor14[colorNr]);//6
 		}
 		return c;
 	}
@@ -357,7 +374,7 @@ public class serial : MonoBehaviour {
 		} else if(gameMode == 3) {
 			c = hexToColor(gameColor1[colorNr], a);
 		} else {
-			c = hexToColor(gameColor6[colorNr], a);
+			c = hexToColor(gameColor14[colorNr], a);
 		}
 		return c;
 	}
@@ -365,8 +382,11 @@ public class serial : MonoBehaviour {
 		if(!gameOver) {
 			ChangeInfoCanvas();
 			InstructionsCanvas.SetActive(true);
+			if(!freePlay || freePlayVinst) {
+				VinstLevelCanvas.SetActive(true);
 			}
 		}
+	}
 	public void ChangeInfoCanvas() {
 		if(gameMode == 1) {
 			InstructionsCanvas.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][11].ToString() + language[(int)currentLanguage][13].ToString();
@@ -442,9 +462,33 @@ public class serial : MonoBehaviour {
 	private void HideWinner() {
 		WinnerCanvas.SetActive(false);
 	}
-	private void DisplayCredits() {
+	private void UpdateVinstLevelCanvas() {
+		if(!freePlay || freePlayVinst) {
+			VinstLevelCanvas.SetActive(true);
+			VinstLevelCanvasSmall.SetActive(true);
+			VinstLevelCanvas.GetComponentInChildren<Image>().color = gameModeColor(0, 230);
+			VinstLevelCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(1);
+			//VinstLevelCanvasSmall.GetComponentInChildren<Image>().color = gameModeColor(0, 230);
+			VinstLevelCanvasSmall.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(1);
+			if(gameMode == 1) {
+				VinstLevelCanvas.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][17].ToString();
+				VinstLevelCanvasSmall.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][17].ToString();
+
+			} else if(gameMode == 3) {
+				VinstLevelCanvas.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][15].ToString() + prizeFaster.ToString() + language[(int)currentLanguage][16].ToString();
+				VinstLevelCanvasSmall.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][15].ToString() + prizeFaster.ToString() + language[(int)currentLanguage][16].ToString();
+			} else if(gameMode == 7) {
+				VinstLevelCanvas.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][15].ToString() + prizeLagom.ToString() +language[(int)currentLanguage][16].ToString();
+				VinstLevelCanvasSmall.GetComponentInChildren<TextMeshProUGUI>().text = language[(int)currentLanguage][15].ToString() + prizeLagom.ToString() + language[(int)currentLanguage][16].ToString();
+			}
+		}
+	}
+	public void DisplayCredits() {
 		highScorePanel.SetActive(false);
 		CreditsCanvas.SetActive(true);
+		if(!freePlay || freePlayVinst) {
+			VinstLevelCanvas.SetActive(true);
+		}
 	}
 	private void RemoveAllListObjects() {
 		foreach(GameObject t in uiElements) {
@@ -524,6 +568,17 @@ public class serial : MonoBehaviour {
 			SetCoinLock(true);
 			coinLock = true;
 		}
+		myntIn += 1;
+		PlayerPrefs.SetInt("myntIn", myntIn);
+	}
+	public void addServiceCoin() {
+		playCoin();
+		credits++;
+		UpdateCreditText();
+		if(SetCoinLock != null && coinLock == false) {
+			SetCoinLock(true);
+			coinLock = true;
+		}
 	}
 	private void removeCoin() {
 		if(credits > 0) {
@@ -566,6 +621,11 @@ public class serial : MonoBehaviour {
 		}
 		prizeLagom = PlayerPrefs.HasKey("prizelagom") ? PlayerPrefs.GetInt("prizelagom") : 16;
 		prizeFaster = PlayerPrefs.HasKey("prizefaster") ? PlayerPrefs.GetInt("prizefaster") : 20;
+		myntIn = PlayerPrefs.HasKey("myntIn") ? PlayerPrefs.GetInt("myntIn") : 0;
+		vinsterUtFaster = PlayerPrefs.HasKey("vinsterUtFaster") ? PlayerPrefs.GetInt("vinsterUtFaster") : 0;
+		vinsterUtLagom = PlayerPrefs.HasKey("vinsterUtLagom") ? PlayerPrefs.GetInt("vinsterUtLagom") : 0;
+		
+	//public int clownStatus
 		if(PlayerPrefs.HasKey("freeplayvinst")) {
 			freePlayVinst = PlayerPrefs.GetInt("freeplayvinst") == 1;
 		}
@@ -624,16 +684,23 @@ public class serial : MonoBehaviour {
 		Invoke("isBallBackAtSensor", 10f);
 		loadGameSettings();
 		//saveGameSettings();
-		if(CloseBallGate != null) {
-			CloseBallGate();
-		}
+		//if(CloseBallGate != null) {
+		//	CloseBallGate();
+		//}
+		Invoke("startUp", 1f);
+
+	}
+	private void startUp() {
+		EventManager.sendCommand("4");
+		EventManager.closeGate();
 		if(SetCoinLock != null && freePlay) {
 			SetCoinLock(true);
 			coinLock = true;
+		} else if(SetCoinLock != null && credits == 0) {
+			SetCoinLock(false);
+			coinLock = false;
 		}
-
 	}
-
 	private void GetPlayerInfo() {
 		TextMeshProUGUI[] temparray = uiElementsPlayers[players - 1].GetComponentsInChildren<TextMeshProUGUI>();
 		TextMeshProUGUI[] playerInfo = new TextMeshProUGUI[20];
@@ -812,7 +879,7 @@ public class serial : MonoBehaviour {
 	}
 	private void ballFound() {
 		ballMissing = false;
-		if(SetCoinLock != null && credits == 0 && freePlay == false) {
+		if(SetCoinLock != null && credits == 0 && freePlay == false && coinLock) {
 			SetCoinLock(false);
 			coinLock = false;
 		}
@@ -848,6 +915,7 @@ public class serial : MonoBehaviour {
 		if(vinst) {
 			vinst = false;
 			WinnerCanvas.SetActive(false);
+			changeLedColor();
 		}
 	}
 	public void ExitSettings() {
@@ -855,7 +923,7 @@ public class serial : MonoBehaviour {
 			if(SetCoinLock != null) {
 				SetCoinLock(true);
 				coinLock = true;
-			}
+			}		
 		}
 		if(credits == 0 && gameOver) {
 			if(SetCoinLock != null) {
@@ -863,6 +931,10 @@ public class serial : MonoBehaviour {
 				coinLock = false;
 			}
 
+		}
+		if(freePlay && !freePlayVinst) {
+			VinstLevelCanvas.SetActive(false);
+			VinstLevelCanvasSmall.SetActive(false);
 		}
 
 	}
@@ -876,11 +948,14 @@ public class serial : MonoBehaviour {
 				CancelInvoke("TimeOutEnglish");
 				Invoke("TimeOutEnglish", 120f);
 			}
+			CancelInvoke("PlayAttract");
+			Invoke("PlayAttract", 120f);
 			PlayChangeGame();
 			if(!gameStarted && !gameOver) {
 				ballOut = true;
 				if(!freePlay) {
-					addCoin();
+					//addCoin();
+					addServiceCoin();
 				}
 			}
 			CancelInvoke("FlashActivePlayer");
@@ -960,6 +1035,7 @@ public class serial : MonoBehaviour {
 			CreditsCanvas.SetActive(true);
 			GameName.color = gameModeColor(4);
 			CreditsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
+			UpdateVinstLevelCanvas();
 			InstructionsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3, 200);
 			InstructionsCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
 			WinnerCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
@@ -1094,7 +1170,8 @@ public class serial : MonoBehaviour {
 			StartCoroutine(blinkSegmentsRutine);
 			CancelInvoke("ShowInfoCanvas");
 			InstructionsCanvas.SetActive(false);
-			Invoke("ShowInfoCanvas", 40f);
+			VinstLevelCanvas.SetActive(false);
+			Invoke("ShowInfoCanvas", 20f);
 
 			//			//blinkOn = true;
 
@@ -1232,10 +1309,12 @@ public class serial : MonoBehaviour {
 				return;
 			} else if(nextPlayerTurnList.Count == 0) {
 				busyThinking = true;
-				playersList[0][0].text = language[(int)currentLanguage][5].ToString() + (totalThrows + 1).ToString();
+				playersList[0][0].text = language[(int)currentLanguage][5].ToString() + (totalThrows + 1).ToString();//+1
 				gameOverHelper();
 				if(totalThrows >= prizeLagom && (freePlay == false || freePlayVinst == true)) {
 					DisplayVinst();
+					vinsterUtLagom += 1;
+					PlayerPrefs.SetInt("vinsterUtLagom", vinsterUtLagom);
 				} else {
 					changeLedColor();					
 				}
@@ -1586,6 +1665,7 @@ public class serial : MonoBehaviour {
 		if(currentLanguage == lang.Engelska) {
 			Invoke("TimeOutEnglish", 120f);
 		}
+		Invoke("PlayAttract", 120f);
 		if(credits == 0 && freePlay == false) {
 			if(SetCoinLock != null) {
 				SetCoinLock(false);
@@ -1621,6 +1701,8 @@ public class serial : MonoBehaviour {
 				if(currentLanguage == lang.Engelska) {
 					CancelInvoke("TimeOutEnglish");
 				}
+				CancelInvoke("PlayAttract");
+				videoControllerScript.GameChanged();
 				if(gameOver){
 					CancelInvoke("isBallBackAtSensor");
 					if(OpenBallGate != null) {
@@ -1648,7 +1730,10 @@ public class serial : MonoBehaviour {
 					} else if(!gameStarted && freePlay) {
 						AddPlayer();
 						//PlayOk();
-					} 
+					} else {
+						print("xxz");
+						return;
+					}
 				} else {
 					if(!gameStarted || freePlay) {
 						ResetScores();
@@ -1663,7 +1748,8 @@ public class serial : MonoBehaviour {
 				totalScore = 0;
 				totalThrows = 0;
 				CreditsCanvas.SetActive(false);
-				Invoke("ShowInfoCanvas", 20f);
+				VinstLevelCanvas.SetActive(false);
+				Invoke("ShowInfoCanvas", 10f);
 				//ResetScores();
 
 
@@ -1679,6 +1765,7 @@ public class serial : MonoBehaviour {
 		ResetScores();
 		UpdateCreditText();
 		CreditsCanvas.SetActive(true);
+		UpdateVinstLevelCanvas();
 		//StartCoroutine(BlinkSegments(insertCoinText, 0.5f));
 	}
 
@@ -2023,6 +2110,8 @@ public class serial : MonoBehaviour {
 			gameOverHelper();
 			if(totalThrows >= prizeFaster && gameMode == 3 && (freePlay == false || freePlayVinst == true)) {
 				DisplayVinst();
+				vinsterUtFaster += 1;
+				PlayerPrefs.SetInt("vinsterUtFaster", vinsterUtFaster);
 			} else {
 				changeLedColor();
 			}			

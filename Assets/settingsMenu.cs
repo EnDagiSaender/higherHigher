@@ -12,6 +12,10 @@ public class settingsMenu : MonoBehaviour
 	[SerializeField] serial serial;
 	[SerializeField] EventManager EventManager;
 	[SerializeField] GameObject SettingsPanel;
+	[SerializeField] TextMeshProUGUI mynt;
+	[SerializeField] TextMeshProUGUI vinstFaster;
+	[SerializeField] TextMeshProUGUI vinstLagom;
+
 
 	[SerializeField] GameObject openGate;
 	[SerializeField] GameObject openGateValue;
@@ -58,7 +62,9 @@ public class settingsMenu : MonoBehaviour
 			valueListText[0].text = serial.ballOut ? "Open" : "Closed";
 			valueListText[5].text = "Closed";
 		}
-
+		mynt.text = serial.myntIn.ToString();
+		vinstFaster.text = serial.vinsterUtFaster.ToString();
+		vinstLagom.text = serial.vinsterUtLagom.ToString();
 		//setHighScorePanel.SetActive(true);
 		//print("HighScore panel visible!");
 
@@ -80,17 +86,18 @@ public class settingsMenu : MonoBehaviour
 		//print("HighScore panel not visible!");
 		serial.saveGameSettings();
 		serial.UpdateCreditText();
-		if(serial.ballOut) {
+		if(!serial.IsGameOver) {
 			EventManager.openGate();
 		} else {
 			EventManager.closeGate();
 		}
 		serial.closeMouth();
+		serial.ExitSettings();
 
 	}
 	private void Ok() {
 		if(menuIndex == settingsList.Count -2) {//5
-			serial.addCoin();
+			serial.addServiceCoin();
 			return;
 		}
 		if(menuIndex == settingsList.Count - 1) {//6
