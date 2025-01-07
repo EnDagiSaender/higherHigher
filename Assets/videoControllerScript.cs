@@ -12,14 +12,17 @@ public class videoControllerScript : MonoBehaviour {
 	// Start is called before the first frame update
 	void Start() {
 		vp = gameObject.GetComponent<VideoPlayer>();
+		//vp.loopPointReached += CheckOver;
 		//GameChanged();
 		PlayAttract();
+		
 	}
 
 	// Update is called once per frame
 	void Update() {
 
 	}
+
 	private void OnEnable() {
 		serial.GameIsOver += GameOver;
 		serial.GameChanged += GameChanged;
@@ -32,6 +35,9 @@ public class videoControllerScript : MonoBehaviour {
 		serial.GameIsOver -= GameOver;
 		serial.GameChanged -= GameChanged;
 
+	}
+	void CheckOver(UnityEngine.Video.VideoPlayer vp) {
+		print("Video Is Over");
 	}
 	public void PlayAttract() {
 		string fileName = Application.streamingAssetsPath + "/video/attract.mp4";

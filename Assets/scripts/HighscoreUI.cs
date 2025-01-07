@@ -179,6 +179,9 @@ public class HighscoreUI : MonoBehaviour {
 					texts[3].text = el.throws.ToString().Insert(el.throws.ToString().Length - 1, ".");
 					//texts[3].text = el.throws.ToString();
 					//texts[3].text.Insert(texts[3].text.Length - 2, ".");
+				} else if (serial.CurrentGame == "HigherHigher") {
+					texts[2].text = el.points.ToString().Insert(el.points.ToString().Length - 1, ".");
+					texts[3].text = el.throws.ToString();
 				} else {
 					texts[2].text = el.points.ToString();
 					texts[3].text = el.throws.ToString();
@@ -196,6 +199,9 @@ public class HighscoreUI : MonoBehaviour {
 					texts[3].text = el.throws.ToString().Insert(el.throws.ToString().Length - 1, ".");
 					//texts[3].text = el.throws.ToString();
 					//texts[3].text.Insert(texts[3].text.Length - 2, ".");
+				} else if(serial.CurrentGame == "HigherHigher") {
+					texts[2].text = el.points.ToString().Insert(el.points.ToString().Length - 1, ".");
+					texts[3].text = el.throws.ToString();
 				} else {
 					texts[2].text = el.points.ToString();
 					texts[3].text = el.throws.ToString();

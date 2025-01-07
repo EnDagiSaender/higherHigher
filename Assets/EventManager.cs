@@ -356,6 +356,8 @@ public class EventManager : MonoBehaviour
 								ball = false;
 							}
 							//print("not ball");
+						} else if(Equals(message[0], "z")) {
+							print("Ball rolled");
 						}
 					} catch {
 

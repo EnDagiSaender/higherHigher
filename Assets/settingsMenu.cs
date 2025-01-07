@@ -13,7 +13,11 @@ public class settingsMenu : MonoBehaviour
 	[SerializeField] EventManager EventManager;
 	[SerializeField] GameObject SettingsPanel;
 	[SerializeField] TextMeshProUGUI mynt;
+	[SerializeField] TextMeshProUGUI myntFastboll;
+	[SerializeField] TextMeshProUGUI myntFaster;
 	[SerializeField] TextMeshProUGUI vinstFaster;
+	[SerializeField] TextMeshProUGUI helper;
+	[SerializeField] TextMeshProUGUI myntLagom;
 	[SerializeField] TextMeshProUGUI vinstLagom;
 
 
@@ -33,8 +37,11 @@ public class settingsMenu : MonoBehaviour
 	[SerializeField] GameObject vinstFreeplayValue;
 	[SerializeField] GameObject disableSensor;
 	[SerializeField] GameObject disableSensorValue;
+	[SerializeField] GameObject games;
+	[SerializeField] GameObject gamesValue;
 	[SerializeField] GameObject addCoin;
 	[SerializeField] GameObject clearCoin;
+	[SerializeField] GameObject clearStats;
 
 
 	private int prizeLagomMin = 5;
@@ -42,6 +49,8 @@ public class settingsMenu : MonoBehaviour
 	private int prizeFasterMin = 5;
 	private int prizeFasterMax = 40;
 	private int clownStatus = 0;
+	private string[] allGames = new string[] { "SnabbBoll SnabbSnabbare KastaLagom", "SnabbSnabbare KastaLagom" , "SnabbSnabbare", "SnabbBoll" };
+	private int oldGameModeChoices;
 	int menuIndex = 1;
 	int lastMenuIndex = 1;
 	bool settingNotValue = true; 
@@ -61,10 +70,17 @@ public class settingsMenu : MonoBehaviour
 		if(valueListText.Count > 3) {
 			valueListText[0].text = serial.ballOut ? "Open" : "Closed";
 			valueListText[5].text = "Closed";
+			valueListText[8].text = allGames[serial.savedGameMode];
 		}
 		mynt.text = serial.myntIn.ToString();
+		myntFastboll.text = serial.myntInFastboll.ToString();
+		myntFaster.text = serial.myntInFaster.ToString();
 		vinstFaster.text = serial.vinsterUtFaster.ToString();
+		helper.text = serial.helper.ToString();
+		myntLagom.text = serial.myntInLagom.ToString();
 		vinstLagom.text = serial.vinsterUtLagom.ToString();
+		print(serial.vinstProcentLagom());
+		oldGameModeChoices = serial.savedGameMode;
 		//setHighScorePanel.SetActive(true);
 		//print("HighScore panel visible!");
 
@@ -91,17 +107,39 @@ public class settingsMenu : MonoBehaviour
 		} else {
 			EventManager.closeGate();
 		}
+		if(oldGameModeChoices != serial.savedGameMode) {
+			switch(serial.savedGameMode) {
+				case 0:
+					serial.gameModeChoices = new int[] { 1, 3, 7 };
+					break;
+				case 1:
+					serial.gameModeChoices = new int[] { 3, 7 };
+					break;
+				case 2:
+					serial.gameModeChoices = new int[] { 3 };
+					break;
+				case 3:
+					serial.gameModeChoices = new int[] { 1 };
+					break;
+				default:
+					break;
+			}
+		}
 		serial.closeMouth();
 		serial.ExitSettings();
 
 	}
 	private void Ok() {
-		if(menuIndex == settingsList.Count -2) {//5
+		if(menuIndex == settingsList.Count -3) {//5
 			serial.addServiceCoin();
 			return;
 		}
-		if(menuIndex == settingsList.Count - 1) {//6
+		if(menuIndex == settingsList.Count - 2) {//6
 			serial.clearCoin();
+			return;
+		}
+		if(menuIndex == settingsList.Count - 1) {//6
+			serial.clearStats();
 			return;
 		}
 		if(settingNotValue) {
@@ -202,6 +240,27 @@ public class settingsMenu : MonoBehaviour
 					serial.disableSensor = !serial.disableSensor;
 					valueListText[menuIndex].text = serial.disableSensor ? "OFF" : "ON";
 					break;
+				case 8: // disableSensor
+					serial.savedGameMode = down ? serial.savedGameMode + 1 : serial.savedGameMode - 1;
+					if(serial.savedGameMode +1 > allGames.Length) {
+						serial.savedGameMode = 0;
+					} else if(serial.savedGameMode < 0) {
+						serial.savedGameMode = allGames.Length -1;
+					}
+					valueListText[menuIndex].text = allGames[serial.savedGameMode];
+					/*
+					if(serial.CurrentGame == "HigherHigher") {
+						serial.savedGameMode = down ? serial.savedGameMode + 1 : serial.savedGameMode - 1;
+						if(serial.savedGameMode + 1 > allGames.Length) {
+							serial.savedGameMode = 0;
+						} else if(serial.savedGameMode < 0) {
+							serial.savedGameMode = allGames.Length - 1;
+						}
+						valueListText[menuIndex].text = allGames[serial.savedGameMode];
+					} else {
+						valueListText[menuIndex].text = "Byt spel till SnabbSnabbare för att ändra";
+					}*/
+					break;
 				default:
 					break;
 
@@ -223,9 +282,11 @@ public class settingsMenu : MonoBehaviour
 		settingsList.Add(clown.GetComponent<Image>());
 		settingsList.Add(vinstFreeplay.GetComponent<Image>());
 		settingsList.Add(disableSensor.GetComponent<Image>());
+		settingsList.Add(games.GetComponent<Image>());
 		settingsList.Add(addCoin.GetComponent<Image>());
 		settingsList.Add(clearCoin.GetComponent<Image>());
-		
+		settingsList.Add(clearStats.GetComponent<Image>());
+
 		/*
 			[SerializeField] GameObject clown;
 	[SerializeField] GameObject clownValue;
@@ -234,7 +295,7 @@ public class settingsMenu : MonoBehaviour
 	[SerializeField] GameObject disableSensor;
 	[SerializeField] GameObject disableSensorValue;
 	*/
-	valueList.Add(openGateValue.GetComponent<Image>());
+		valueList.Add(openGateValue.GetComponent<Image>());
 		valueList.Add(freePlayValue.GetComponent<Image>());
 		valueList.Add(prizeLagomValue.GetComponent<Image>());
 		valueList.Add(prizeFasterValue.GetComponent<Image>());
@@ -242,6 +303,7 @@ public class settingsMenu : MonoBehaviour
 		valueList.Add(clownValue.GetComponent<Image>());
 		valueList.Add(vinstFreeplayValue.GetComponent<Image>());
 		valueList.Add(disableSensorValue.GetComponent<Image>());
+		valueList.Add(gamesValue.GetComponent<Image>());
 		//TextMeshProUGUI[] temparray = freePlayValue.GetComponentInChildren<TextMeshProUGUI>();
 		valueListText.Add(openGateValue.GetComponentInChildren<TextMeshProUGUI>());
 		valueListText.Add(freePlayValue.GetComponentInChildren<TextMeshProUGUI>());
@@ -251,6 +313,7 @@ public class settingsMenu : MonoBehaviour
 		valueListText.Add(clownValue.GetComponentInChildren<TextMeshProUGUI>());
 		valueListText.Add(vinstFreeplayValue.GetComponentInChildren<TextMeshProUGUI>());
 		valueListText.Add(disableSensorValue.GetComponentInChildren<TextMeshProUGUI>());
+		valueListText.Add(gamesValue.GetComponentInChildren<TextMeshProUGUI>());
 		//openGate.GetComponent<Image>().color = active;
 		freePlay.GetComponent<Image>().color = active;
 		valueListText[0].text = serial.ballOut ? "Open" : "Closed";
@@ -261,6 +324,8 @@ public class settingsMenu : MonoBehaviour
 		valueListText[5].text = "Closed";
 		valueListText[6].text = serial.freePlayVinst ? "ON" : "OFF";
 		valueListText[7].text = serial.disableSensor ? "OFF" : "ON";
+		//valueListText[8].text = "";
+		valueListText[8].text = allGames[serial.savedGameMode];
 
 
 	}

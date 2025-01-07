@@ -110,6 +110,7 @@ public class serial : MonoBehaviour {
 	[SerializeField] TextMeshProUGUI highscoreNameSmallDisplay;
 	[SerializeField] TextMeshProUGUI highscoreScoreSmallDisplay;
 	[SerializeField] TextMeshProUGUI highscoreThrowsSmallDisplay;
+	[SerializeField] mqttReceiver mqttReceiver;
 
 
 	private TextMeshProUGUI[] totalLives;
@@ -170,7 +171,7 @@ public class serial : MonoBehaviour {
 	private int totalScore = 0;
 	private int totalThrows = 0;
 	private bool gameOver = true;
-	private int[] gameModeChoices = { 1, 3, 7 };
+	public int[] gameModeChoices = { 1, 3, 7 };
 	public int gameMode = 3;
 	private int gameModeMultiplyer = 1;
 	private string score = "   ";
@@ -194,7 +195,14 @@ public class serial : MonoBehaviour {
 	public int prizeFaster = 20;
 	public int vinsterUtFaster = 0;
 	public int vinsterUtLagom = 0;
+	public int savedGameMode = 0;
+	//public float vinstProcentFaster = 0;
+	//public float vinstProcentLagom = 0;
 	public int myntIn = 0;
+	public int myntInFastboll = 0;
+	public int myntInFaster = 0;
+	public int helper = 0;
+	public int myntInLagom = 0;
 	//public int clownStatus = 0;
 	public bool oneSensor = false;
 	public bool oneSensorOld = false;
@@ -253,7 +261,9 @@ public class serial : MonoBehaviour {
 		} 
 	}
 	public void PlayAttract() {
-		videoControllerScript.PlayAttract();
+		//if(gameModeChoices.Length > 1){
+			videoControllerScript.PlayAttract();
+		//}
 	}
 	private void StopBusyThinking() {
 		busyThinking = false;
@@ -266,22 +276,48 @@ public class serial : MonoBehaviour {
 				currentLanguage = lang.Engelska;
 				highscoreHighscore.text = "HighScores";
 				highscoreName.text = "Name";
-				highscoreScore.text = "Score";
+				/*
+				if(gameMode == 1) {
+					highscoreScore.text = "Total";
+				} else if(gameMode == 3) {
+					highscoreScore.text = "Total";
+				} else if(gameMode == 5) {
+					highscoreScore.text = "Precision";
+				} else {
+					highscoreScore.text = "Score";
+				}
+				*/
 				if(gameMode == 1) {
 					highscoreThrows.text = "Km/h";
 				} else {
 					highscoreThrows.text = "Throws";
 				}
+				VinstLevelCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = 88;
 			} else {
 				currentLanguage = lang.Svenska;
 				highscoreHighscore.text = "Topplista";
 				highscoreName.text = "Namn";
-				highscoreScore.text = "Poäng";
+				/*
+				if(gameMode == 1) {
+					highscoreScore.text = "Total";
+				} else if(gameMode == 3) {
+					highscoreScore.text = "Total";
+				} else if(gameMode == 5) {
+					highscoreScore.text = "Precision";
+				} else {
+					highscoreScore.text = "Poäng";
+				}*/
 				if(gameMode == 1) {
 					highscoreThrows.text = "Km/h";
 				} else {
 					highscoreThrows.text = "Kast";
 				}
+				VinstLevelCanvas.GetComponentInChildren<TextMeshProUGUI>().fontSize = 100;
+			}
+			if(gameMode == 7) {
+				highscoreScore.text = "Precision";
+			} else {
+				highscoreScore.text = "Total";
 			}
 			highscoreHighscoreSmallDisplay.text = highscoreHighscore.text;
 			highscoreNameSmallDisplay.text = highscoreName.text;
@@ -563,13 +599,18 @@ public class serial : MonoBehaviour {
 	public void addCoin() {
 		playCoin();
 		credits++;
+		if(mqttReceiver.isConnected) {
+			mqttReceiver.Publish2("A", "test/coin");
+		} else {
+			myntIn += 1;
+			PlayerPrefs.SetInt("myntIn", myntIn);
+		}
 		UpdateCreditText();
 		if(SetCoinLock != null && coinLock == false) {
 			SetCoinLock(true);
 			coinLock = true;
 		}
-		myntIn += 1;
-		PlayerPrefs.SetInt("myntIn", myntIn);
+		
 	}
 	public void addServiceCoin() {
 		playCoin();
@@ -603,6 +644,33 @@ public class serial : MonoBehaviour {
 	//	UpdateCreditText();
 	//	saveGameSettings();
 	//}
+	public int vinstProcentFaster() {
+		if(myntInFaster > 0) {
+			return Mathf.RoundToInt(((float)vinsterUtFaster / (float)myntInFaster) * (float)100);
+		} else {
+			return 0;
+		}
+	}
+	public int vinstProcentLagom() {
+		if(myntInLagom > 0) {
+			return Mathf.RoundToInt(((float)vinsterUtLagom / (float)myntInLagom) * (float)100);			
+		} else {
+			return 0;
+		}
+	}
+	public bool utdelning() {
+		//1,3,7
+		if(gameMode == 3) {
+			if(vinstProcentFaster() < 2) {
+				return true;
+			}
+		}else if(gameMode == 7) {
+			if(vinstProcentLagom() < 2) {
+				return true;
+			}
+		}
+		return false;
+	}
 	private void loadGameSettings() {
 		if(PlayerPrefs.HasKey("freeplay")) {
 			freePlay = PlayerPrefs.GetInt("freeplay") == 1;
@@ -622,10 +690,32 @@ public class serial : MonoBehaviour {
 		prizeLagom = PlayerPrefs.HasKey("prizelagom") ? PlayerPrefs.GetInt("prizelagom") : 16;
 		prizeFaster = PlayerPrefs.HasKey("prizefaster") ? PlayerPrefs.GetInt("prizefaster") : 20;
 		myntIn = PlayerPrefs.HasKey("myntIn") ? PlayerPrefs.GetInt("myntIn") : 0;
+		myntInFastboll = PlayerPrefs.HasKey("myntInFastboll") ? PlayerPrefs.GetInt("myntInFastboll") : 0;
+		myntInFaster = PlayerPrefs.HasKey("myntInFaster") ? PlayerPrefs.GetInt("myntInFaster") : 0;
+		helper = PlayerPrefs.HasKey("helper") ? PlayerPrefs.GetInt("helper") : 0;
+		myntInLagom = PlayerPrefs.HasKey("myntInLagom") ? PlayerPrefs.GetInt("myntInLagom") : 0;
 		vinsterUtFaster = PlayerPrefs.HasKey("vinsterUtFaster") ? PlayerPrefs.GetInt("vinsterUtFaster") : 0;
 		vinsterUtLagom = PlayerPrefs.HasKey("vinsterUtLagom") ? PlayerPrefs.GetInt("vinsterUtLagom") : 0;
-		
-	//public int clownStatus
+		savedGameMode = PlayerPrefs.HasKey("savedGameMode") ? PlayerPrefs.GetInt("savedGameMode") : 0;
+		switch(savedGameMode) {
+			case 0:
+				gameModeChoices = new int[]{3,7,1};
+				break;
+			case 1:
+				gameModeChoices = new int[] { 3, 7 };
+				break;
+			case 2:
+				gameModeChoices = new int[] { 3 };
+				break;
+			case 3:
+				gameModeChoices = new int[] { 1 };
+				break;
+			default:
+				break;
+		}
+		gameMode = gameModeChoices[0];
+		StartCoroutine(changeGameExitSettings());
+		//public int clownStatus
 		if(PlayerPrefs.HasKey("freeplayvinst")) {
 			freePlayVinst = PlayerPrefs.GetInt("freeplayvinst") == 1;
 		}
@@ -640,12 +730,29 @@ public class serial : MonoBehaviour {
 			public int clownStatus = 0;
 		 */
 	}
+	public void clearStats() {
+		myntIn = 0;
+		PlayerPrefs.SetInt("myntIn", myntIn);
+		myntInFastboll = 0;
+		PlayerPrefs.SetInt("myntInFastboll", myntInFastboll);
+		myntInFaster = 0;
+		PlayerPrefs.SetInt("myntInFaster", myntInFaster);
+		helper = 0;
+		PlayerPrefs.SetInt("helper", helper);
+		myntInLagom = 0;
+		PlayerPrefs.SetInt("myntInLagom", myntInLagom);
+		vinsterUtFaster = 0;
+		PlayerPrefs.SetInt("vinsterUtFaster", vinsterUtFaster);
+		vinsterUtLagom = 0;
+		PlayerPrefs.SetInt("vinsterUtLagom", vinsterUtLagom);
+	}
 	public void saveGameSettings() {
 		PlayerPrefs.SetInt("freeplay", freePlay ? 1 : 0);
 		PlayerPrefs.SetInt("freeplayvinst", freePlayVinst ? 1 : 0);
 		PlayerPrefs.SetInt("disablesensor", disableSensor ? 1 : 0);
 		PlayerPrefs.SetInt("prizelagom", prizeLagom);
 		PlayerPrefs.SetInt("prizefaster", prizeFaster);
+		PlayerPrefs.SetInt("savedGameMode", savedGameMode);
 		PlayerPrefs.SetInt("onesensor", oneSensor ? 1 : 0);
 		if(oneSensor != oneSensorOld) {
 			if(oneSensor) {
@@ -680,9 +787,11 @@ public class serial : MonoBehaviour {
 		totalLives = GetChildText(TotalLivesUIElementPrefab, new Vector3(329, 385, 0));
 		GameName.text = DisplayCurrentGameName;
 		StartCoroutine(LoadAudioFiles()); //Load all audiofiles from StreamingAssets/audio folder
-		loadBgImageAllRutine = StartCoroutine(LoadBgImageAll());
-		Invoke("isBallBackAtSensor", 10f);
-		loadGameSettings();
+		//loadBgImageAllRutine = StartCoroutine(LoadBgImageAll());
+		Invoke("isBallBackAtSensor", 20f);
+		Invoke("loadGameSettings", 1.5f);
+		//loadGameSettings();
+		//loadBgImageAllRutine = StartCoroutine(LoadBgImageAll());
 		//saveGameSettings();
 		//if(CloseBallGate != null) {
 		//	CloseBallGate();
@@ -923,7 +1032,7 @@ public class serial : MonoBehaviour {
 			if(SetCoinLock != null) {
 				SetCoinLock(true);
 				coinLock = true;
-			}		
+			}
 		}
 		if(credits == 0 && gameOver) {
 			if(SetCoinLock != null) {
@@ -936,132 +1045,253 @@ public class serial : MonoBehaviour {
 			VinstLevelCanvas.SetActive(false);
 			VinstLevelCanvasSmall.SetActive(false);
 		}
-
+		//StartCoroutine(changeGameRutine(true));
+		bool partOfGame = false;
+		for(int i = 0; i < gameModeChoices.Length; i++) {
+			if(gameModeChoices[i] == gameMode) {
+				partOfGame = true;
+			}
+		}
+		if(partOfGame) {
+			print("Part of Game collection");
+			StartCoroutine(changeGameExitSettings());
+		} else {
+			print("NOT part of Game collection");
+			StartCoroutine(changeGameExitSettings());
+		}
 	}
-	private void changeGame(bool increse) {
+	public void changeGame(bool increse) {
 		StartCoroutine(changeGameRutine(increse));
+	}
+	IEnumerator changeGameExitSettings() {
+		print("90000");
+		gameMode = gameModeChoices[0];
+		//ChangeLanguage();
+		print("0");
+		busyThinking = true;
+		if(currentLanguage == lang.Engelska) {
+			CancelInvoke("TimeOutEnglish");
+			Invoke("TimeOutEnglish", 120f);
+		}
+		//PlayChangeGame();
+		changeLedColor();
+		if(gameMode == 7) {
+			highscoreScore.text = "Precision";
+		} else {
+			highscoreScore.text = "Total";
+		}
+		if(gameMode == 1) {
+			highscoreThrows.text = "Km/h";
+		} else {
+			highscoreThrows.text = language[(int)currentLanguage][8].ToString();
+			//if(currentLanguage == lang.Engelska) {
+			//	highscoreThrows.text = "Throws";
+			//} else {
+			//	highscoreThrows.text = "Kast";
+			//}
+		}
+		//StopAllCoroutines();
+		try {
+			StopCoroutine(flashPlayer);
+			//print("STOPPED!");
+		} catch { }
+		try {
+			StopCoroutine(blinkSegmentsRutine);
+			//print("STOPPED");
+		} catch { }
+		//changeBgImageRutine = StartCoroutine(LoadBgImageAll());
+		changeBgImageRutine = StartCoroutine(LoadBgImage());
+		highscoreThrowsSmallDisplay.text = highscoreThrows.text;
+		highscoreScoreSmallDisplay.text = highscoreScore.text;
+		//Invoke("StopBusyThinking", 1.5f);
+		//busyThinking = false;
+		//break;
+		CancelInvoke("ShowInfoCanvas");
+		InstructionsCanvas.SetActive(false);
+		highScorePanel.SetActive(false);
+		GameName.text = DisplayCurrentGameName;
+		//gameStarted = true; // to not create more players while changing gamemode
+		//newGame(); ////change to NewGame if not working
+		gameOver = true;
+
+		CreditsCanvas.SetActive(true);
+		GameName.color = gameModeColor(4);
+		CreditsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
+		UpdateVinstLevelCanvas();
+		
+		InstructionsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3, 200);
+		InstructionsCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
+		WinnerCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
+		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
+		
+		highscoreHighscore.color = gameModeColor(4);
+		highscoreHighscoreSmallDisplay.color = gameModeColor(4);
+		insertCoinText.color = gameModeColor(3);
+		mainCamera.backgroundColor = gameModeColor(0);
+		//print(mainCamera.backgroundColor);
+		highscoreNameSmallDisplay.color = gameModeColor(2);
+		highscoreName.color = gameModeColor(2);
+		highscoreScoreSmallDisplay.color = gameModeColor(2);
+		highscoreScore.color = gameModeColor(2);
+		highscoreThrowsSmallDisplay.color = gameModeColor(2);
+		highscoreThrows.color = gameModeColor(2);
+		foreach(TextMeshProUGUI text in creditText) {
+			text.color = gameModeColor(4);
+		}
+	
+		loadBgImageAllRutine = StartCoroutine(LoadBgImageAll());
+		try {
+			//Invoke("ResetScores", 1f);
+			ResetScores();
+		} catch {
+			print("error reset scores");
+		}
+		busyThinking = false;
+		UpdateCreditText();
+		if(credits == 0 && gameOver) {
+			if(SetCoinLock != null) {
+				SetCoinLock(false);
+				coinLock = false;
+				print("no coinLock");
+			}
+
+		}
+		if(GameChanged != null) {
+			GameChanged();
+		}
+		yield break;
 	}
 	IEnumerator changeGameRutine(bool increse) {
 		if(setHighScorePanel.activeSelf == false && SettingsCanvas.activeSelf == false && vinst == false && busyThinking == false && (freePlay || !gameStarted)) {
-			busyThinking = true;
-			if(currentLanguage == lang.Engelska) {
-				CancelInvoke("TimeOutEnglish");
-				Invoke("TimeOutEnglish", 120f);
-			}
 			CancelInvoke("PlayAttract");
 			Invoke("PlayAttract", 120f);
-			PlayChangeGame();
-			if(!gameStarted && !gameOver) {
-				ballOut = true;
-				if(!freePlay) {
-					//addCoin();
-					addServiceCoin();
+			if(gameModeChoices.Length > 1) {
+				busyThinking = true;
+				if(currentLanguage == lang.Engelska) {
+					CancelInvoke("TimeOutEnglish");
+					Invoke("TimeOutEnglish", 120f);
 				}
-			}
-			CancelInvoke("FlashActivePlayer");
-			gameStarted = false;
-			for(int i = 0; i < gameModeChoices.Length; i++) {
-				if(gameModeChoices[i] == gameMode) {
-					if(increse) {
-						//EventManager.sendCommand("3");
-						if(i + 1 < gameModeChoices.Length) {
-							gameMode = gameModeChoices[i + 1];
-							//spriteBuffert.RemoveAt(0);
-							//spriteBuffert.Add();
-						} else {
-							gameMode = gameModeChoices[0];
-						}
-					} else {
-						//EventManager.sendCommand("4");
-						if(i == 0) {
-							gameMode = gameModeChoices[gameModeChoices.Length - 1];
-						} else {
-							gameMode = gameModeChoices[i - 1];
-						}
+				PlayChangeGame();
+				if(!gameStarted && !gameOver) {
+					ballOut = true;
+					if(!freePlay) {
+						//addCoin();
+						addServiceCoin();
 					}
-					changeLedColor();
-					if(gameMode == 1) {
-						highscoreThrows.text = "Km/h";
-					} else {
-						highscoreThrows.text = language[(int)currentLanguage][8].ToString();
-						//if(currentLanguage == lang.Engelska) {
-						//	highscoreThrows.text = "Throws";
-						//} else {
-						//	highscoreThrows.text = "Kast";
-						//}
-					}
-					//StopAllCoroutines();
-					try {
-						StopCoroutine(flashPlayer);
-						//print("STOPPED!");
-					} catch { }
-					try {
-						StopCoroutine(blinkSegmentsRutine);
-						//print("STOPPED");
-					} catch { }
-					changeBgImageRutine = StartCoroutine(LoadBgImage(increse));
-					highscoreThrowsSmallDisplay.text = highscoreThrows.text;
-					//Invoke("StopBusyThinking", 1.5f);
-					//busyThinking = false;
-					break;
 				}
-			}
-			//if(increse) {
-			//	gameMode += 1;
-			//	if(gameMode > gameModeMax) {
-			//		gameMode = 0;////change to 0!!!!
-			//	}
-			//} else {
-			//	gameMode -= 1;
-			//	if(gameMode < 0) {
-			//		gameMode = gameModeMax;
-			//	}
-			//}
-			//StopAllCoroutines();
-			//StopCoroutine(flashPlayer);
-			//StopCoroutine(blinkSegmentsRutine);
+				CancelInvoke("FlashActivePlayer");
+				gameStarted = false;
+				for(int i = 0; i < gameModeChoices.Length; i++) {
+					if(gameModeChoices[i] == gameMode) {
+						if(increse) {
+							//EventManager.sendCommand("3");
+							if(i + 1 < gameModeChoices.Length) {
+								gameMode = gameModeChoices[i + 1];
+								//spriteBuffert.RemoveAt(0);
+								//spriteBuffert.Add();
+							} else {
+								gameMode = gameModeChoices[0];
+							}
+						} else {
+							//EventManager.sendCommand("4");
+							if(i == 0) {
+								gameMode = gameModeChoices[gameModeChoices.Length - 1];
+							} else {
+								gameMode = gameModeChoices[i - 1];
+							}
+						}
+						changeLedColor();
+						if(gameMode == 7) {
+							highscoreScore.text = "Precision";
+						} else {
+							highscoreScore.text = "Total";
+						}
+						if(gameMode == 1) {
+							highscoreThrows.text = "Km/h";
+						} else {
+							highscoreThrows.text = language[(int)currentLanguage][8].ToString();
+							//if(currentLanguage == lang.Engelska) {
+							//	highscoreThrows.text = "Throws";
+							//} else {
+							//	highscoreThrows.text = "Kast";
+							//}
+						}
+						//StopAllCoroutines();
+						try {
+							StopCoroutine(flashPlayer);
+							//print("STOPPED!");
+						} catch { }
+						try {
+							StopCoroutine(blinkSegmentsRutine);
+							//print("STOPPED");
+						} catch { }
+						changeBgImageRutine = StartCoroutine(LoadBgImage(increse));
+						highscoreThrowsSmallDisplay.text = highscoreThrows.text;
+						highscoreScoreSmallDisplay.text = highscoreScore.text;
+						//Invoke("StopBusyThinking", 1.5f);
+						//busyThinking = false;
+						break;
+					}
+				}
+				//if(increse) {
+				//	gameMode += 1;
+				//	if(gameMode > gameModeMax) {
+				//		gameMode = 0;////change to 0!!!!
+				//	}
+				//} else {
+				//	gameMode -= 1;
+				//	if(gameMode < 0) {
+				//		gameMode = gameModeMax;
+				//	}
+				//}
+				//StopAllCoroutines();
+				//StopCoroutine(flashPlayer);
+				//StopCoroutine(blinkSegmentsRutine);
 
-			//if(flashPlayer != null) {
-			//	StopCoroutine(flashPlayer);
-			//}
-			CancelInvoke("ShowInfoCanvas");
-			InstructionsCanvas.SetActive(false);
-			highScorePanel.SetActive(false);
-			GameName.text = DisplayCurrentGameName;
-			//gameStarted = true; // to not create more players while changing gamemode
-			//newGame(); ////change to NewGame if not working
-			gameOver = true;
-			ResetScores();
-			CreditsCanvas.SetActive(true);
-			GameName.color = gameModeColor(4);
-			CreditsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
-			UpdateVinstLevelCanvas();
-			InstructionsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3, 200);
-			InstructionsCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
-			WinnerCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
-			WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
-			highscoreHighscore.color = gameModeColor(4);
-			highscoreHighscoreSmallDisplay.color = gameModeColor(4);
-			insertCoinText.color = gameModeColor(3);
-			mainCamera.backgroundColor = gameModeColor(0);
-			highscoreNameSmallDisplay.color = gameModeColor(2);
-			highscoreName.color = gameModeColor(2);
-			highscoreScoreSmallDisplay.color = gameModeColor(2);
-			highscoreScore.color = gameModeColor(2);
-			highscoreThrowsSmallDisplay.color = gameModeColor(2);
-			highscoreThrows.color = gameModeColor(2);
-			foreach(TextMeshProUGUI text in creditText) {
-				text.color = gameModeColor(4);
-			}
-			//print(gameMode);
-			if(GameChanged != null) {
-				GameChanged();
-			}
-			yield break;
-		} else if(busyThinking) {
-			//print("busyThinking");
+				//if(flashPlayer != null) {
+				//	StopCoroutine(flashPlayer);
+				//}
+				CancelInvoke("ShowInfoCanvas");
+				InstructionsCanvas.SetActive(false);
+				highScorePanel.SetActive(false);
+				GameName.text = DisplayCurrentGameName;
+				//gameStarted = true; // to not create more players while changing gamemode
+				//newGame(); ////change to NewGame if not working
+				gameOver = true;
+				ResetScores();
+				CreditsCanvas.SetActive(true);
+				GameName.color = gameModeColor(4);
+				CreditsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
+				UpdateVinstLevelCanvas();
+				InstructionsCanvas.GetComponentInChildren<Image>().color = gameModeColor(3, 200);
+				InstructionsCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
+				WinnerCanvas.GetComponentInChildren<Image>().color = gameModeColor(3);
+				WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().color = gameModeColor(4);
+				highscoreHighscore.color = gameModeColor(4);
+				highscoreHighscoreSmallDisplay.color = gameModeColor(4);
+				insertCoinText.color = gameModeColor(3);
+				mainCamera.backgroundColor = gameModeColor(0);
+				highscoreNameSmallDisplay.color = gameModeColor(2);
+				highscoreName.color = gameModeColor(2);
+				highscoreScoreSmallDisplay.color = gameModeColor(2);
+				highscoreScore.color = gameModeColor(2);
+				highscoreThrowsSmallDisplay.color = gameModeColor(2);
+				highscoreThrows.color = gameModeColor(2);
+				foreach(TextMeshProUGUI text in creditText) {
+					text.color = gameModeColor(4);
+				}
+				//print(gameMode);
+				if(GameChanged != null) {
+					GameChanged();
+				}
+				yield break;
+				//} else if(busyThinking) {
+				//print("busyThinking");
 
 
+			} else {
+				videoControllerScript.GameChanged();
+			}
 		}
 	}
 	private void playCoin() {
@@ -1148,7 +1378,28 @@ public class serial : MonoBehaviour {
 			EventManager.sendCommand("5");
 			PlayThrow();
 			//AudioSource.PlayOneShot(throwSounds[0]);
-			gameStarted = true;
+			if(!gameStarted) {
+				gameStarted = true;
+				//print(utdelning());
+				if(!freePlay) {
+					if(gameMode == 1) {
+						myntInFastboll += 1;
+						PlayerPrefs.SetInt("myntInFastboll", myntInFastboll);
+					} else if(gameMode == 3) {
+						myntInFaster += 1;
+						PlayerPrefs.SetInt("myntInFaster", myntInFaster);
+					} else if(gameMode == 7) {
+						myntInLagom += 1;
+						PlayerPrefs.SetInt("myntInLagom", myntInLagom);
+					}
+				}
+			}
+			if(gameMode == 3 && !freePlay && oldScore <= newScore && (oldScore + 50) > newScore &&  !(utdelning()) && (prizeFaster - totalThrows) < 3 && (prizeFaster - totalThrows) > 0) {
+				int rnd123 = Random.Range(1, 4);
+				newScore = oldScore - rnd123;
+				helper += 1;
+				PlayerPrefs.SetInt("helper", helper);
+			}
 			busyThinking = true;
 			if(gameMode == 0) {
 				UpdateDisplay(Mathf.RoundToInt((float)newScore / 10));
@@ -1313,6 +1564,13 @@ public class serial : MonoBehaviour {
 				gameOverHelper();
 				if(totalThrows >= prizeLagom && (freePlay == false || freePlayVinst == true)) {
 					DisplayVinst();
+					if(mqttReceiver.isConnected) {
+						mqttReceiver.Publish2("N", "test/coin");
+					} else {
+						//vinsterUtLagom += 1;
+						//PlayerPrefs.SetInt("vinsterUtLagom", vinsterUtLagom);
+						PlayVinst();
+					}
 					vinsterUtLagom += 1;
 					PlayerPrefs.SetInt("vinsterUtLagom", vinsterUtLagom);
 				} else {
@@ -1336,7 +1594,6 @@ public class serial : MonoBehaviour {
 		string winnerText;
 		//gameOver = true;
 		vinst = true;
-		PlayVinst();
 		EventManager.sendCommand("8");
 		winnerText = language[(int)currentLanguage][10].ToString(); //"Grattis! Invänta Personal";
 		WinnerCanvas.GetComponentInChildren<TextMeshProUGUI>().text = winnerText;
@@ -1703,7 +1960,7 @@ public class serial : MonoBehaviour {
 				}
 				CancelInvoke("PlayAttract");
 				videoControllerScript.GameChanged();
-				if(gameOver){
+				if(gameOver) {
 					CancelInvoke("isBallBackAtSensor");
 					if(OpenBallGate != null) {
 						OpenBallGate();
@@ -1713,7 +1970,7 @@ public class serial : MonoBehaviour {
 					}
 					EventManager.sendCommand("5");
 				}
-				
+
 				if(gameMode == 7) {
 					inBetween = true;
 				} else {
@@ -1756,6 +2013,10 @@ public class serial : MonoBehaviour {
 
 
 			}
+		} else if(!busyThinking && vinst == false && credits == 0) {
+			CancelInvoke("PlayAttract");
+			Invoke("PlayAttract", 120f);
+			videoControllerScript.GameChanged();
 		}
 	}
 
@@ -2110,6 +2371,13 @@ public class serial : MonoBehaviour {
 			gameOverHelper();
 			if(totalThrows >= prizeFaster && gameMode == 3 && (freePlay == false || freePlayVinst == true)) {
 				DisplayVinst();
+				if(mqttReceiver.isConnected) {
+					mqttReceiver.Publish2("N", "test/coin");
+				} else {
+					//vinsterUtFaster += 1;
+					//PlayerPrefs.SetInt("vinsterUtFaster", vinsterUtFaster);
+					PlayVinst();
+				}
 				vinsterUtFaster += 1;
 				PlayerPrefs.SetInt("vinsterUtFaster", vinsterUtFaster);
 			} else {
